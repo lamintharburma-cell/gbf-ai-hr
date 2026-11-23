@@ -144,6 +144,15 @@ test('Test 2: src/Index.html DOM, CSS, Accessibility & Offline/URI Hardening int
   assert.ok(html.includes('adv-form-progress-bar') && html.includes('selectAdvanceChip'), 'Missing Advance 50% progress bar or quick chips');
   assert.ok(declaredIds.has('month-picker-btn') && declaredIds.has('month-picker-menu'), 'Missing compact month picker popover DOM IDs');
   assert.ok(appScript.includes('toggleMonthMenu') && appScript.includes('selectMonthOption') && appScript.includes('renderMonthPickerUI'), 'Missing month picker JS helpers');
+
+  // 5. WCAG 2.1/2.2 Contrast, Focus-Visible, Label & Reduced-Motion guards
+  const htmlLines = html.split(/\r?\n/);
+  assert.equal(htmlLines.some(l => /\btext-error\b/.test(l) && !/dark:text-/.test(l)), false, 'text-error without dark:text- override fails dark mode contrast');
+  assert.equal(htmlLines.some(l => /hover:bg-canvas-mint/.test(l) && !/dark:hover:/.test(l)), false, 'hover:bg-canvas-mint without dark:hover: override causes white-on-mint contrast bug');
+  assert.equal(/(?<![a-zA-Z0-9:-])outline-none/.test(html), false, 'Bare outline-none without focus: prefix removes keyboard focus indicator');
+  assert.ok(html.includes('button:focus-visible') && html.includes('prefers-reduced-motion: reduce') && html.includes('.ambient-orb-1'), 'Missing accessible focus-visible or reduced-motion orb suppression');
+  assert.ok(html.includes('id="toast-container" aria-live="polite"'), 'Missing aria-live polite on toast-container');
+  assert.equal([...htmlMarkupOnly.matchAll(/<label\b(?![^>]*\bfor=)[^>]*>/gi)].length, 0, 'All static HTML form labels must explicitly bind for="..."');
 });
 
 test('Test 3: Gemini 3.8 Flash Interactions API compliance (zero deprecated models/endpoints)', () => {

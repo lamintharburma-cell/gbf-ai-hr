@@ -1,11 +1,11 @@
-# 📘 GBF Enterprise HR & AI Management System (v9.2.6 Production LTS / @40)
+# 📘 GBF Enterprise HR & AI Management System (v9.2.7 Production LTS / @41)
 ## 🌟 စနစ် လုပ်ဆောင်နိုင်မှုများနှင့် အသုံးပြုသူ လက်စွဲလမ်းညွှန် (System Capabilities & User Manual)
 
 ---
 
 ## ၁။ စနစ် မိတ်ဆက်နှင့် ဝင်ရောက် အသုံးပြုနည်း (System Overview & Access Points)
 
-**GBF Enterprise HR & AI Management System (`v9.2.6 Production LTS`)** သည် Mobile Legends: Bang Bang (MLBB) စတိုင် **Gamified Performance System**၊ Google Gemini 3.8 Flash AI မော်ဒယ်နှင့် Telegram Native Mini App တို့ကို ပေါင်းစပ်ဖန်တီးထားသော လုပ်ငန်းခွင် စီမံခန့်ခွဲမှု ပလက်ဖောင်း ဖြစ်ပါသည်။
+**GBF Enterprise HR & AI Management System (`v9.2.7 Production LTS`)** သည် Mobile Legends: Bang Bang (MLBB) စတိုင် **Gamified Performance System**၊ Google Gemini 3.8 Flash AI မော်ဒယ်နှင့် Telegram Native Mini App တို့ကို ပေါင်းစပ်ဖန်တီးထားသော လုပ်ငန်းခွင် စီမံခန့်ခွဲမှု ပလက်ဖောင်း ဖြစ်ပါသည်။
 
 ### 🔗 အသုံးပြုနိုင်သည့် လင့်ခ်များနှင့် ဘော့တ်များ
 * **🌐 Web App / Mini App URL:**  
@@ -174,7 +174,7 @@ Telegram `/` Menu တွင် **v9.2.5** Command ၈ ခုလုံးကိ�
 
 ### ၃.၁၀ ⚡ အော့ဖ်လိုင်း အထောက်အကူပြုစနစ်နှင့် UX Features
 * **Offline Outbox (`IndexedDB`) & Form Drafts (`localStorage`):** အင်တာနက်လိုင်း ပြတ်တောက်နေချိန်တွင် Check-In နှင့် တင်ပြချက်များကို Outbox ထဲတွင် သိမ်းဆည်းထားပြီး လိုင်းပြန်ရသည်နှင့် အလိုအလျောက် Sync ပေးပို့ပေးပါသည်။ Form ရိုက်လက်စ စာသားများကိုလည်း Auto-Save ပေးထားပါသည်။
-* **Dark Slate Theme Default, Mobile Ergonomics & Compact Month Switcher (`v9.2.6`):** `#0F172A` / `#1E293B` Dark Slate ကို မူရင်းဒီဇိုင်းအဖြစ် အသုံးပြုထားပြီး ခလုတ်တိုင်းကို အနည်းဆုံး `44px` Touch Target၊ မြန်မာစာ `line-height: 1.65` နှင့် Light/Dark Mode ပြောင်းလဲခြင်း ပါဝင်သည့်အပြင် Header ထိပ်ဆုံးတွင် လဟောင်းမှတ်တမ်းများ ပြောင်းကြည့်နိုင်သော Compact **Month Switcher Popover** (`Nov '26` ▾) တပ်ဆင်ထားပါသည်။
+* **Dark Slate Theme Default, WCAG Contrast & Compact Month Switcher (`v9.2.7`):** `#0F172A` / `#1E293B` Dark Slate ကို မူရင်းဒီဇိုင်းအဖြစ် အသုံးပြုထားပြီး WCAG 2.1 AA Contrast pairs၊ Keyboard `:focus-visible` ring၊ Screen-Reader `aria-live` / Chart summary၊ Full `prefers-reduced-motion` support၊ `>=44px` Touch Target၊ မြန်မာစာ `line-height: 1.65` နှင့် Compact **Month Switcher Popover** (`Nov '26` ▾) တပ်ဆင်ထားပါသည်။
 
 ---
 
@@ -211,4 +211,4 @@ flowchart TD
 ```
 
 ---
-*GBF Enterprise HR & AI Management System v9.2.6 Production LTS (`@40`) — Fully Verified & Operational.*
+*GBF Enterprise HR & AI Management System v9.2.7 Production LTS (`@41`) — Fully Verified & Operational.*

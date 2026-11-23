@@ -1,6 +1,6 @@
-# G.B.F. Enterprise HR & AI Management System (v9.2.6 Production LTS)
+# G.B.F. Enterprise HR & AI Management System (v9.2.7 Production LTS)
 
-Zero-cost Serverless Enterprise Workforce Telemetry, Gamified MLBB KPI/Rewards, 50% Advance Wallet, Telegram Bot Approvals, Signed Telegram Identity SSO, Interactive Bot Menu, `<blockquote>` HTML Cards & Performer Action Receipts, Compact Month Switcher & Cohesive Dark Slate Mini App, and Gemini 3.8 Flash HR-AI Platform powered by Google Sheets + Google Apps Script + Telegram Native Mini App.
+Zero-cost Serverless Enterprise Workforce Telemetry, Gamified MLBB KPI/Rewards, 50% Advance Wallet, Telegram Bot Approvals, Signed Telegram Identity SSO, Interactive Bot Menu, `<blockquote>` HTML Cards & Performer Action Receipts, WCAG 2.1 AA Dark Slate UI & Compact Month Switcher, and Gemini 3.8 Flash HR-AI Platform powered by Google Sheets + Google Apps Script + Telegram Native Mini App.
 
 ---
 
@@ -12,7 +12,7 @@ c:\v9.1_GBF_AI_HR\
 ├── jsconfig.json                   # IDE JS/GS configuration (resolves TS18003)
 ├── README.md                       # Deployment & Verification Runbook
 ├── docs\
-│   └── GBF_HRMS_Capabilities_and_User_Manual.md  # Comprehensive Burmese User & Admin Guide (v9.2.6)
+│   └── GBF_HRMS_Capabilities_and_User_Manual.md  # Comprehensive Burmese User & Admin Guide (v9.2.7)
 ├── src\                            # Production Apps Script Source Root
 │   ├── appsscript.json             # V8 runtime, Asia/Rangoon timezone, OAuth scopes, WebApp access
 │   ├── Config.gs                   # Constants, credentials, formatAiToTelegramHtml, clock/maps helpers
