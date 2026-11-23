@@ -1,0 +1,22 @@
+# Legacy backups & root duplicate snapshots
+_legacy_backup/
+/GBF HR v9.1 *.js
+/gbf_*.html
+/GBF_HRMS_Capabilities_and_User_Manual.md
+/*.jpg
+/*.png
+/*Gamified HR Pol.md
+
+# Local credentials, clasp auth & env files
+.clasprc.json
+*.clasprc.json
+.env
+.env.*
+*.pem
+*.key
+
+# Node / OS / Editor artifacts
+node_modules/
+.DS_Store
+Thumbs.db
+desktop.ini
