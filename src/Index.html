@@ -4,7 +4,11 @@
 <head>
     <base target="_top">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+    <meta name="color-scheme" content="dark light">
+    <meta id="meta-theme-color" name="theme-color" content="#060D1A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta id="gbf-web-app-url" name="gbf-web-app-url" content="<?= typeof webAppUrl !== 'undefined' ? webAppUrl : '' ?>">
     <meta id="gbf-tg-chat-id" name="gbf-tg-chat-id" content="<?= typeof initialChatId !== 'undefined' ? initialChatId : '' ?>">
     <meta id="gbf-tg-chat-sig" name="gbf-tg-chat-sig" content="<?= typeof initialChatSig !== 'undefined' ? initialChatSig : '' ?>">
@@ -100,6 +104,20 @@
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 16px);
             --touch-target-min: 44px;
+
+            --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+            --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+            --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+            --hud-emerald: #10B981;
+            --hud-cyan: #38BDF8;
+            --hud-gold: #FBBF24;
+        }
+
+        html {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior: none;
         }
 
         body {
@@ -107,23 +125,31 @@
             color: var(--text-primary);
             font-family: var(--font-bilingual);
             line-height: 1.65;
+            min-height: 100dvh;
             padding-top: var(--safe-top);
-            padding-bottom: calc(6.5rem + var(--safe-bottom));
+            padding-bottom: calc(7.5rem + var(--safe-bottom));
+            overscroll-behavior: none;
             -webkit-tap-highlight-color: transparent;
             -webkit-font-smoothing: antialiased;
             text-rendering: optimizeLegibility;
-            transition: background-color 0.25s ease, color 0.25s ease;
+            transition: background-color 0.25s var(--ease-out), color 0.25s var(--ease-out);
         }
 
-        /* High-Contrast Cohesive Dark Slate Theme Token Overrides (#0F172A Canvas / #1E293B Cards) */
+        /* Esports Tactical Dark Command HUD (#060D1A Canvas / #0D1829 Armored Cards) */
         body.dark-mode {
-            --bg-canvas: #0F172A;
-            --bg-surface: #1E293B;
-            --bg-surface-elevated: #283548;
+            --bg-canvas: #060D1A;
+            --bg-surface: #0D1829;
+            --bg-surface-elevated: #142238;
             --text-primary: #F8FAFC;
             --text-secondary: #E2E8F0;
             --text-muted: #CBD5E1;
             background-color: var(--bg-canvas);
+            background-image:
+                radial-gradient(circle at 82% -8%, rgba(16, 185, 129, 0.14), transparent 46%),
+                radial-gradient(circle at 12% 18%, rgba(56, 189, 248, 0.1), transparent 42%),
+                linear-gradient(rgba(56, 189, 248, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.025) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px;
             color: var(--text-primary);
         }
 
@@ -202,49 +228,98 @@
             }
         }
 
-        /* Glass Surfaces */
+        /* iOS Frosted Translucent Materials & Tactical Armored Surfaces */
         .glass-header {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: rgba(248, 250, 252, 0.88);
+            backdrop-filter: blur(22px) saturate(180%);
+            -webkit-backdrop-filter: blur(22px) saturate(180%);
             border-bottom: 1px solid rgba(15, 23, 42, 0.08);
         }
 
         body.dark-mode .glass-header {
-            background: rgba(15, 23, 42, 0.96);
-            border-bottom-color: rgba(148, 163, 184, 0.14);
+            background: rgba(6, 13, 26, 0.86);
+            backdrop-filter: blur(22px) saturate(180%);
+            -webkit-backdrop-filter: blur(22px) saturate(180%);
+            border-bottom-color: rgba(56, 189, 248, 0.16);
+            box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.65);
         }
 
         .glass-card {
             background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(226, 232, 240, 0.95);
-            box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.06);
+            backdrop-filter: blur(14px) saturate(140%);
+            -webkit-backdrop-filter: blur(14px) saturate(140%);
+            border: 1px solid rgba(203, 213, 225, 0.85);
+            box-shadow: 0 6px 20px -6px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
 
         body.dark-mode .glass-card {
-            background: rgba(30, 41, 59, 0.94);
-            border-color: rgba(71, 85, 105, 0.65);
+            background: linear-gradient(160deg, rgba(16, 28, 48, 0.96) 0%, rgba(11, 20, 36, 0.98) 100%);
+            border-color: rgba(56, 189, 248, 0.18);
             color: #F8FAFC;
-            box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        }
+
+        /* iOS Native Tactile Controls (Instant pointer-down response + never double-tap sticky hover) */
+        button, a, [role="button"], .tap-spring {
+            touch-action: manipulation;
+        }
+
+        button, [role="button"], .tap-control {
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .tap-spring {
+            transition: transform 120ms var(--ease-out), background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+        }
+
+        .tap-spring:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+
+        .ios-scroll {
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+
+        .touch-carousel {
+            touch-action: pan-y;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .hud-hover-lift:hover {
+                border-color: rgba(16, 185, 129, 0.55) !important;
+                box-shadow: 0 10px 26px -8px rgba(16, 185, 129, 0.24);
+            }
+            .tap-spring:hover:not(:disabled) {
+                filter: brightness(1.04);
+            }
         }
 
         body.dark-mode input,
         body.dark-mode select,
         body.dark-mode textarea {
-            background-color: #1E293B !important;
-            border-color: #475569 !important;
+            background-color: #132238 !important;
+            border-color: rgba(71, 85, 105, 0.8) !important;
             color: #F8FAFC !important;
         }
 
         #bottom-nav {
             bottom: calc(0.625rem + var(--safe-bottom));
+            background: rgba(255, 255, 255, 0.86);
+            backdrop-filter: blur(22px) saturate(185%);
+            -webkit-backdrop-filter: blur(22px) saturate(185%);
         }
 
         body.dark-mode #bottom-nav {
-            background: rgba(15, 23, 42, 0.96);
-            border-color: rgba(71, 85, 105, 0.75);
+            background: rgba(9, 17, 32, 0.9);
+            backdrop-filter: blur(24px) saturate(185%);
+            -webkit-backdrop-filter: blur(24px) saturate(185%);
+            border-color: rgba(56, 189, 248, 0.24);
+            box-shadow: 0 14px 36px -8px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         /* Form 16px floor to prevent iOS Safari auto-zoom */
@@ -254,7 +329,7 @@
             font-size: 16px !important;
         }
 
-        @media (min-width: 640px) {
+        @media (min-width: 640px) and (pointer: fine) {
             input,
             select,
             textarea {
@@ -480,56 +555,121 @@
         }
 
         .nav-tab-btn.active {
-            background: linear-gradient(135deg, #005d42 0%, #047857 100%) !important;
+            background: linear-gradient(135deg, #005d42 0%, #059669 100%) !important;
             color: #FFFFFF !important;
-            box-shadow: 0 6px 16px -3px rgba(4, 120, 87, 0.5);
-            border: 1px solid rgba(16, 185, 129, 0.55);
-            animation: navBounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            box-shadow: 0 6px 18px -3px rgba(16, 185, 129, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(52, 211, 153, 0.65);
+            animation: navBounce 0.28s var(--ease-spring) forwards;
         }
 
+        .nav-tab-btn.active svg,
         .nav-tab-btn.active i,
         .nav-tab-btn.active span {
             color: #FFFFFF !important;
         }
 
         @keyframes navBounce {
-            0% { transform: scale(0.92); }
-            60% { transform: scale(1.05) translateY(-2px); }
+            0% { transform: scale(0.93); }
+            60% { transform: scale(1.04) translateY(-1px); }
             100% { transform: scale(1) translateY(0); }
         }
 
-        /* MLBB Squad Lobby & Reward Pass Cards */
+        /* Esports Tactical Command HUD & MLBB Squad/Hero Shells */
         .mlbb-squad-shell {
-            background: linear-gradient(145deg, #091326 0%, #0F172A 60%, #112240 100%);
-            border: 1px solid rgba(56, 189, 248, 0.32);
-            box-shadow: 0 10px 24px -8px rgba(15, 23, 42, 0.45);
+            background-color: #071123;
+            background-image:
+                radial-gradient(circle at 92% 10%, rgba(56, 189, 248, 0.16), transparent 46%),
+                linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                linear-gradient(145deg, #071123 0%, #0C182D 58%, #0E233E 100%);
+            background-size: 100% 100%, 18px 18px, 18px 18px, 100% 100%;
+            border: 1px solid rgba(56, 189, 248, 0.36);
+            box-shadow: 0 14px 30px -10px rgba(7, 17, 35, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
             color: #F8FAFC;
         }
 
         .mlbb-squad-row {
-            background: linear-gradient(90deg, rgba(15, 23, 42, 0.94) 0%, rgba(30, 41, 59, 0.84) 65%, rgba(6, 78, 59, 0.5) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            transition: transform 0.18s ease, border-color 0.18s ease;
+            background: linear-gradient(90deg, rgba(13, 24, 43, 0.96) 0%, rgba(22, 37, 63, 0.9) 62%, rgba(6, 78, 59, 0.52) 100%);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: transform 0.16s var(--ease-out), border-color 0.16s ease, box-shadow 0.16s ease;
         }
 
-        .mlbb-squad-row:active { transform: scale(0.985); }
+        .mlbb-squad-row:active { transform: scale(0.97); }
 
         .mlbb-squad-row.my-squad {
-            border-color: rgba(16, 185, 129, 0.72);
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.78);
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.24), inset 0 1px 0 rgba(16, 185, 129, 0.22);
         }
 
         .reward-pass-card {
-            background: linear-gradient(140deg, #091122 0%, #131F3A 55%, #064E3B 100%);
-            border: 1px solid rgba(251, 191, 36, 0.4);
-            box-shadow: 0 12px 28px -8px rgba(6, 78, 59, 0.45);
+            background:
+                radial-gradient(circle at 88% 8%, rgba(251, 191, 36, 0.14), transparent 44%),
+                linear-gradient(140deg, #081020 0%, #111E39 54%, #064E3B 100%);
+            border: 1px solid rgba(251, 191, 36, 0.42);
+            box-shadow: 0 14px 32px -10px rgba(6, 78, 59, 0.5), inset 0 1px 0 rgba(251, 191, 36, 0.2);
             color: #FFFFFF;
         }
 
         .mlbb-card {
-            background: linear-gradient(145deg, #091124 0%, #0F172A 52%, #064E3B 100%);
-            border: 1px solid rgba(16, 185, 129, 0.38);
-            box-shadow: 0 12px 30px -8px rgba(6, 78, 59, 0.45);
+            background-color: #071022;
+            background-image:
+                radial-gradient(circle at 85% 6%, rgba(16, 185, 129, 0.2), transparent 46%),
+                radial-gradient(circle at 10% 96%, rgba(56, 189, 248, 0.14), transparent 45%),
+                linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                linear-gradient(148deg, #071022 0%, #0D192E 52%, #053E32 100%);
+            background-size: 100% 100%, 100% 100%, 18px 18px, 18px 18px, 100% 100%;
+            border: 1px solid rgba(16, 185, 129, 0.46);
+            box-shadow: 0 16px 36px -12px rgba(6, 78, 59, 0.52), 0 0 0 1px rgba(56, 189, 248, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .hud-chamfer {
+            clip-path: polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px);
+        }
+
+        /* iOS Segmented HUD Control (Smooth sliding pill) */
+        .hud-seg-track {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            background: rgba(6, 13, 26, 0.68);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 14px;
+            padding: 3px;
+        }
+
+        .hud-seg-indicator {
+            position: absolute;
+            top: 3px;
+            bottom: 3px;
+            left: 3px;
+            width: calc((100% - 6px) / 3);
+            border-radius: 11px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.28) 0%, rgba(56, 189, 248, 0.24) 100%);
+            border: 1px solid rgba(52, 211, 153, 0.55);
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25);
+            transition: transform 280ms var(--ease-spring);
+            pointer-events: none;
+        }
+
+        .hud-seg-btn {
+            position: relative;
+            z-index: 1;
+            min-height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            color: #94A3B8;
+            transition: color 180ms ease;
+        }
+
+        .hud-seg-btn.is-active {
+            color: #ECFDF5;
         }
 
         .wallet-card {
@@ -546,6 +686,7 @@
 
         .rank-badge {
             background: linear-gradient(135deg, #fde047, #f59e0b, #10B981);
+            -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -616,7 +757,8 @@
             .tab-content.active > *,
             .toast,
             .portal-unlock-enter,
-            .nav-tab-btn.active {
+            .nav-tab-btn.active,
+            .hud-seg-indicator {
                 animation: none !important;
                 opacity: 1 !important;
                 transform: none !important;
@@ -720,28 +862,29 @@
         <!-- STICKY TOP COMPANY BRAND HEADER -->
         <header class="glass-header px-3.5 py-2.5 sticky top-0 z-40">
             <div class="max-w-lg lg:max-w-5xl mx-auto flex items-center justify-between gap-2">
-                <div onclick="exitCurrentView()" class="flex items-center gap-2.5 cursor-pointer min-w-0">
-                    <div class="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 border border-emerald-bright/35 p-1 flex items-center justify-center shadow-sm shrink-0">
+                <div onclick="exitCurrentView()" class="flex items-center gap-2.5 cursor-pointer min-w-0 tap-spring">
+                    <div class="w-9 h-9 rounded-xl bg-white dark:bg-slate-800/95 border border-emerald-bright/40 p-1 flex items-center justify-center shadow-sm shrink-0">
                         <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-WEa4tNZvw4QYuwyzaO_DbSw4V7jlene5Te-uQrUzOyFA27nJsnxJGSAuWTRW9aweqD_Y2bs6VACl99oY1xSRnxhfFMjIrMgamFxfR6e30BHKGmHXcZ2iN6ndYfp3urR0ZHr4s00aj88eYCuF3SNgtkm3REyPMGH6eqrFumdcmK6zbFtHtHfTc4ieQI5QzZp8l21hH7bPn5dRE8CfJczqIPdIRzj9FNRLJuelqztCOjw2yK4NN9I" alt="GBF" class="w-full h-full object-contain">
                     </div>
                     <div class="leading-tight min-w-0">
                         <h1 class="text-[12px] font-extrabold tracking-tight text-on-surface dark:text-white truncate">G.B.F. SERVICE CO., LTD.</h1>
-                        <p class="text-[8.5px] font-ui-label font-bold text-primary dark:text-emerald-bright uppercase tracking-wider truncate">Enterprise HR &amp; AI Portal</p>
+                        <p class="text-[8.5px] font-ui-label font-bold text-primary dark:text-emerald-bright uppercase tracking-wider truncate">Enterprise HR &amp; AI HUD</p>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-1.5 shrink-0">
-                    <button type="button" id="offline-outbox-pill" onclick="GBFOfflineStore.flushOutbox(true)" class="hidden touch-target px-2.5 py-1 rounded-xl bg-amber-bright/20 text-tertiary dark:text-amber-bright border border-amber-bright/50 text-[9.5px] font-extrabold items-center gap-1 whitespace-nowrap active:scale-95" title="Sync Queued Offline Requests">
-                        <i class="fas fa-cloud-arrow-up"></i> <span id="offline-outbox-count">0</span>
+                    <button type="button" id="offline-outbox-pill" onclick="GBFOfflineStore.flushOutbox(true)" class="hidden touch-target tap-spring px-2.5 py-1 rounded-xl bg-amber-bright/20 text-tertiary dark:text-amber-bright border border-amber-bright/50 text-[9.5px] font-extrabold items-center gap-1 whitespace-nowrap" title="Sync Queued Offline Requests">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 13v8"/><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="m8 17 4-4 4 4"/></svg>
+                        <span id="offline-outbox-count" class="tabular-nums">0</span>
                     </button>
 
                     <div id="month-picker-wrap" class="relative shrink-0">
-                        <button type="button" id="month-picker-btn" onclick="toggleMonthMenu(event)" aria-label="Select Month" aria-expanded="false" aria-haspopup="listbox" class="touch-target px-2.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/95 hover:dark:bg-slate-700/90 text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700 flex items-center gap-1.5 text-[11px] font-ui-label font-bold tracking-tight whitespace-nowrap shadow-sm active:scale-95 transition-all cursor-pointer">
-                            <i class="far fa-calendar-alt text-[10px] text-primary dark:text-emerald-bright"></i>
+                        <button type="button" id="month-picker-btn" onclick="toggleMonthMenu(event)" aria-label="Select Month" aria-expanded="false" aria-haspopup="listbox" class="touch-target tap-spring px-2.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/95 text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-sky-400/20 flex items-center gap-1.5 text-[11px] font-ui-label font-bold tracking-tight whitespace-nowrap shadow-sm cursor-pointer">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary dark:text-emerald-bright shrink-0" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
                             <span id="month-picker-label" class="tabular-nums">Nov '26</span>
-                            <i id="month-picker-chevron" class="fas fa-chevron-down text-[9px] text-slate-400 transition-transform duration-150"></i>
+                            <svg id="month-picker-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400 transition-transform duration-150 shrink-0" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                         </button>
-                        <div id="month-picker-menu" role="listbox" aria-label="Available Months" class="hidden absolute right-0 top-full mt-2 w-48 rounded-2xl glass-card bg-white dark:bg-slate-800/95 border border-slate-200 dark:border-slate-600/80 shadow-2xl p-1.5 z-50 space-y-1">
+                        <div id="month-picker-menu" role="listbox" aria-label="Available Months" class="hidden ios-scroll absolute right-0 top-full mt-2 w-48 max-h-64 overflow-y-auto rounded-2xl glass-card bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-sky-400/25 shadow-2xl p-1.5 z-50 space-y-1">
                             <div class="px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Select Period</div>
                             <div id="month-picker-options" class="space-y-1"></div>
                         </div>
@@ -752,12 +895,14 @@
                         </select>
                     </div>
 
-                    <button type="button" onclick="toggleDarkMode()" aria-label="Toggle Theme" class="touch-target w-9 h-9 rounded-xl bg-surface-container-low dark:bg-slate-800 text-on-surface dark:text-amber-bright border border-slate-200/80 dark:border-slate-700 flex items-center justify-center active:scale-95 transition-all">
-                        <i class="fas fa-moon text-xs" id="theme-icon"></i>
+                    <button type="button" onclick="toggleDarkMode()" aria-label="Toggle Theme" class="touch-target tap-spring w-9 h-9 rounded-xl bg-surface-container-low dark:bg-slate-800/95 text-on-surface dark:text-amber-bright border border-slate-200/80 dark:border-sky-400/20 flex items-center justify-center">
+                        <span id="theme-icon" class="inline-flex items-center justify-center" aria-hidden="true">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                        </span>
                     </button>
 
-                    <button type="button" onclick="openProfileView()" aria-label="Open Profile" class="touch-target relative w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary p-0.5 shadow-sm active:scale-95 transition-all">
-                        <img id="header-profile-img" src="" alt="Profile" class="hidden w-full h-full rounded-full object-cover">
+                    <button type="button" onclick="openProfileView()" aria-label="Open Profile" class="touch-target tap-spring relative w-9 h-9 rounded-full bg-gradient-to-br from-emerald-bright to-sky-400 p-[2px] shadow-sm">
+                        <img id="header-profile-img" src="" alt="Profile" class="hidden w-full h-full rounded-full object-cover outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10">
                         <span id="header-profile-initials" class="w-full h-full rounded-full bg-dark-surface text-white font-extrabold text-[10px] flex items-center justify-center">GB</span>
                         <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-bright border-2 border-white dark:border-slate-900"></span>
                     </button>
@@ -772,62 +917,80 @@
             <!-- ================================================================== -->
             <div id="tab-home" class="tab-content active space-y-3.5">
 
-                <!-- Role-Specific Executive/HR/Manager Strip -->
-                <div id="role-pulse-strip" class="hidden glass-card p-3 rounded-2xl border-l-4 border-l-primary"></div>
+                <!-- Role-Specific Executive/HR/Manager Command Strip -->
+                <div id="role-pulse-strip" class="hidden glass-card p-3 rounded-2xl border-l-4 border-l-emerald-bright"></div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
-                    <!-- Left Column (Desktop 7 cols) -->
+                    <!-- Left Column (Desktop 7 cols: Unified Mission Control + Live Roster + Battle Squads) -->
                     <div class="lg:col-span-7 space-y-3.5">
-                        <div class="flex items-center justify-between px-1">
-                            <div class="flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-bright animate-pulse"></span>
-                                <h2 class="text-[11px] font-ui-label font-extrabold uppercase tracking-wider text-on-surface dark:text-white">GPS Attendance (500m)</h2>
-                            </div>
-                            <span class="text-[10px] font-extrabold tabular-nums whitespace-nowrap text-primary dark:text-emerald-bright bg-canvas-mint dark:bg-emerald-dark/70 px-2.5 py-0.5 rounded-full border border-emerald-bright/30" id="active-counter">👥 0 / 0</span>
-                        </div>
 
-                        <div id="smart-attendance-wrapper" class="w-full"></div>
-
-                        <!-- Live HQ Distance & Map Card -->
-                        <div class="glass-card rounded-2xl p-2.5 border border-emerald-bright/25">
-                            <div class="flex items-center justify-between gap-2">
+                        <!-- Unified Operations & Live GPS Mission Card -->
+                        <div class="glass-card hud-hover-lift rounded-3xl p-3 space-y-2.5 border border-emerald-bright/30">
+                            <div class="flex items-center justify-between gap-2 px-0.5">
                                 <div class="flex items-center gap-2 min-w-0">
-                                    <span class="w-7 h-7 rounded-xl bg-canvas-mint dark:bg-emerald-dark/70 text-primary dark:text-emerald-bright flex items-center justify-center shrink-0">
-                                        <i class="fas fa-route text-xs"></i>
+                                    <span class="relative flex h-2.5 w-2.5 shrink-0">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-bright opacity-65"></span>
+                                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-bright"></span>
                                     </span>
-                                    <div class="min-w-0">
-                                        <div class="flex items-center gap-1.5 flex-wrap">
-                                            <span class="text-[10px] font-extrabold text-on-surface dark:text-white truncate" id="live-distance-readout">ရုံးချုပ်နှင့် အကွာအဝေး တိုင်းတာရန်</span>
-                                            <span id="live-zone-badge" class="px-1.5 py-0.5 rounded bg-canvas-mint dark:bg-emerald-dark/70 text-primary dark:text-emerald-bright text-[8px] font-extrabold whitespace-nowrap">GPS Ready</span>
+                                    <h2 class="text-[10.5px] font-ui-label font-extrabold uppercase tracking-wider text-on-surface dark:text-slate-100 truncate">GPS Arena · 500m Ops</h2>
+                                </div>
+                                <button type="button" onclick="toggleTodayCheckinPanel()" title="ယနေ့တက်ရောက်သူ စာရင်းဖွင့်ကြည့်ရန်" class="tap-spring inline-flex items-center gap-1.5 text-[10px] font-extrabold tabular-nums whitespace-nowrap text-primary dark:text-emerald-bright bg-canvas-mint dark:bg-emerald-dark/70 px-2.5 py-1 rounded-full border border-emerald-bright/35" id="active-counter">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                    <span>0 / 0</span>
+                                </button>
+                            </div>
+
+                            <div id="smart-attendance-wrapper" class="w-full"></div>
+
+                            <!-- Integrated HQ Distance & Field Telemetry Bar -->
+                            <div class="pt-2.5 border-t border-slate-200/70 dark:border-sky-400/15 space-y-2">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="w-8 h-8 rounded-xl bg-canvas-mint dark:bg-sky-500/15 text-primary dark:text-sky-300 border border-emerald-bright/25 dark:border-sky-400/25 flex items-center justify-center shrink-0">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.3-6.4 2.1 2-6.3z"/></svg>
+                                        </span>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="text-[10.5px] font-extrabold text-on-surface dark:text-white truncate" id="live-distance-readout">ရုံးချုပ်နှင့် အကွာအဝေး တိုင်းတာရန်</span>
+                                                <span id="live-zone-badge" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-canvas-mint dark:bg-emerald-dark/70 text-primary dark:text-emerald-bright text-[8px] font-extrabold whitespace-nowrap border border-emerald-bright/25">GPS Ready</span>
+                                            </div>
+                                            <p class="mm-text text-[9px] text-on-surface-variant dark:text-slate-300" id="live-distance-sub">HQ (≤500m) သို့မဟုတ် Field Site အကွာအဝေးကို Map ဖြင့် ပြသပေးသည်</p>
                                         </div>
-                                        <p class="mm-text text-[9px] text-on-surface-variant dark:text-slate-300" id="live-distance-sub">🏢 HQ (≤500m) သို့မဟုတ် 🗼 ဆိုက်တိုက်ရိုက် အကွာအဝေးကို Map ဖြင့် ပြသပေးသည်</p>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        <button type="button" onclick="measureLiveGpsDistance()" class="touch-target tap-spring px-2.5 py-1.5 rounded-xl bg-surface-container-low dark:bg-slate-800/95 border border-slate-200/80 dark:border-slate-700 text-on-surface dark:text-white text-[9.5px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap" title="Refresh GPS Distance">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" class="text-primary dark:text-emerald-bright" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/></svg>
+                                            <span>တိုင်းမည်</span>
+                                        </button>
+                                        <a id="live-map-measure-link" href="https://www.google.com/maps/dir/16.804683,96.177149/16.804683,96.177149" onclick="return openSafeMapLink(event, this.href)" target="_top" rel="noopener noreferrer" class="touch-target tap-spring px-2.5 py-1.5 rounded-xl bg-primary dark:bg-emerald-600 text-white text-[9.5px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap shadow-sm">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
+                                            <span>Map</span>
+                                        </a>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-1 shrink-0">
-                                    <button type="button" onclick="measureLiveGpsDistance()" class="touch-target px-2.5 py-1.5 rounded-xl bg-surface-container-low dark:bg-slate-800 text-on-surface dark:text-white text-[9px] font-extrabold active:scale-95 whitespace-nowrap" title="Refresh GPS Distance">
-                                        <i class="fas fa-location-crosshairs mr-0.5 text-primary dark:text-emerald-bright"></i> တိုင်းမည်
-                                    </button>
-                                    <a id="live-map-measure-link" href="https://www.google.com/maps/dir/16.804683,96.177149/16.804683,96.177149" onclick="return openSafeMapLink(event, this.href)" target="_top" rel="noopener noreferrer" class="touch-target px-2.5 py-1.5 rounded-xl bg-primary text-white text-[9px] font-extrabold flex items-center gap-1 active:scale-95 whitespace-nowrap">
-                                        <i class="fas fa-map-marked-alt text-[9px]"></i> <span>Map</span>
-                                    </a>
-                                </div>
-                            </div>
 
-                            <div class="mt-2 pt-1.5 border-t border-slate-200/60 dark:border-slate-700/60">
-                                <div class="flex justify-between text-[7.5px] font-bold text-slate-400 dark:text-slate-300 mb-1 tabular-nums">
-                                    <span>🏢 GBF HQ (0m)</span>
-                                    <span>500m Zone</span>
-                                    <span>🗼 Field Site (km)</span>
-                                </div>
-                                <div class="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden relative">
-                                    <div id="live-distance-bar" class="h-1.5 bg-gradient-to-r from-emerald-bright via-amber-bright to-sky-400 transition-all duration-500" style="width: 18%"></div>
+                                <div>
+                                    <div class="flex justify-between items-center text-[8px] font-bold text-slate-500 dark:text-slate-300 mb-1 tabular-nums">
+                                        <span class="inline-flex items-center gap-1">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-bright" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+                                            GBF HQ (0m)
+                                        </span>
+                                        <span>500m Zone</span>
+                                        <span class="inline-flex items-center gap-1">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-sky-400" aria-hidden="true"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
+                                            Field Site (km)
+                                        </span>
+                                    </div>
+                                    <div class="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800/95 overflow-hidden relative">
+                                        <div id="live-distance-bar" class="h-1.5 bg-gradient-to-r from-emerald-bright via-amber-bright to-sky-400 transition-all duration-500" style="width: 18%"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Checked-In Avatar Stack Inspector -->
-                        <div class="glass-card rounded-2xl p-2.5 transition-all">
-                            <button type="button" onclick="toggleTodayCheckinPanel()" class="w-full flex items-center justify-between gap-2 text-left active:scale-[0.99] transition-transform">
+                        <div class="glass-card hud-hover-lift rounded-2xl p-3 transition-all">
+                            <button type="button" onclick="toggleTodayCheckinPanel()" class="tap-spring w-full flex items-center justify-between gap-2 text-left">
                                 <div class="flex items-center gap-2.5 min-w-0">
                                     <div id="today-checkin-avatars" class="flex items-center -space-x-2 shrink-0"></div>
                                     <div class="min-w-0">
@@ -835,39 +998,39 @@
                                         <p class="text-[9px] font-semibold text-on-surface-variant dark:text-slate-300 truncate" id="today-checkin-sub">အရင်ဆုံးဝင်ရောက်သူ အစဉ်လိုက်၊ Map အကွာအဝေးနှင့် ခွင့်စာရင်းကြည့်ရန်</p>
                                     </div>
                                 </div>
-                                <span class="w-7 h-7 rounded-xl bg-surface-container-low dark:bg-slate-800 text-primary dark:text-emerald-bright flex items-center justify-center shrink-0">
-                                    <i class="fas fa-chevron-down text-[10px] transition-transform" id="checkin-panel-chevron"></i>
+                                <span class="w-8 h-8 rounded-xl bg-surface-container-low dark:bg-slate-800 text-primary dark:text-emerald-bright border border-slate-200/70 dark:border-slate-700 flex items-center justify-center shrink-0">
+                                    <svg id="checkin-panel-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                                 </span>
                             </button>
 
                             <div id="today-checkin-detail-panel" class="hidden mt-2.5 pt-2.5 border-t border-slate-200/70 dark:border-slate-700/70 space-y-2">
                                 <div class="flex items-center justify-between gap-1">
-                                    <div class="flex items-center gap-1 flex-wrap">
-                                        <button type="button" onclick="filterCheckinList('in')" id="btn-chk-in" class="px-2.5 py-1.5 rounded-lg bg-primary text-white text-[9px] font-extrabold">🟢 ဝင်ရောက်ပြီး</button>
-                                        <button type="button" onclick="filterCheckinList('leave')" id="btn-chk-leave" class="px-2.5 py-1.5 rounded-lg bg-surface-container-low dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 text-[9px] font-extrabold">🏖️ ယနေ့ခွင့်</button>
-                                        <button type="button" onclick="filterCheckinList('pending')" id="btn-chk-pending" class="px-2.5 py-1.5 rounded-lg bg-surface-container-low dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 text-[9px] font-extrabold">⏳ မဝင်ရသေး</button>
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <button type="button" onclick="filterCheckinList('in')" id="btn-chk-in" class="tap-spring inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary text-white text-[9px] font-extrabold">ဝင်ရောက်ပြီး</button>
+                                        <button type="button" onclick="filterCheckinList('leave')" id="btn-chk-leave" class="tap-spring inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container-low dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 text-[9px] font-extrabold">ယနေ့ခွင့်</button>
+                                        <button type="button" onclick="filterCheckinList('pending')" id="btn-chk-pending" class="tap-spring inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container-low dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 text-[9px] font-extrabold">မဝင်ရသေး</button>
                                     </div>
-                                    <span class="text-[8px] font-bold text-slate-500 dark:text-slate-300 shrink-0">HQ ➔ Map</span>
+                                    <span class="text-[8px] font-bold text-slate-500 dark:text-slate-300 shrink-0">HQ -> Map</span>
                                 </div>
-                                <div id="today-checkin-detail-list" class="space-y-1.5 max-h-60 overflow-y-auto"></div>
+                                <div id="today-checkin-detail-list" class="ios-scroll space-y-1.5 max-h-60 overflow-y-auto"></div>
                             </div>
                         </div>
 
-                        <!-- Active Battle Squads -->
+                        <!-- Active Battle Squads Lobby -->
                         <div class="mlbb-squad-shell rounded-3xl p-3.5 transition-all">
                             <div class="flex items-center justify-between mb-2.5 pb-2 border-b border-white/10">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-6 h-6 rounded-lg bg-amber-bright/20 border border-amber-bright/40 text-amber-bright flex items-center justify-center text-[10px] font-black">
-                                        <i class="fas fa-shield-halved"></i>
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="hud-chamfer w-7 h-7 bg-amber-bright/20 border border-amber-bright/45 text-amber-bright flex items-center justify-center shrink-0">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
                                     </span>
-                                    <div>
-                                        <h3 class="text-[10.5px] font-ui-label font-extrabold uppercase tracking-wider text-white" id="today-teams-summary">ACTIVE BATTLE SQUADS (0)</h3>
-                                        <p class="text-[8.5px] text-slate-300 font-medium" id="today-teams-sub">အဖွဲ့တစ်ခုချင်းစီကို နှိပ်၍ တာဝန်ကျစာရင်း အသေးစိတ်ကြည့်ပါ</p>
+                                    <div class="min-w-0">
+                                        <h3 class="text-[10.5px] font-ui-label font-extrabold uppercase tracking-wider text-white truncate" id="today-teams-summary">ACTIVE BATTLE SQUADS (0)</h3>
+                                        <p class="text-[8.5px] text-slate-300 font-medium truncate" id="today-teams-sub">အဖွဲ့တစ်ခုချင်းစီကို နှိပ်၍ တာဝန်ကျစာရင်း အသေးစိတ်ကြည့်ပါ</p>
                                     </div>
                                 </div>
-                                <button type="button" onclick="toggleTodayTeamsPanel()" class="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-[8.5px] font-ui-label font-extrabold text-emerald-bright flex items-center gap-1 active:scale-95">
+                                <button type="button" onclick="toggleTodayTeamsPanel()" class="tap-spring px-2.5 py-1.5 rounded-xl bg-white/10 border border-white/15 text-[8.5px] font-ui-label font-extrabold text-emerald-bright flex items-center gap-1 shrink-0">
                                     <span>Details</span>
-                                    <i class="fas fa-chevron-down text-[8px] transition-transform" id="teams-panel-chevron"></i>
+                                    <svg id="teams-panel-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                                 </button>
                             </div>
 
@@ -879,24 +1042,50 @@
                         </div>
                     </div>
 
-                    <!-- Right Column (Desktop 5 cols) -->
+                    <!-- Right Column (Desktop 5 cols: Esports Season Mastery HUD + Calendar Entry) -->
                     <div class="lg:col-span-5 space-y-3.5">
-                        <!-- Swipeable MLBB Hero Radar Card -->
+                        <!-- Hero Mastery HUD Card -->
                         <div class="mlbb-card p-4 rounded-3xl relative overflow-hidden text-white">
-                            <div class="flex items-center justify-between pb-2.5 border-b border-white/10">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-lg font-black italic tracking-wide rank-badge uppercase" id="home-kpi-rank">MYTHIC</span>
-                                    <span class="text-[9px] font-extrabold bg-emerald-bright/20 border border-emerald-bright/40 text-emerald-bright px-2 py-0.5 rounded-full tabular-nums whitespace-nowrap" id="home-kpi-score">96% KPI</span>
+                            <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-white/10">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div id="home-rank-crest" class="w-9 h-9 rounded-xl bg-amber-bright/15 border border-amber-bright/40 flex items-center justify-center shrink-0 shadow-[0_0_16px_rgba(251,191,36,0.25)]" aria-hidden="true">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6 6 1-4.5 4.2 1.2 6.8L12 17l-5.7 3 1.2-6.8L3 9l6-1z"/></svg>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <span class="text-lg font-black italic tracking-wide rank-badge uppercase leading-none" id="home-kpi-rank">MYTHIC</span>
+                                            <span class="hud-chamfer text-[9px] font-extrabold bg-emerald-bright/20 border border-emerald-bright/45 text-emerald-bright px-2 py-0.5 tabular-nums whitespace-nowrap" id="home-kpi-score">96% KPI</span>
+                                        </div>
+                                        <span class="block text-[8px] font-bold uppercase tracking-widest text-sky-300/85 mt-0.5">Season Mastery HUD</span>
+                                    </div>
                                 </div>
-                                <button type="button" onclick="openProfileView()" class="text-[9px] font-ui-label font-extrabold bg-white/10 hover:bg-white/20 text-white px-2.5 py-1.5 rounded-xl border border-white/15 flex items-center gap-1 active:scale-95 transition-all">
-                                    <span>Profile &amp; Rewards</span> <i class="fas fa-arrow-right text-[8px]"></i>
+                                <button type="button" onclick="openProfileView()" class="tap-spring text-[9px] font-ui-label font-extrabold bg-white/10 text-white px-2.5 py-1.5 rounded-xl border border-white/15 inline-flex items-center gap-1 shrink-0">
+                                    <span>Profile</span>
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                                 </button>
                             </div>
 
-                            <div id="home-kpi-carousel" onscroll="onHomeCarouselScroll(this)" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth pt-2.5">
+                            <!-- iOS Segmented HUD View Switcher -->
+                            <div class="mt-2.5 hud-seg-track" role="tablist" aria-label="Hero Mastery Panels">
+                                <div id="home-segmented-pill" class="hud-seg-indicator" style="transform: translateX(0%);"></div>
+                                <button type="button" role="tab" aria-selected="true" id="home-seg-0" onclick="scrollToHomeSlide(0)" class="hud-seg-btn tap-control is-active">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 21 8.5 18 20 6 20 3 8.5"/></svg>
+                                    <span>Radar</span>
+                                </button>
+                                <button type="button" role="tab" aria-selected="false" id="home-seg-1" onclick="scrollToHomeSlide(1)" class="hud-seg-btn tap-control">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                                    <span>Stats</span>
+                                </button>
+                                <button type="button" role="tab" aria-selected="false" id="home-seg-2" onclick="scrollToHomeSlide(2)" class="hud-seg-btn tap-control">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
+                                    <span>Rewards</span>
+                                </button>
+                            </div>
+
+                            <div id="home-kpi-carousel" onscroll="onHomeCarouselScroll(this)" class="touch-carousel flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth pt-2.5">
                                 <!-- Slide 1: 5-Axis Radar -->
                                 <div class="w-full shrink-0 snap-center">
-                                    <div class="bg-slate-950/45 rounded-2xl p-2.5 border border-white/10">
+                                    <div class="bg-slate-950/60 rounded-2xl p-2.5 border border-sky-400/15">
                                         <div class="flex items-center justify-between px-1 mb-1">
                                             <span class="text-[9px] font-ui-label font-extrabold uppercase tracking-wider text-emerald-bright">5-Axis Hero Radar</span>
                                             <span class="text-[9px] font-extrabold text-amber-bright tabular-nums whitespace-nowrap" id="home-kpi-winrate">95% Win Rate</span>
@@ -909,7 +1098,7 @@
 
                                 <!-- Slide 2: Battle Telemetry -->
                                 <div class="w-full shrink-0 snap-center pl-2">
-                                    <div class="bg-slate-950/45 rounded-2xl p-3 border border-white/10 h-full flex flex-col justify-between">
+                                    <div class="bg-slate-950/60 rounded-2xl p-3 border border-sky-400/15 h-full flex flex-col justify-between">
                                         <div class="flex items-center justify-between mb-2">
                                             <span class="text-[9px] font-ui-label font-extrabold uppercase tracking-wider text-amber-bright">Battle Telemetry</span>
                                             <span class="text-[9px] font-bold text-slate-200 tabular-nums whitespace-nowrap" id="home-stat-present">22 / 26 Days</span>
@@ -922,20 +1111,32 @@
                                         </div>
 
                                         <div class="grid grid-cols-4 gap-1.5 text-center">
-                                            <button type="button" onclick="inspectSingleMetric('mvp')" id="metric-btn-mvp" class="p-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 active:scale-95 transition-all">
-                                                <span class="block text-[8px] font-bold text-slate-200">🌟 MVP</span>
+                                            <button type="button" onclick="inspectSingleMetric('mvp')" id="metric-btn-mvp" class="tap-spring p-2 rounded-xl bg-white/5 border border-amber-bright/25">
+                                                <span class="inline-flex items-center justify-center gap-1 text-[8px] font-bold text-amber-bright">
+                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 14.8 8.6 22 9.3 16.5 14 18.2 21 12 17.3 5.8 21 7.5 14 2 9.3 9.2 8.6z"/></svg>
+                                                    MVP
+                                                </span>
                                                 <span class="block text-sm font-black text-amber-bright tabular-nums mt-0.5" id="home-stat-early">0</span>
                                             </button>
-                                            <button type="button" onclick="inspectSingleMetric('ontime')" id="metric-btn-ontime" class="p-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 active:scale-95 transition-all">
-                                                <span class="block text-[8px] font-bold text-slate-200">🏅 OnTime</span>
+                                            <button type="button" onclick="inspectSingleMetric('ontime')" id="metric-btn-ontime" class="tap-spring p-2 rounded-xl bg-white/5 border border-emerald-bright/25">
+                                                <span class="inline-flex items-center justify-center gap-1 text-[8px] font-bold text-emerald-bright">
+                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+                                                    OnTime
+                                                </span>
                                                 <span class="block text-sm font-black text-emerald-bright tabular-nums mt-0.5" id="home-stat-ontime">0</span>
                                             </button>
-                                            <button type="button" onclick="inspectSingleMetric('late')" id="metric-btn-late" class="p-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 active:scale-95 transition-all">
-                                                <span class="block text-[8px] font-bold text-slate-200">❗ Late</span>
+                                            <button type="button" onclick="inspectSingleMetric('late')" id="metric-btn-late" class="tap-spring p-2 rounded-xl bg-white/5 border border-amber-400/25">
+                                                <span class="inline-flex items-center justify-center gap-1 text-[8px] font-bold text-amber-300">
+                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                                                    Late
+                                                </span>
                                                 <span class="block text-sm font-black text-amber-400 tabular-nums mt-0.5" id="home-stat-late">0</span>
                                             </button>
-                                            <button type="button" onclick="inspectSingleMetric('afk')" id="metric-btn-afk" class="p-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 active:scale-95 transition-all">
-                                                <span class="block text-[8px] font-bold text-slate-200">🚩 AFK</span>
+                                            <button type="button" onclick="inspectSingleMetric('afk')" id="metric-btn-afk" class="tap-spring p-2 rounded-xl bg-white/5 border border-rose-400/25">
+                                                <span class="inline-flex items-center justify-center gap-1 text-[8px] font-bold text-rose-300">
+                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
+                                                    AFK
+                                                </span>
                                                 <span class="block text-sm font-black text-rose-400 tabular-nums mt-0.5" id="home-stat-absent">0</span>
                                             </button>
                                         </div>
@@ -945,11 +1146,14 @@
 
                                 <!-- Slide 3: Rewards & Wallet Snapshot -->
                                 <div class="w-full shrink-0 snap-center pl-2">
-                                    <div class="bg-slate-950/45 rounded-2xl p-3.5 border border-white/10 h-full flex flex-col justify-between space-y-2.5">
+                                    <div class="bg-slate-950/60 rounded-2xl p-3.5 border border-amber-bright/20 h-full flex flex-col justify-between space-y-2.5">
                                         <div class="flex items-center justify-between gap-2">
                                             <div>
-                                                <span class="text-[8.5px] font-ui-label font-extrabold uppercase text-amber-bright">🎁 Total Earned Rewards</span>
-                                                <p class="text-sm font-black text-white tabular-nums whitespace-nowrap" id="home-bonus-val">0 MMK</p>
+                                                <span class="inline-flex items-center gap-1.5 text-[8.5px] font-ui-label font-extrabold uppercase text-amber-bright">
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
+                                                    Total Earned Rewards
+                                                </span>
+                                                <p class="text-sm font-black text-white tabular-nums whitespace-nowrap mt-0.5" id="home-bonus-val">0 MMK</p>
                                             </div>
                                             <span class="mm-badge bg-emerald-bright/20 border border-emerald-bright/40 text-emerald-bright text-[9px] font-extrabold whitespace-nowrap" id="home-bonus-status">Rewards Active</span>
                                         </div>
@@ -964,8 +1168,9 @@
                                             </div>
                                         </div>
 
-                                        <button type="button" onclick="openProfileView()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-bright to-amber-500 text-dark-surface font-ui-label font-extrabold text-[10px] uppercase tracking-wider active:scale-95 transition-all">
-                                            🎁 Open Reward Pass &amp; Quests →
+                                        <button type="button" onclick="openProfileView()" class="tap-spring w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-bright to-amber-500 text-dark-surface font-ui-label font-extrabold text-[10px] uppercase tracking-wider inline-flex items-center justify-center gap-1.5">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                                            <span>Open Reward Pass &amp; Quests</span>
                                         </button>
                                     </div>
                                 </div>
@@ -979,11 +1184,12 @@
                                     <span class="text-[8.5px] font-bold text-slate-200 uppercase tracking-wider ml-1" id="home-slide-label">1/3 • Radar Chart</span>
                                 </div>
                                 <div class="flex items-center gap-1">
-                                    <button type="button" onclick="stepHomeCarousel(-1)" aria-label="Previous Slide" class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[9px] flex items-center justify-center active:scale-95">
-                                        <i class="fas fa-chevron-left"></i>
+                                    <button type="button" onclick="stepHomeCarousel(-1)" aria-label="Previous Slide" class="tap-spring w-7 h-7 rounded-lg bg-white/10 text-white flex items-center justify-center">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
                                     </button>
-                                    <button type="button" onclick="stepHomeCarousel(1)" class="px-2.5 h-7 rounded-lg bg-emerald-bright/20 border border-emerald-bright/40 text-emerald-bright text-[8.5px] font-ui-label font-extrabold uppercase tracking-wider flex items-center gap-1 active:scale-95">
-                                        <span>Swipe</span> <i class="fas fa-chevron-right text-[7px]"></i>
+                                    <button type="button" onclick="stepHomeCarousel(1)" aria-label="Next Slide" class="tap-spring px-2.5 h-7 rounded-lg bg-emerald-bright/20 border border-emerald-bright/40 text-emerald-bright text-[8.5px] font-ui-label font-extrabold uppercase tracking-wider inline-flex items-center gap-1">
+                                        <span>Next</span>
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
                                     </button>
                                 </div>
                             </div>
@@ -993,17 +1199,17 @@
                         <div id="single-metric-inspector" class="hidden glass-card rounded-2xl p-3.5 border-l-4 border-l-amber-bright"></div>
 
                         <!-- Interactive Calendar & Timeline Entry -->
-                        <button type="button" onclick="switchTab('logs')" class="w-full glass-card p-3.5 rounded-2xl flex items-center justify-between active:scale-[0.99] transition-all">
+                        <button type="button" onclick="switchTab('logs')" class="tap-spring hud-hover-lift w-full glass-card p-3.5 rounded-2xl flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-canvas-mint dark:bg-emerald-dark/60 text-primary dark:text-emerald-bright flex items-center justify-center">
-                                    <i class="fas fa-calendar-week"></i>
+                                <div class="w-9 h-9 rounded-xl bg-canvas-mint dark:bg-emerald-dark/60 text-primary dark:text-emerald-bright border border-emerald-bright/25 flex items-center justify-center shrink-0">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/></svg>
                                 </div>
                                 <div class="text-left">
                                     <span class="block text-xs font-extrabold text-on-surface dark:text-white">Interactive Calendar &amp; Timeline</span>
                                     <span class="block text-[9.5px] text-on-surface-variant dark:text-slate-300">Weekly / Daily / Monthly မှတ်တမ်းများ ကြည့်ရန်</span>
                                 </div>
                             </div>
-                            <i class="fas fa-chevron-right text-slate-400 text-xs"></i>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400 shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
                         </button>
                     </div>
                 </div>
@@ -1080,10 +1286,10 @@
                         </div>
 
                         <div class="grid grid-cols-4 gap-1.5 text-center bg-black/30 rounded-2xl p-2.5 border border-white/10">
-                            <div><span class="block text-[8px] text-slate-200">🌟 MVP</span><span class="text-xs font-black text-amber-bright tabular-nums" id="stat-early">0</span></div>
-                            <div><span class="block text-[8px] text-slate-200">🏅 OnTime</span><span class="text-xs font-black text-emerald-bright tabular-nums" id="stat-ontime">0</span></div>
-                            <div><span class="block text-[8px] text-slate-200">❗ Late</span><span class="text-xs font-black text-amber-400 tabular-nums" id="stat-late">0</span></div>
-                            <div><span class="block text-[8px] text-slate-200">🚩 AFK</span><span class="text-xs font-black text-rose-400 tabular-nums" id="stat-absent">0</span></div>
+                            <div><span class="inline-flex items-center justify-center gap-1 text-[8px] font-bold text-amber-bright"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 14.8 8.6 22 9.3 16.5 14 18.2 21 12 17.3 5.8 21 7.5 14 2 9.3 9.2 8.6z"/></svg>MVP</span><span class="block text-xs font-black text-amber-bright tabular-nums" id="stat-early">0</span></div>
+                            <div><span class="inline-flex items-center justify-center gap-1 text-[8px] font-bold text-emerald-bright"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>OnTime</span><span class="block text-xs font-black text-emerald-bright tabular-nums" id="stat-ontime">0</span></div>
+                            <div><span class="inline-flex items-center justify-center gap-1 text-[8px] font-bold text-amber-300"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>Late</span><span class="block text-xs font-black text-amber-400 tabular-nums" id="stat-late">0</span></div>
+                            <div><span class="inline-flex items-center justify-center gap-1 text-[8px] font-bold text-rose-300"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>AFK</span><span class="block text-xs font-black text-rose-400 tabular-nums" id="stat-absent">0</span></div>
                         </div>
                     </div>
 
@@ -1120,11 +1326,11 @@
 
                 <!-- Filter Pills -->
                 <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-                    <button type="button" onclick="setKpiDetailFilter('all')" id="kpi-flt-all" class="px-3 py-1.5 rounded-full bg-primary text-white text-[10px] font-extrabold shrink-0">အားလုံး (All)</button>
-                    <button type="button" onclick="setKpiDetailFilter('mvp')" id="kpi-flt-mvp" class="px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0">🌟 MVP</button>
-                    <button type="button" onclick="setKpiDetailFilter('ontime')" id="kpi-flt-ontime" class="px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0">🏅 On-Time</button>
-                    <button type="button" onclick="setKpiDetailFilter('late')" id="kpi-flt-late" class="px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0">❗ Late</button>
-                    <button type="button" onclick="setKpiDetailFilter('afk')" id="kpi-flt-afk" class="px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0">🚩 AFK</button>
+                    <button type="button" onclick="setKpiDetailFilter('all')" id="kpi-flt-all" class="tap-spring px-3 py-1.5 rounded-full bg-primary text-white text-[10px] font-extrabold shrink-0">အားလုံး (All)</button>
+                    <button type="button" onclick="setKpiDetailFilter('mvp')" id="kpi-flt-mvp" class="tap-spring inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" class="text-amber-bright" aria-hidden="true"><path d="M12 2 14.8 8.6 22 9.3 16.5 14 18.2 21 12 17.3 5.8 21 7.5 14 2 9.3 9.2 8.6z"/></svg><span>MVP</span></button>
+                    <button type="button" onclick="setKpiDetailFilter('ontime')" id="kpi-flt-ontime" class="tap-spring inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-emerald-bright" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span>On-Time</span></button>
+                    <button type="button" onclick="setKpiDetailFilter('late')" id="kpi-flt-late" class="tap-spring inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-amber-400" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span>Late</span></button>
+                    <button type="button" onclick="setKpiDetailFilter('afk')" id="kpi-flt-afk" class="tap-spring inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-rose-400" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg><span>AFK</span></button>
                 </div>
 
                 <div id="kpi-detail-tables-wrapper" class="space-y-3.5"></div>
@@ -1456,7 +1662,7 @@
                 </div>
 
                 <div class="ai-card p-5 rounded-3xl text-white relative overflow-hidden">
-                    <h3 class="text-sm font-black uppercase tracking-wider">🧠 HR-AI &amp; Payroll Command</h3>
+                    <h3 class="text-sm font-black uppercase tracking-wider inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-sky-300 shrink-0" aria-hidden="true"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg><span>HR-AI &amp; Payroll Command</span></h3>
                     <p class="text-[9.5px] text-sky-200 mt-0.5">Burnout Risk Watchlist &amp; Automated Monthly Payroll</p>
                     <div class="mt-4 grid grid-cols-2 gap-2.5">
                         <button type="button" onclick="runAIPredictions()" class="touch-target bg-white/15 hover:bg-white/25 border border-white/20 text-white font-ui-label font-extrabold py-2.5 rounded-xl text-[9.5px] uppercase tracking-wider active:scale-95 transition-all">
@@ -1483,43 +1689,43 @@
     </div>
 
     <!-- ====================================================================== -->
-    <!-- ➕ QUICK ACTION FLOATING SHEET                                         -->
+    <!-- ⚡ QUICK ACTION FLOATING SHEET                                         -->
     <!-- ====================================================================== -->
     <div id="quick-action-sheet" onclick="closeQuickActionSheet(event)" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden items-end justify-center p-3">
-        <div onclick="event.stopPropagation()" class="w-full max-w-lg glass-card rounded-3xl p-4 space-y-3 shadow-2xl border-t-4 border-t-emerald-bright">
+        <div onclick="event.stopPropagation()" class="ios-scroll w-full max-w-lg glass-card rounded-3xl p-4 space-y-3 shadow-2xl border-t-4 border-t-emerald-bright">
             <div class="flex items-center justify-between pb-2 border-b border-slate-200/70 dark:border-slate-700/70">
                 <span class="text-xs font-extrabold uppercase tracking-wider text-on-surface dark:text-white">Quick Actions</span>
-                <button type="button" onclick="closeQuickActionSheet()" aria-label="Close Quick Actions" class="w-8 h-8 rounded-full bg-surface-container-low dark:bg-slate-800 flex items-center justify-center text-xs">
-                    <i class="fas fa-xmark"></i>
+                <button type="button" onclick="closeQuickActionSheet()" aria-label="Close Quick Actions" class="tap-spring w-8 h-8 rounded-full bg-surface-container-low dark:bg-slate-800 flex items-center justify-center text-xs">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
             </div>
             <div class="grid grid-cols-2 gap-2.5">
-                <button type="button" onclick="launchQuickTab('leave')" class="p-3 rounded-2xl bg-surface-container-low dark:bg-slate-800 hover:bg-canvas-mint dark:hover:bg-slate-700/90 text-left flex items-center gap-2.5 active:scale-95 transition-all">
-                    <span class="w-9 h-9 rounded-xl bg-amber-bright/20 text-amber-700 dark:text-amber-bright flex items-center justify-center"><i class="fas fa-calendar-plus"></i></span>
+                <button type="button" onclick="launchQuickTab('leave')" class="tap-spring p-3 rounded-2xl bg-surface-container-low dark:bg-slate-800/95 border border-slate-200/70 dark:border-slate-700/70 text-left flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-amber-bright/20 text-amber-700 dark:text-amber-bright flex items-center justify-center shrink-0"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M10 16h4"/><path d="M12 14v4"/></svg></span>
                     <div>
                         <span class="block text-[11px] font-extrabold">ခွင့်တိုင်ရန်</span>
-                        <span class="block text-[8.5px] text-slate-400">Leave Request</span>
+                        <span class="block text-[8.5px] text-slate-600 dark:text-slate-300">Leave Request</span>
                     </div>
                 </button>
-                <button type="button" onclick="launchQuickTab('advance')" class="p-3 rounded-2xl bg-surface-container-low dark:bg-slate-800 hover:bg-canvas-mint dark:hover:bg-slate-700/90 text-left flex items-center gap-2.5 active:scale-95 transition-all">
-                    <span class="w-9 h-9 rounded-xl bg-emerald-bright/20 text-primary dark:text-emerald-bright flex items-center justify-center"><i class="fas fa-hand-holding-usd"></i></span>
+                <button type="button" onclick="launchQuickTab('advance')" class="tap-spring p-3 rounded-2xl bg-surface-container-low dark:bg-slate-800/95 border border-slate-200/70 dark:border-slate-700/70 text-left flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-emerald-bright/20 text-primary dark:text-emerald-bright flex items-center justify-center shrink-0"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg></span>
                     <div>
                         <span class="block text-[11px] font-extrabold">ကြိုငွေထုတ်ရန်</span>
-                        <span class="block text-[8.5px] text-slate-400">50% Salary Wallet</span>
+                        <span class="block text-[8.5px] text-slate-600 dark:text-slate-300">50% Salary Wallet</span>
                     </div>
                 </button>
-                <button type="button" onclick="launchQuickTab('team')" class="p-3 rounded-2xl bg-surface-container-low dark:bg-slate-800 hover:bg-canvas-mint dark:hover:bg-slate-700/90 text-left flex items-center gap-2.5 active:scale-95 transition-all">
-                    <span class="w-9 h-9 rounded-xl bg-secondary/20 text-secondary dark:text-sky-400 flex items-center justify-center"><i class="fas fa-users-cog"></i></span>
+                <button type="button" onclick="launchQuickTab('team')" class="tap-spring p-3 rounded-2xl bg-surface-container-low dark:bg-slate-800/95 border border-slate-200/70 dark:border-slate-700/70 text-left flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-secondary/20 text-secondary dark:text-sky-400 flex items-center justify-center shrink-0"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
                     <div>
                         <span class="block text-[11px] font-extrabold">အဖွဲ့ခွဲဝေရန်</span>
-                        <span class="block text-[8.5px] text-slate-400">3-Team Rollout</span>
+                        <span class="block text-[8.5px] text-slate-600 dark:text-slate-300">3-Team Rollout</span>
                     </div>
                 </button>
-                <button type="button" onclick="launchQuickTab('voice')" class="p-3 rounded-2xl bg-surface-container-low dark:bg-slate-800 hover:bg-canvas-mint dark:hover:bg-slate-700/90 text-left flex items-center gap-2.5 active:scale-95 transition-all">
-                    <span class="w-9 h-9 rounded-xl bg-cobalt-vivid/20 text-cobalt-vivid flex items-center justify-center"><i class="fas fa-robot"></i></span>
+                <button type="button" onclick="launchQuickTab('voice')" class="tap-spring p-3 rounded-2xl bg-surface-container-low dark:bg-slate-800/95 border border-slate-200/70 dark:border-slate-700/70 text-left flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-cobalt-vivid/20 text-cobalt-vivid flex items-center justify-center shrink-0"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></span>
                     <div>
                         <span class="block text-[11px] font-extrabold">HR-AI ဆွေးနွေးရန်</span>
-                        <span class="block text-[8.5px] text-slate-400">Voice &amp; Support</span>
+                        <span class="block text-[8.5px] text-slate-600 dark:text-slate-300">Voice &amp; Support</span>
                     </div>
                 </button>
             </div>
@@ -1527,56 +1733,77 @@
     </div>
 
     <!-- ====================================================================== -->
-    <!-- 🎁 CONFIGURABLE REWARD & BONUS SETTINGS MODAL (LEADER RBAC)            -->
+    <!-- 🏆 CONFIGURABLE REWARD & BONUS SETTINGS MODAL (LEADER RBAC)            -->
     <!-- ====================================================================== -->
     <div id="reward-settings-modal" onclick="closeRewardSettingsModal(event)" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
-        <div onclick="event.stopPropagation()" class="w-full max-w-md glass-card rounded-3xl p-5 space-y-3.5 shadow-2xl border-t-4 border-t-amber-bright max-h-[90vh] overflow-y-auto">
+        <div onclick="event.stopPropagation()" class="ios-scroll w-full max-w-md glass-card rounded-3xl p-5 space-y-3.5 shadow-2xl border-t-4 border-t-amber-bright max-h-[90dvh] overflow-y-auto">
             <div class="flex items-center justify-between pb-2 border-b border-slate-200/70 dark:border-slate-700/70">
                 <div>
                     <span class="text-[9px] font-ui-label font-extrabold uppercase tracking-wider text-primary dark:text-emerald-bright">Google Sheets System_Settings Sync</span>
-                    <h3 class="text-xs font-extrabold text-on-surface dark:text-white mt-0.5">🎁 Reward &amp; Bonus နှုန်းထား သတ်မှတ်ရန်</h3>
+                    <h3 class="text-xs font-extrabold text-on-surface dark:text-white mt-0.5 inline-flex items-center gap-1.5">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" class="text-amber-bright shrink-0" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
+                        <span>Reward &amp; Bonus နှုန်းထား သတ်မှတ်ရန်</span>
+                    </h3>
                 </div>
-                <button type="button" onclick="closeRewardSettingsModal()" aria-label="Close Reward Settings" class="w-8 h-8 rounded-full bg-surface-container-low dark:bg-slate-800 flex items-center justify-center text-xs">
-                    <i class="fas fa-xmark"></i>
+                <button type="button" onclick="closeRewardSettingsModal()" aria-label="Close Reward Settings" class="tap-spring w-8 h-8 rounded-full bg-surface-container-low dark:bg-slate-800 flex items-center justify-center text-xs">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
             </div>
 
             <form onsubmit="event.preventDefault(); saveRewardSettings();" class="space-y-3">
                 <div class="grid grid-cols-2 gap-2.5">
                     <div>
-                        <label for="cfg-mvp-daily" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 block mb-1">🌟 နေ့စဉ် MVP ဆုကြေး (၁ ရက်)</label>
+                        <label for="cfg-mvp-daily" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 flex items-center gap-1 mb-1">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" class="text-amber-bright shrink-0" aria-hidden="true"><path d="M12 2 14.8 8.6 22 9.3 16.5 14 18.2 21 12 17.3 5.8 21 7.5 14 2 9.3 9.2 8.6z"/></svg>
+                            <span>နေ့စဉ် MVP ဆုကြေး (၁ ရက်)</span>
+                        </label>
                         <input type="number" id="cfg-mvp-daily" inputmode="numeric" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 font-black text-xs tabular-nums" placeholder="1000">
                     </div>
                     <div>
-                        <label for="cfg-weekly-target" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 block mb-1">🔥 အပတ်စဉ် MVP Target (ရက်)</label>
+                        <label for="cfg-weekly-target" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 flex items-center gap-1 mb-1">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-orange-400 shrink-0" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                            <span>အပတ်စဉ် MVP Target (ရက်)</span>
+                        </label>
                         <input type="number" id="cfg-weekly-target" inputmode="numeric" min="1" max="7" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 font-black text-xs tabular-nums" placeholder="5">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2.5">
                     <div>
-                        <label for="cfg-weekly-bonus" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 block mb-1">🎁 အပတ်စဉ် MVP Chest Bonus</label>
+                        <label for="cfg-weekly-bonus" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 flex items-center gap-1 mb-1">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-amber-bright shrink-0" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/></svg>
+                            <span>အပတ်စဉ် MVP Chest Bonus</span>
+                        </label>
                         <input type="number" id="cfg-weekly-bonus" inputmode="numeric" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 font-black text-xs tabular-nums" placeholder="10000">
                     </div>
                     <div>
-                        <label for="cfg-att-bonus" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 block mb-1">🛡️ လစဉ် ရက်မှန်ဆုကြေး (0 AFK)</label>
+                        <label for="cfg-att-bonus" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 flex items-center gap-1 mb-1">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-emerald-bright shrink-0" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+                            <span>လစဉ် ရက်မှန်ဆုကြေး (0 AFK)</span>
+                        </label>
                         <input type="number" id="cfg-att-bonus" inputmode="numeric" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 font-black text-xs tabular-nums" placeholder="50000">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2.5">
                     <div>
-                        <label for="cfg-mythic-bonus" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 block mb-1">🏆 MYTHIC Rank ဆုကြေး (&gt;=90%)</label>
+                        <label for="cfg-mythic-bonus" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 flex items-center gap-1 mb-1">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-amber-bright shrink-0" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                            <span>MYTHIC Rank ဆုကြေး (&gt;=90%)</span>
+                        </label>
                         <input type="number" id="cfg-mythic-bonus" inputmode="numeric" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 font-black text-xs tabular-nums" placeholder="30000">
                     </div>
                     <div>
-                        <label for="cfg-legend-bonus" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 block mb-1">⚔️ LEGEND Rank ဆုကြေး (&gt;=80%)</label>
+                        <label for="cfg-legend-bonus" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 flex items-center gap-1 mb-1">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-sky-400 shrink-0" aria-hidden="true"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/></svg>
+                            <span>LEGEND Rank ဆုကြေး (&gt;=80%)</span>
+                        </label>
                         <input type="number" id="cfg-legend-bonus" inputmode="numeric" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 font-black text-xs tabular-nums" placeholder="15000">
                     </div>
                 </div>
 
                 <p class="mm-text text-[9.5px] text-on-surface-variant dark:text-slate-300">
-                    💡 ဤနေရာတွင် ပြင်ဆင်သိမ်းဆည်းလိုက်ပါက Google Sheets ရှိ <code>System_Settings</code> Tab ထဲသို့ပါ တိုက်ရိုက် သိမ်းဆည်းပေးပါသည်။
+                    ဤနေရာတွင် ပြင်ဆင်သိမ်းဆည်းလိုက်ပါက Google Sheets ရှိ <code>System_Settings</code> Tab ထဲသို့ပါ တိုက်ရိုက် သိမ်းဆည်းပေးပါသည်။
                 </p>
 
                 <button type="submit" class="w-full bg-gradient-to-r from-primary to-primary-container hover:brightness-105 text-white font-ui-label font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider shadow-md active:scale-95 transition-all">
@@ -1589,24 +1816,29 @@
     <!-- ====================================================================== -->
     <!-- 🧭 BOTTOM NAVIGATION BAR (Safe-Area Padded + Center Quick Actions)     -->
     <!-- ====================================================================== -->
-    <nav id="bottom-nav" class="hidden fixed left-3 right-3 bg-white/95 backdrop-blur-xl rounded-3xl px-2 py-1.5 justify-between items-center gap-1 z-40 shadow-[0_10px_30px_rgba(15,23,42,0.14)] border border-slate-200/80 max-w-lg mx-auto">
-        <button type="button" onclick="switchTab('home')" id="nav-home" class="nav-tab-btn active">
-            <i class="fas fa-home text-sm mb-0.5"></i><span class="text-[8px] font-ui-label font-extrabold uppercase">ပင်မ</span>
+    <nav id="bottom-nav" class="hidden fixed left-3 right-3 rounded-3xl px-2 py-1.5 justify-between items-center gap-1 z-40 shadow-[0_12px_32px_rgba(15,23,42,0.18)] border border-slate-200/85 max-w-lg mx-auto">
+        <button type="button" onclick="switchTab('home')" id="nav-home" class="nav-tab-btn tap-spring active">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-0.5" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            <span class="text-[8.5px] font-ui-label font-extrabold uppercase tracking-wide">ပင်မ</span>
         </button>
-        <button type="button" onclick="switchTab('logs')" id="nav-logs" class="nav-tab-btn">
-            <i class="fas fa-calendar-alt text-sm mb-0.5"></i><span class="text-[8px] font-ui-label font-extrabold uppercase">History</span>
+        <button type="button" onclick="switchTab('logs')" id="nav-logs" class="nav-tab-btn tap-spring">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-0.5" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>
+            <span class="text-[8.5px] font-ui-label font-extrabold uppercase tracking-wide">History</span>
         </button>
-        <button type="button" onclick="openQuickActionSheet()" aria-label="Quick Actions" class="flex items-center justify-center w-12 h-12 -mt-4 rounded-2xl bg-gradient-to-tr from-primary to-primary-container text-white shadow-lg border-2 border-white dark:border-slate-900 active:scale-90 transition-all shrink-0">
-            <i class="fas fa-plus text-base"></i>
+        <button type="button" onclick="openQuickActionSheet()" aria-label="Quick Actions" class="tap-spring flex items-center justify-center w-12 h-12 -mt-4 rounded-2xl bg-gradient-to-tr from-primary via-emerald-600 to-emerald-bright text-white shadow-[0_8px_20px_-4px_rgba(16,185,129,0.65)] border-2 border-white dark:border-slate-900 shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
         </button>
-        <button type="button" onclick="switchTab('wallet')" id="nav-wallet" class="nav-tab-btn">
-            <i class="fas fa-file-invoice-dollar text-sm mb-0.5"></i><span class="text-[8px] font-ui-label font-extrabold uppercase">Payslip</span>
+        <button type="button" onclick="switchTab('wallet')" id="nav-wallet" class="nav-tab-btn tap-spring">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-0.5" aria-hidden="true"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+            <span class="text-[8.5px] font-ui-label font-extrabold uppercase tracking-wide">Payslip</span>
         </button>
-        <button type="button" onclick="switchTab('voice')" id="nav-voice" class="nav-tab-btn">
-            <i class="fas fa-robot text-sm mb-0.5"></i><span class="text-[8px] font-ui-label font-extrabold uppercase">HR-AI</span>
+        <button type="button" onclick="switchTab('voice')" id="nav-voice" class="nav-tab-btn tap-spring">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-0.5" aria-hidden="true"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+            <span class="text-[8.5px] font-ui-label font-extrabold uppercase tracking-wide">HR-AI</span>
         </button>
-        <button type="button" onclick="switchTab('ai')" id="nav-ai" data-role="TM MM TL" class="nav-tab-btn" style="display: none;">
-            <i class="fas fa-brain text-sm mb-0.5"></i><span class="text-[8px] font-ui-label font-extrabold uppercase">Admin</span>
+        <button type="button" onclick="switchTab('ai')" id="nav-ai" data-role="TM MM TL" class="nav-tab-btn tap-spring" style="display: none;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-0.5" aria-hidden="true"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>
+            <span class="text-[8.5px] font-ui-label font-extrabold uppercase tracking-wide">Admin</span>
         </button>
     </nav>
 
@@ -1914,7 +2146,7 @@
 
                     await this.refreshOutboxBadge();
                     if (syncedCount > 0) {
-                        showToast(`☁️ Offline Outbox မှ (${syncedCount}) ခု Sync လုပ်ပြီးပါပြီ!`, 'success');
+                        showToast(`Offline Outbox မှ (${syncedCount}) ခု Sync လုပ်ပြီးပါပြီ!`, 'success');
                         if (latestState) {
                             await this.saveLocalOnly(latestState.user.id, latestState);
                             renderFullUI(latestState);
@@ -2045,6 +2277,52 @@
 
         let homeCarouselIndex = 0;
         const HOME_SLIDE_LABELS = ['1/3 • Radar Chart', '2/3 • Battle Stats', '3/3 • Rewards & Wallet'];
+
+        function gbfIcon(name, cls = 'w-3.5 h-3.5', size = 14) {
+            const p = {
+                users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+                hq: '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/>',
+                tower: '<path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>',
+                mvp: '<path fill="currentColor" stroke="none" d="M12 2 14.8 8.6 22 9.3 16.5 14 18.2 21 12 17.3 5.8 21 7.5 14 2 9.3 9.2 8.6z"/>',
+                ontime: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+                late: '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+                afk: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+                leave: '<path d="M12 10a4 4 0 0 0-8 0Z"/><path d="M12 10a4 4 0 0 1 8 0Z"/><path d="M12 10v10"/><path d="M4 21c3-2 5-2 8 0 3-2 5-2 8 0"/>',
+                pending: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+                crown: '<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/>',
+                shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+                bolt: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+                flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+                diamond: '<path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/>',
+                trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+                ai: '<rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/>',
+                map: '<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/>',
+                radar: '<line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/>',
+                signout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
+                check: '<path d="M20 6 9 17l-5-5"/>',
+                sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+                moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>'
+            };
+            const inner = p[name] || p.check;
+            return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" class="${cls}" aria-hidden="true">${inner}</svg>`;
+        }
+
+        function getRankCrestSvg(rank) {
+            const r = String(rank || 'WARRIOR').toUpperCase();
+            if (r === 'MYTHIC') {
+                return '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2 15.5 6.5 21 7l-2 5.5 1.5 5.5L12 22l-8.5-4L5 12.5 3 7l5.5-.5Z" fill="rgba(16,185,129,0.22)" stroke="#10B981" stroke-width="1.8" stroke-linejoin="round"/><path d="m12 6 2.2 4.3 4.6.7-3.3 3.2.8 4.6-4.3-2.2-4.3 2.2.8-4.6L5.2 11l4.6-.7Z" fill="#FBBF24"/></svg>';
+            }
+            if (r === 'LEGEND') {
+                return '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2 20 6v6c0 5.5-3.4 9.2-8 10-4.6-.8-8-4.5-8-10V6Z" fill="rgba(251,191,36,0.2)" stroke="#FBBF24" stroke-width="1.9" stroke-linejoin="round"/><path d="m12 7 1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.6Z" fill="#FBBF24"/></svg>';
+            }
+            if (r === 'EPIC') {
+                return '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><polygon points="12 2 21 8.5 18 20 6 20 3 8.5" fill="rgba(56,189,248,0.2)" stroke="#38BDF8" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="#10B981"/></svg>';
+            }
+            if (r === 'ELITE') {
+                return '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2 19 6v6c0 4.8-3 8.2-7 9-4-.8-7-4.2-7-9V6Z" fill="rgba(148,163,184,0.2)" stroke="#CBD5E1" stroke-width="1.8" stroke-linejoin="round"/><path d="m9.5 12 1.8 1.8L15 10" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/></svg>';
+            }
+            return '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 19 7v5c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V7Z" fill="rgba(245,158,11,0.14)" stroke="#F59E0B" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 8v8M9 11h6" stroke="#FBBF24" stroke-width="1.8" stroke-linecap="round"/></svg>';
+        }
 
         let checkinFilterMode = 'in';
         let selectedSingleMetric = null;
@@ -2250,16 +2528,21 @@
             }
         });
 
+        function applyThemeVisuals(enableDark) {
+            document.body.classList.toggle('dark-mode', enableDark);
+            document.documentElement.classList.toggle('dark', enableDark);
+            const iconEl = document.getElementById('theme-icon');
+            if (iconEl) iconEl.innerHTML = enableDark ? gbfIcon('sun', 'w-4 h-4 text-amber-bright', 16) : gbfIcon('moon', 'w-4 h-4 text-slate-700', 16);
+            const metaTheme = document.getElementById('meta-theme-color');
+            if (metaTheme) metaTheme.setAttribute('content', enableDark ? '#060D1A' : '#F8FAFC');
+            if (tg && tg.setHeaderColor) {
+                try { tg.setHeaderColor(enableDark ? '#060D1A' : '#F8FAFC'); } catch (e) {}
+            }
+        }
+
         function initTelegramMiniApp() {
             const savedTheme = localStorage.getItem('gbf_theme');
-            const applyDark = (enable) => {
-                document.body.classList.toggle('dark-mode', enable);
-                document.documentElement.classList.toggle('dark', enable);
-                const iconEl = document.getElementById('theme-icon');
-                if (iconEl) iconEl.className = enable ? 'fas fa-sun text-xs' : 'fas fa-moon text-xs';
-            };
-
-            applyDark(savedTheme !== 'light');
+            applyThemeVisuals(savedTheme !== 'light');
             renderMonthPickerUI();
 
             const identity = resolveSignedTelegramIdentity();
@@ -2285,8 +2568,8 @@
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             const icon = type === 'success'
-                ? '<i class="fas fa-check-circle mr-2 text-sm"></i>'
-                : '<i class="fas fa-exclamation-triangle mr-2 text-sm"></i>';
+                ? gbfIcon('check', 'w-4 h-4 mr-2 shrink-0', 16)
+                : gbfIcon('late', 'w-4 h-4 mr-2 shrink-0', 16);
             toast.innerHTML = icon + `<span>${escapeHtml(msg)}</span>`;
             container.appendChild(toast);
             setTimeout(() => {
@@ -2530,12 +2813,12 @@
                 optionsEl.innerHTML = list.map((m, idx) => {
                     const isActive = m === selectedMonth;
                     const rowCls = isActive
-                        ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-bright border border-emerald-500/40'
+                        ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-bright border border-emerald-500/40'
                         : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/70 border border-transparent';
                     const badge = idx === 0
-                        ? '<span class="text-[8.5px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300">Latest</span>'
-                        : `<span class="text-[9.5px] tabular-nums text-slate-400">${escapeHtml(m)}</span>`;
-                    const check = isActive ? '<i class="fas fa-check text-[10px] text-emerald-bright"></i>' : '';
+                        ? '<span class="text-[8.5px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-800 dark:text-emerald-300">Latest</span>'
+                        : `<span class="text-[9.5px] tabular-nums text-slate-600 dark:text-slate-300">${escapeHtml(m)}</span>`;
+                    const check = isActive ? gbfIcon('check', 'w-3 h-3 text-emerald-bright shrink-0', 12) : '';
                     return `<button type="button" role="option" aria-selected="${isActive ? 'true' : 'false'}" onclick="selectMonthOption('${escapeHtml(m)}')" class="touch-target w-full px-2.5 py-2 rounded-xl flex items-center justify-between gap-2 text-left transition-colors ${rowCls}"><span class="text-[11px] font-bold leading-tight truncate">${escapeHtml(formatMonthLongLabel(m))}</span><div class="flex items-center gap-1.5 shrink-0">${badge}${check}</div></button>`;
                 }).join('');
             }
@@ -2634,14 +2917,15 @@
             if (canvasId === 'mlbbRadarChart' && profileRadarChartInstance) profileRadarChartInstance.destroy();
 
             const labels = [
-                'Punctuality (အချိန်မှန်)',
-                'Reliability (ရက်မှန်)',
-                'MVP Burst (အစောရောက်)',
-                'Discipline (စည်းကမ်း)',
-                'Team Spirit (အဖွဲ့စိတ်ဓာတ်)'
+                ['Punctuality', '(အချိန်မှန်)'],
+                ['Reliability', '(ရက်မှန်)'],
+                ['MVP Burst', '(အစောရောက်)'],
+                ['Discipline', '(စည်းကမ်း)'],
+                ['Team Spirit', '(အဖွဲ့စိတ်ဓာတ်)']
             ];
-            canvas.setAttribute('aria-label', labels.map((lb, idx) => `${lb}: ${Math.round(Number(radarValues[idx] || 0))}%`).join(', '));
+            canvas.setAttribute('aria-label', labels.map((lb, idx) => `${lb.join(' ')}: ${Math.round(Number(radarValues[idx] || 0))}%`).join(', '));
 
+            const isNarrowViewport = (window.innerWidth || 400) < 420;
             const chart = new Chart(ctx, {
                 type: 'radar',
                 data: {
@@ -2660,14 +2944,15 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: { padding: { left: 4, right: 4, top: 2, bottom: 2 } },
                     plugins: { legend: { display: false } },
                     scales: {
                         r: {
                             min: 0,
                             max: 100,
-                            angleLines: { color: 'rgba(255, 255, 255, 0.16)' },
-                            grid: { color: 'rgba(255, 255, 255, 0.16)' },
-                            pointLabels: { color: '#F1F5F9', font: { size: 10.5, weight: 'bold' } },
+                            angleLines: { color: 'rgba(56, 189, 248, 0.16)' },
+                            grid: { color: 'rgba(56, 189, 248, 0.16)' },
+                            pointLabels: { color: '#F1F5F9', padding: 4, font: { size: isNarrowViewport ? 9 : 10, weight: 'bold' } },
                             ticks: { display: false, stepSize: 25 }
                         }
                     }
@@ -2745,18 +3030,25 @@
             const pulseStrip = document.getElementById('role-pulse-strip');
             if (pulseStrip) {
                 if (isLeader) {
-                    const activeCnt = (d.system && d.system.today_active) || 0;
-                    const totalCnt = (d.system && d.system.total_emp) || 16;
                     pulseStrip.classList.remove('hidden');
                     pulseStrip.innerHTML = `
             <div class="flex items-center justify-between gap-2">
               <div class="min-w-0">
-                <span class="text-[8.5px] font-ui-label font-extrabold uppercase tracking-wider text-primary dark:text-emerald-bright">${escapeHtml(d.user.role)} Command</span>
+                <div class="flex items-center gap-1.5">
+                  ${gbfIcon('shield', 'w-3 h-3 text-emerald-bright shrink-0', 12)}
+                  <span class="text-[8.5px] font-ui-label font-extrabold uppercase tracking-wider text-primary dark:text-emerald-bright">${escapeHtml(d.user.role)} Command</span>
+                </div>
                 <p class="text-[11px] font-extrabold text-on-surface dark:text-white truncate">${escapeHtml(d.user.name)} <span class="font-mono-id">(#${escapeHtml(d.user.id)})</span></p>
               </div>
               <div class="flex items-center gap-1.5 shrink-0">
-                <span class="px-2 py-1 rounded-xl bg-canvas-mint dark:bg-emerald-dark/70 text-primary dark:text-emerald-bright text-[9px] font-extrabold tabular-nums whitespace-nowrap">👥 ${activeCnt}/${totalCnt}</span>
-                <button type="button" onclick="switchTab('ai')" class="px-2.5 py-1.5 rounded-xl bg-primary text-white text-[9px] font-extrabold active:scale-95 whitespace-nowrap">🧠 AI Command</button>
+                <button type="button" onclick="launchQuickTab('team')" class="tap-spring px-2.5 py-1.5 rounded-xl bg-surface-container-low dark:bg-slate-800/95 border border-slate-200/80 dark:border-sky-400/20 text-on-surface dark:text-slate-100 text-[9px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap">
+                  ${gbfIcon('users', 'w-3 h-3 text-sky-400 shrink-0', 12)}
+                  <span>Squads</span>
+                </button>
+                <button type="button" onclick="switchTab('ai')" class="tap-spring px-2.5 py-1.5 rounded-xl bg-primary dark:bg-emerald-600 text-white text-[9px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap shadow-sm">
+                  ${gbfIcon('ai', 'w-3 h-3 shrink-0', 12)}
+                  <span>AI Command</span>
+                </button>
               </div>
             </div>`;
                 } else {
@@ -2769,18 +3061,20 @@
 
             if (d.system) {
                 const counterEl = document.getElementById('active-counter');
-                if (counterEl) counterEl.innerText = `👥 ${d.system.today_active || 0} / ${d.system.total_emp || 0}`;
+                if (counterEl) {
+                    counterEl.innerHTML = `${gbfIcon('users', 'w-3 h-3 shrink-0', 12)}<span>${d.system.today_active || 0} / ${d.system.total_emp || 0}</span>`;
+                }
             }
 
             const wrapper = document.getElementById('smart-attendance-wrapper');
             const st = (d.today_state && d.today_state.status) ? d.today_state.status : "NOT_CHECKED_IN";
             if (wrapper) {
                 if (st === "NOT_CHECKED_IN") {
-                    wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check In')" class="cta-pulse-ring w-full bg-gradient-to-r from-primary to-primary-container text-white font-bold p-3.5 rounded-2xl shadow-lg active:scale-95 transition-all flex items-center justify-between border border-emerald-bright/40"><div class="flex items-center gap-3 text-left"><div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center"><i class="fas fa-map-marker-alt text-base"></i></div><div><span class="block text-xs font-extrabold tracking-wide uppercase">ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)</span><span class="block text-[9.5px] text-emerald-100 mt-0.5">GPS 500m &amp; Field Site Verification</span></div></div><i class="fas fa-chevron-right text-white/75"></i></button>`;
+                    wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check In')" class="cta-pulse-ring tap-spring w-full bg-gradient-to-r from-primary via-emerald-700 to-emerald-600 text-white font-bold p-3.5 rounded-2xl shadow-[0_10px_24px_-6px_rgba(16,185,129,0.5)] flex items-center justify-between border border-emerald-bright/45"><div class="flex items-center gap-3 text-left"><div class="hud-chamfer w-10 h-10 bg-white/15 border border-white/20 flex items-center justify-center shrink-0">${gbfIcon('radar', 'w-5 h-5 text-emerald-100', 20)}</div><div><span class="block text-xs font-extrabold tracking-wide uppercase">ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)</span><span class="block text-[9.5px] text-emerald-100 mt-0.5">GPS 500m &amp; Field Site Verification</span></div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="text-white/80 shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>`;
                 } else if (st === "CHECKED_IN") {
-                    wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check Out')" class="cta-pulse-ring w-full bg-gradient-to-r from-error to-rose-600 text-white font-bold p-3.5 rounded-2xl shadow-lg active:scale-95 transition-all flex items-center justify-between border border-rose-400/40"><div class="flex items-center gap-3 text-left"><div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center"><i class="fas fa-sign-out-alt text-base"></i></div><div><span class="block text-xs font-extrabold tracking-wide uppercase">ရုံးဆင်းစာရင်းသွင်းမည် (CHECK OUT)</span><span class="block text-[9.5px] text-rose-100 mt-0.5 tabular-nums">Checked In at ${escapeHtml(d.today_state.time_in)}</span></div></div><i class="fas fa-chevron-right text-white/75"></i></button>`;
+                    wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check Out')" class="cta-pulse-ring tap-spring w-full bg-gradient-to-r from-error to-rose-600 text-white font-bold p-3.5 rounded-2xl shadow-[0_10px_24px_-6px_rgba(225,29,72,0.45)] flex items-center justify-between border border-rose-400/45"><div class="flex items-center gap-3 text-left"><div class="hud-chamfer w-10 h-10 bg-white/15 border border-white/20 flex items-center justify-center shrink-0">${gbfIcon('signout', 'w-5 h-5 text-rose-100', 20)}</div><div><span class="block text-xs font-extrabold tracking-wide uppercase">ရုံးဆင်းစာရင်းသွင်းမည် (CHECK OUT)</span><span class="block text-[9.5px] text-rose-100 mt-0.5 tabular-nums">Checked In at ${escapeHtml(d.today_state.time_in)}</span></div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="text-white/80 shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>`;
                 } else {
-                    wrapper.innerHTML = `<div class="w-full bg-canvas-mint dark:bg-emerald-dark/60 text-primary dark:text-emerald-bright font-bold p-3.5 rounded-2xl flex items-center justify-between border border-emerald-bright/40"><div class="flex items-center gap-3 text-left"><div class="w-10 h-10 bg-emerald-bright text-dark-surface rounded-xl flex items-center justify-center"><i class="fas fa-check-double text-base"></i></div><div><span class="block text-xs font-extrabold uppercase">ယနေ့ တာဝန်ချိန် ပြီးဆုံးပါပြီ</span><span class="block text-[9.5px] mt-0.5 tabular-nums">IN: ${escapeHtml(d.today_state.time_in)} • OUT: ${escapeHtml(d.today_state.time_out)}</span></div></div></div>`;
+                    wrapper.innerHTML = `<div class="w-full bg-canvas-mint dark:bg-emerald-dark/60 text-primary dark:text-emerald-bright font-bold p-3.5 rounded-2xl flex items-center justify-between border border-emerald-bright/40"><div class="flex items-center gap-3 text-left"><div class="hud-chamfer w-10 h-10 bg-emerald-bright text-dark-surface flex items-center justify-center shrink-0">${gbfIcon('ontime', 'w-5 h-5', 20)}</div><div><span class="block text-xs font-extrabold uppercase">ယနေ့ တာဝန်ချိန် ပြီးဆုံးပါပြီ</span><span class="block text-[9.5px] mt-0.5 tabular-nums">IN: ${escapeHtml(d.today_state.time_in)} • OUT: ${escapeHtml(d.today_state.time_out)}</span></div></div></div>`;
                 }
             }
 
@@ -2796,10 +3090,12 @@
             if (profStrike) profStrike.innerText = `Strike: ${m.strikes}/3`;
 
             const homeRankEl = document.getElementById('home-kpi-rank');
+            const homeCrestEl = document.getElementById('home-rank-crest');
             const homeScoreEl = document.getElementById('home-kpi-score');
             const homeWinEl = document.getElementById('home-kpi-winrate');
             const homePresEl = document.getElementById('home-stat-present');
             if (homeRankEl) homeRankEl.innerText = m.rank;
+            if (homeCrestEl) homeCrestEl.innerHTML = getRankCrestSvg(m.rank);
             if (homeScoreEl) homeScoreEl.innerText = `${m.kpiScore}% KPI`;
             if (homeWinEl) homeWinEl.innerText = `${m.winRate}% Win Rate`;
             if (homePresEl) homePresEl.innerText = `${m.p} / 26 Days`;
@@ -3021,10 +3317,12 @@
 
             if (readoutEl) readoutEl.innerText = `ရုံးချုပ်နှင့် အကွာအဝေး: ${distText}`;
             if (badgeEl) {
-                badgeEl.innerText = isHq ? `🏢 HQ Zone (≤${office.max_radius}m)` : `🗼 ပြင်ပ/ဆိုက် (${distText})`;
+                badgeEl.innerHTML = isHq
+                    ? `${gbfIcon('hq', 'w-2.5 h-2.5 shrink-0', 10)}<span>HQ Zone (≤${office.max_radius}m)</span>`
+                    : `${gbfIcon('tower', 'w-2.5 h-2.5 shrink-0', 10)}<span>ပြင်ပ/ဆိုက် (${escapeHtml(distText)})</span>`;
                 badgeEl.className = isHq
-                    ? "px-1.5 py-0.5 rounded bg-canvas-mint dark:bg-emerald-dark/70 text-primary dark:text-emerald-bright text-[8px] font-extrabold whitespace-nowrap"
-                    : "px-1.5 py-0.5 rounded bg-amber-bright/25 text-tertiary dark:text-amber-bright text-[8px] font-extrabold whitespace-nowrap";
+                    ? "inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-canvas-mint dark:bg-emerald-dark/70 text-primary dark:text-emerald-bright text-[8px] font-extrabold whitespace-nowrap border border-emerald-bright/25"
+                    : "inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-bright/25 text-tertiary dark:text-amber-bright text-[8px] font-extrabold whitespace-nowrap border border-amber-bright/30";
             }
             if (subEl) {
                 subEl.innerText = isHq
@@ -3044,13 +3342,14 @@
 
         function measureLiveGpsDistance() {
             playUiSound('tick');
+            triggerHaptic('light');
             if (!navigator.geolocation) return showToast("GPS not supported", "warning");
             const readoutEl = document.getElementById('live-distance-readout');
             if (readoutEl) readoutEl.innerText = "GPS တည်နေရာ တိုင်းတာနေပါသည်...";
             navigator.geolocation.getCurrentPosition(
                 pos => {
                     updateLiveDistanceBarUI(pos.coords.latitude, pos.coords.longitude);
-                    showToast("📍 ရုံးချုပ်နှင့် အကွာအဝေး တိုင်းတာပြီးပါပြီ", "success");
+                    showToast("ရုံးချုပ်နှင့် အကွာအဝေး တိုင်းတာပြီးပါပြီ", "success");
                 },
                 () => showToast("GPS Location ဖွင့်ပေးပါခင်ဗျာ", "warning"),
                 { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
@@ -3068,9 +3367,9 @@
             const btnIn = document.getElementById('btn-chk-in');
             const btnLv = document.getElementById('btn-chk-leave');
             const btnPend = document.getElementById('btn-chk-pending');
-            if (btnIn) btnIn.innerText = `🟢 ဝင်ပြီး (${checkedList.length})`;
-            if (btnLv) btnLv.innerText = `🏖️ ယနေ့ခွင့် (${leaveList.length})`;
-            if (btnPend) btnPend.innerText = `⏳ မဝင်ရသေး (${pendingList.length})`;
+            if (btnIn) btnIn.innerHTML = `${gbfIcon('ontime', 'w-3 h-3 shrink-0', 12)}<span>ဝင်ပြီး (${checkedList.length})</span>`;
+            if (btnLv) btnLv.innerHTML = `${gbfIcon('leave', 'w-3 h-3 shrink-0', 12)}<span>ယနေ့ခွင့် (${leaveList.length})</span>`;
+            if (btnPend) btnPend.innerHTML = `${gbfIcon('pending', 'w-3 h-3 shrink-0', 12)}<span>မဝင်ရသေး (${pendingList.length})</span>`;
 
             const colors = ['from-primary to-emerald-bright', 'from-secondary to-cobalt-vivid', 'from-amber-500 to-amber-bright', 'from-emerald-dark to-primary'];
             const maxVisible = 5;
@@ -3088,8 +3387,8 @@
             avatarsEl.innerHTML = html;
 
             if (checkedList.length > 0) {
-                const leaveNote = leaveList.length > 0 ? ` • 🏖️ ခွင့် ${leaveList.length} ဦး` : '';
-                summaryEl.innerText = `🥇 #1 ${checkedList[0].name} နှင့် ${checkedList.length} ဦး ရုံးတက်ပြီး${leaveNote}`;
+                const leaveNote = leaveList.length > 0 ? ` • ခွင့် ${leaveList.length} ဦး` : '';
+                summaryEl.innerHTML = `<span class="inline-flex items-center gap-1 align-middle">${gbfIcon('trophy', 'w-3 h-3 text-amber-500 shrink-0', 12)}<span>#1 ${escapeHtml(checkedList[0].name)} နှင့် ${checkedList.length} ဦး ရုံးတက်ပြီး${escapeHtml(leaveNote)}</span></span>`;
                 subEl.innerText = `အစဉ်လိုက်၊ ရုံးနှင့် အကွာအဝေး (Map) နှင့် ခွင့်စာရင်းကြည့်ရန် နှိပ်ပါ`;
             } else {
                 summaryEl.innerText = `ယနေ့ ရုံးတက်စာရင်း မရှိသေးပါ (${leaveList.length > 0 ? `ခွင့် ${leaveList.length} ဦး` : '0 ဦး'})`;
@@ -3114,8 +3413,8 @@
                 const btn = document.getElementById(`btn-chk-${k}`);
                 if (btn) {
                     btn.className = (k === mode)
-                        ? "px-2.5 py-1.5 rounded-lg bg-primary text-white text-[9px] font-extrabold"
-                        : "px-2.5 py-1.5 rounded-lg bg-surface-container-low dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 text-[9px] font-extrabold";
+                        ? "tap-spring inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary text-white text-[9px] font-extrabold"
+                        : "tap-spring inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container-low dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 text-[9px] font-extrabold";
                 }
             });
             renderCheckinDetailList();
@@ -3129,25 +3428,28 @@
             if (checkinFilterMode === 'in') {
                 const items = globalState.system.today_checked_in_list || [];
                 listEl.innerHTML = items.map((emp, i) => {
-                    const medal = i === 0 ? '🥇 #1' : (i === 1 ? '🥈 #2' : (i === 2 ? '🥉 #3' : `#${i + 1}`));
+                    const rankClass = i === 0
+                        ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-bright/20 dark:text-amber-300 dark:border-amber-bright/50'
+                        : (i === 1 ? 'bg-sky-100 text-sky-900 border-sky-300 dark:bg-sky-500/20 dark:text-sky-200 dark:border-sky-400/40' : (i === 2 ? 'bg-orange-100 text-orange-900 border-orange-300 dark:bg-orange-500/20 dark:text-orange-200 dark:border-orange-400/40' : 'bg-dark-surface text-white border-white/10'));
+                    const medal = `#${i + 1}`;
                     const badge = emp.kpi === 'MVP'
                         ? 'bg-amber-bright/20 text-tertiary dark:text-amber-bright'
-                        : (emp.kpi === 'On-Time' ? 'bg-canvas-mint dark:bg-emerald-dark/70 text-primary dark:text-emerald-bright' : 'bg-error-container text-error');
+                        : (emp.kpi === 'On-Time' ? 'bg-canvas-mint dark:bg-emerald-dark/70 text-primary dark:text-emerald-bright' : 'bg-error-container text-error dark:bg-rose-950/70 dark:text-rose-300');
                     const distLabel = emp.distance_text || (emp.distance_m != null ? formatClientDistance(emp.distance_m) : 'HQ');
                     const isHq = emp.loc_status !== 'Field_Site' && (emp.distance_m == null || emp.distance_m <= (office.max_radius || 500));
-                    const zoneIcon = isHq ? '🏢' : '🗼';
+                    const zoneSvg = isHq ? gbfIcon('hq', 'w-2.5 h-2.5 shrink-0', 10) : gbfIcon('tower', 'w-2.5 h-2.5 shrink-0', 10);
                     const mapHref = emp.map_url || (emp.gps ? (MAPS_DIR_BASE + `${office.lat},${office.lng}/${encodeURIComponent(emp.gps)}`) : '');
                     const mapBtnHtml = mapHref
-                        ? `<a href="${escapeHtml(mapHref)}" target="_top" rel="noopener noreferrer" onclick="return openSafeMapLink(event, this.href)" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-secondary/15 dark:bg-sky-500/20 text-secondary dark:text-sky-300 text-[8.5px] font-extrabold whitespace-nowrap hover:brightness-110" title="Map ပေါ်တွင် အကွာအဝေး တိုင်းတာချက်ကြည့်ရန်">${zoneIcon} ${escapeHtml(distLabel)} <i class="fas fa-map-location-dot"></i></a>`
-                        : `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-container text-[8.5px] font-extrabold whitespace-nowrap">${zoneIcon} ${escapeHtml(distLabel)}</span>`;
+                        ? `<a href="${escapeHtml(mapHref)}" target="_top" rel="noopener noreferrer" onclick="return openSafeMapLink(event, this.href)" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-secondary/15 dark:bg-sky-500/20 text-secondary dark:text-sky-300 text-[8.5px] font-extrabold whitespace-nowrap" title="Map ပေါ်တွင် အကွာအဝေး တိုင်းတာချက်ကြည့်ရန်">${zoneSvg}<span>${escapeHtml(distLabel)}</span>${gbfIcon('map', 'w-2.5 h-2.5 opacity-80 shrink-0', 10)}</a>`
+                        : `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-container text-[8.5px] font-extrabold whitespace-nowrap">${zoneSvg}<span>${escapeHtml(distLabel)}</span></span>`;
 
                     return `<div class="p-2 rounded-xl bg-surface-container-low dark:bg-slate-800/95 flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2 min-w-0">
-                            <span class="px-1.5 py-0.5 rounded-md bg-dark-surface text-white font-extrabold text-[8.5px] tabular-nums shrink-0">${medal}</span>
+                            <span class="px-1.5 py-0.5 rounded-md border font-extrabold text-[8.5px] tabular-nums shrink-0 ${rankClass}">${medal}</span>
                             <div class="min-w-0">
                                 <p class="text-[10px] font-extrabold truncate">${escapeHtml(emp.name)}</p>
                                 <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                                    <span class="text-[8.5px] text-slate-500 dark:text-slate-300 truncate">${escapeHtml(emp.squad || emp.role)}</span>
+                                    <span class="text-[8.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(emp.squad || emp.role)}</span>
                                     ${mapBtnHtml}
                                 </div>
                             </div>
@@ -3157,7 +3459,7 @@
                             <span class="inline-block px-1.5 py-0.5 rounded text-[8px] font-extrabold ${badge}">${escapeHtml(emp.kpi)}</span>
                         </div>
                     </div>`;
-                }).join('') || `<p class="text-[10px] text-slate-400 text-center py-2">ဝင်ရောက်ထားသူ မရှိသေးပါ</p>`;
+                }).join('') || `<p class="text-[10px] text-slate-600 dark:text-slate-300 text-center py-2">ဝင်ရောက်ထားသူ မရှိသေးပါ</p>`;
             } else if (checkinFilterMode === 'leave') {
                 const leaves = globalState.system.today_leaves_list || [];
                 listEl.innerHTML = leaves.map(lv => {
@@ -3166,22 +3468,22 @@
                         : 'bg-amber-bright/20 text-tertiary dark:text-amber-bright';
                     return `<div class="p-2 rounded-xl bg-surface-container-low dark:bg-slate-800/95 flex items-center justify-between gap-2">
                         <div class="min-w-0">
-                            <p class="text-[10px] font-extrabold truncate">🏖️ ${escapeHtml(lv.name)}</p>
-                            <p class="text-[8.5px] text-slate-500 dark:text-slate-300 truncate">${escapeHtml(lv.type)} Leave (${escapeHtml(lv.days)} ရက်) • ${escapeHtml(lv.reason || '')}</p>
+                            <p class="text-[10px] font-extrabold truncate inline-flex items-center gap-1.5">${gbfIcon('leave', 'w-3 h-3 text-sky-400 shrink-0', 12)}<span>${escapeHtml(lv.name)}</span></p>
+                            <p class="text-[8.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(lv.type)} Leave (${escapeHtml(lv.days)} ရက်) • ${escapeHtml(lv.reason || '')}</p>
                         </div>
                         <span class="px-2 py-0.5 rounded-full text-[8.5px] font-extrabold shrink-0 ${stClass}">${escapeHtml(lv.status)}</span>
                     </div>`;
-                }).join('') || `<p class="text-[10px] text-slate-400 text-center py-2">ယနေ့ ခွင့်တိုင်ကြားထားသူ မရှိပါ</p>`;
+                }).join('') || `<p class="text-[10px] text-slate-600 dark:text-slate-300 text-center py-2">ယနေ့ ခွင့်တိုင်ကြားထားသူ မရှိပါ</p>`;
             } else {
                 const pending = globalState.system.today_pending_list || [];
                 listEl.innerHTML = pending.map(emp => `
                     <div class="p-2 rounded-xl bg-surface-container-low dark:bg-slate-800/95 flex items-center justify-between gap-2">
                         <div class="min-w-0">
                             <p class="text-[10px] font-extrabold truncate">${escapeHtml(emp.name)}</p>
-                            <p class="text-[8.5px] text-slate-500 dark:text-slate-300 truncate">${escapeHtml(emp.role)} • ${escapeHtml(emp.squad || '')}</p>
+                            <p class="text-[8.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(emp.role)} • ${escapeHtml(emp.squad || '')}</p>
                         </div>
                         <span class="px-2 py-0.5 rounded-full bg-amber-bright/20 text-tertiary dark:text-amber-bright text-[8.5px] font-extrabold shrink-0">Pending</span>
-                    </div>`).join('') || `<p class="text-[10px] text-emerald-bright text-center py-2">ဝန်ထမ်းအားလုံး ရုံးတက်/ခွင့် စာရင်းဝင်ပြီးပါပြီ</p>`;
+                    </div>`).join('') || `<p class="text-[10px] text-primary dark:text-emerald-bright text-center py-2 font-bold">ဝန်ထမ်းအားလုံး ရုံးတက်/ခွင့် စာရင်းဝင်ပြီးပါပြီ</p>`;
             }
         }
 
@@ -3207,9 +3509,9 @@
             if (!rowsListEl) return;
 
             if (teams.length === 0) {
-                summaryEl.innerText = `ACTIVE BATTLE SQUADS (0 SQUADS)`;
-                subEl.innerText = `အဖွဲ့အသစ်ခွဲဝေရန် အောက်ခြေ + ခလုတ်ကို နှိပ်ပါ`;
-                rowsListEl.innerHTML = `<div class="p-3 rounded-2xl bg-slate-900/75 border border-white/10 text-center text-[10px] text-slate-200">ယနေ့အတွက် တာဝန်ကျအဖွဲ့ မခွဲရသေးပါ</div>`;
+                summaryEl.innerText = `ACTIVE BATTLE SQUADS (0)`;
+                subEl.innerText = `တာဝန်ကျအဖွဲ့ မဖွဲ့စည်းရသေးပါ`;
+                rowsListEl.innerHTML = `<div class="p-2.5 rounded-2xl bg-slate-900/75 border border-sky-400/20 flex items-center justify-between gap-2"><span class="text-[10px] text-slate-200 truncate">ယနေ့အတွက် တာဝန်ကျအဖွဲ့ မခွဲရသေးပါ</span><button type="button" onclick="launchQuickTab('team')" class="tap-spring px-2.5 py-1.5 rounded-xl bg-emerald-bright text-dark-surface text-[9.5px] font-black whitespace-nowrap shrink-0 shadow-sm">+ Squad ဖွဲ့မည်</button></div>`;
                 wrapper.innerHTML = `<p class="text-[10px] text-slate-200 text-center py-2">ယနေ့ တာဝန်ကျအဖွဲ့ မရှိသေးပါ</p>`;
                 return;
             }
@@ -3218,13 +3520,13 @@
             subEl.innerText = `အဖွဲ့ ${teams.length} သင်း တာဝန်ချထားပြီး • အသေးစိတ်ကြည့်ရန် နှိပ်ပါ`;
 
             const squadThemes = [
-                { icon: 'fa-shield-halved', badgeBg: 'from-emerald-500 to-teal-700', ring: 'border-emerald-400/55' },
-                { icon: 'fa-bolt', badgeBg: 'from-sky-500 to-blue-700', ring: 'border-sky-400/55' },
-                { icon: 'fa-fire-flame-curved', badgeBg: 'from-amber-500 to-orange-700', ring: 'border-amber-400/55' }
+                { icon: 'shield', badgeBg: 'from-emerald-500 to-teal-700', ring: 'border-emerald-400/55' },
+                { icon: 'bolt', badgeBg: 'from-sky-500 to-blue-700', ring: 'border-sky-400/55' },
+                { icon: 'flame', badgeBg: 'from-amber-500 to-orange-700', ring: 'border-amber-400/55' }
             ];
             const avatarGradients = [
                 'from-emerald-500 to-primary', 'from-sky-500 to-blue-700',
-                'from-amber-500 to-orange-600', 'from-purple-500 to-indigo-700', 'from-rose-500 to-red-700'
+                'from-amber-500 to-orange-600', 'from-cyan-500 to-teal-700', 'from-rose-500 to-red-700'
             ];
 
             rowsListEl.innerHTML = teams.map((team, idx) => {
@@ -3233,15 +3535,15 @@
                 const isMyTeam = String(team.members || '').includes(d.user.name);
                 const facesHtml = members.slice(0, 5).map((m, mIdx) => {
                     const grad = avatarGradients[(idx + mIdx) % avatarGradients.length];
-                    const crown = m.isLeader ? `<span class="absolute -top-1.5 -right-1 text-[8px] drop-shadow">👑</span>` : '';
+                    const crown = m.isLeader ? `<span class="absolute -top-1.5 -right-1 w-4 h-4 rounded-full bg-slate-900 border border-amber-bright/60 text-amber-bright flex items-center justify-center shadow">${gbfIcon('crown', 'w-2.5 h-2.5', 10)}</span>` : '';
                     return `<div class="relative w-8 h-8 rounded-full bg-gradient-to-br ${grad} text-white font-black text-[9.5px] flex items-center justify-center ring-2 ring-slate-900 shadow-md" title="${escapeHtml(m.name)} (${escapeHtml(m.role)})">${escapeHtml(m.initials)}${crown}</div>`;
                 }).join('');
                 const extraCount = members.length > 5 ? `<div class="w-8 h-8 rounded-full bg-slate-800 text-emerald-bright font-black text-[9px] flex items-center justify-center ring-2 ring-slate-900">+${members.length - 5}</div>` : '';
 
                 return `<div onclick="toggleTodayTeamsPanel()" class="mlbb-squad-row ${isMyTeam ? 'my-squad' : ''} rounded-2xl p-2.5 flex items-center justify-between gap-2 cursor-pointer">
                     <div class="flex items-center gap-2.5 min-w-0">
-                        <div class="relative w-10 h-10 rounded-xl bg-gradient-to-br ${theme.badgeBg} border ${theme.ring} flex flex-col items-center justify-center text-white shadow-md shrink-0">
-                            <i class="fas ${theme.icon} text-xs"></i>
+                        <div class="hud-chamfer relative w-10 h-10 bg-gradient-to-br ${theme.badgeBg} border ${theme.ring} flex flex-col items-center justify-center text-white shadow-md shrink-0">
+                            ${gbfIcon(theme.icon, 'w-3.5 h-3.5', 14)}
                             <span class="text-[7.5px] font-black leading-none mt-0.5">#${idx + 1}</span>
                         </div>
                         <div class="min-w-0">
@@ -3251,7 +3553,7 @@
                             </div>
                             <div class="flex items-center gap-1.5 mt-0.5">
                                 <span class="px-1.5 py-0.5 rounded bg-white/10 text-amber-bright text-[8px] font-extrabold uppercase">${escapeHtml(team.project)}</span>
-                                <span class="text-[8.5px] font-extrabold text-emerald-bright tabular-nums">👥 ${members.length} ဦး</span>
+                                <span class="inline-flex items-center gap-1 text-[8.5px] font-extrabold text-emerald-bright tabular-nums">${gbfIcon('users', 'w-3 h-3 shrink-0', 11)}<span>${members.length} ဦး</span></span>
                             </div>
                         </div>
                     </div>
@@ -3262,7 +3564,7 @@
             wrapper.innerHTML = teams.map((team, idx) => {
                 const members = parseSquadMembersList(team.members);
                 const isMyTeam = String(team.members || '').includes(d.user.name);
-                const memberPills = members.map(m => `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 border border-white/10 text-[9px] font-bold text-white">${m.isLeader ? '👑' : '🔹'} ${escapeHtml(m.name)} <span class="text-emerald-bright">(${escapeHtml(m.role)})</span></span>`).join('');
+                const memberPills = members.map(m => `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 border border-white/10 text-[9px] font-bold text-white">${m.isLeader ? gbfIcon('crown', 'w-2.5 h-2.5 text-amber-bright shrink-0', 10) : gbfIcon('diamond', 'w-2.5 h-2.5 text-sky-300 shrink-0', 10)} ${escapeHtml(m.name)} <span class="text-emerald-bright">(${escapeHtml(m.role)})</span></span>`).join('');
                 return `<div class="p-3 rounded-2xl bg-slate-900/90 border ${isMyTeam ? 'border-emerald-bright' : 'border-white/10'}">
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-1.5">
@@ -3312,7 +3614,7 @@
             const streakBadge = document.getElementById('reward-weekly-streak-badge');
             if (streakBadge) {
                 streakBadge.innerText = weeklyStreakUnlocked
-                    ? `✅ UNLOCKED (+${earnedWeeklyStreak.toLocaleString()} Ks)`
+                    ? `UNLOCKED (+${earnedWeeklyStreak.toLocaleString()} Ks)`
                     : `${progressCount}/${targetSlots} MVP (+${Number(cfg.weekly_mvp_bonus).toLocaleString()} Ks)`;
             }
 
@@ -3336,21 +3638,21 @@
             if (questsList) {
                 const quests = [
                     {
-                        icon: '🌟',
+                        icon: gbfIcon('mvp', 'w-4 h-4 text-amber-bright', 16),
                         title: `Daily MVP Bounty (${Number(cfg.mvp_per_day).toLocaleString()} Ks / MVP)`,
                         sub: forfeited ? 'AFK ၃ ကြိမ်ပြည့်သဖြင့် Bonus ပျက်ပြယ်သည်' : `ယခုလ MVP (${mvpCount}) ကြိမ် × ${Number(cfg.mvp_per_day).toLocaleString()} Ks`,
                         amount: `+${earnedMvpDaily.toLocaleString()} Ks`,
                         unlocked: earnedMvpDaily > 0
                     },
                     {
-                        icon: '🏆',
+                        icon: gbfIcon('trophy', 'w-4 h-4 text-sky-300', 16),
                         title: `Season Rank Bonus (${rank})`,
                         sub: `MYTHIC: +${Number(cfg.mythic_rank_bonus).toLocaleString()} Ks • LEGEND: +${Number(cfg.legend_rank_bonus).toLocaleString()} Ks`,
                         amount: `+${earnedRank.toLocaleString()} Ks`,
                         unlocked: earnedRank > 0
                     },
                     {
-                        icon: '🛡️',
+                        icon: gbfIcon('ontime', 'w-4 h-4 text-emerald-bright', 16),
                         title: `Zero-AFK Attendance Shield`,
                         sub: afkCount === 0 ? 'ခွင့်မဲ့ပျက်ရက် (0) ရက် • ဆုကြေး Active' : `ခွင့်မဲ့ပျက်ရက် (${afkCount}) ရက်ရှိသဖြင့် ပျက်ပြယ်သည်`,
                         amount: earnedAttendance > 0 ? `+${earnedAttendance.toLocaleString()} Ks` : '0 Ks',
@@ -3419,9 +3721,9 @@
                     emp_id: currentUser.id,
                     emp_name: currentUser.name,
                     reward_config: rewardConfig
-                }, "🎁 ဆုကြေးနှုန်းထားများကို Google Sheets သို့ သိမ်းဆည်းပြီးပါပြီ!");
+                }, "ဆုကြေးနှုန်းထားများကို Google Sheets သို့ သိမ်းဆည်းပြီးပါပြီ!");
             } else {
-                showToast("🎁 ဆုကြေးနှုန်းထား အသစ် သတ်မှတ်ပြီးပါပြီ!", "success");
+                showToast("ဆုကြေးနှုန်းထား အသစ် သတ်မှတ်ပြီးပါပြီ!", "success");
             }
         }
 
@@ -3450,7 +3752,14 @@
         }
 
         function updateHomeCarouselDots(activeIndex) {
+            const pill = document.getElementById('home-segmented-pill');
+            if (pill) pill.style.transform = `translateX(${activeIndex * 100}%)`;
             [0, 1, 2].forEach(i => {
+                const seg = document.getElementById(`home-seg-${i}`);
+                if (seg) {
+                    seg.classList.toggle('is-active', i === activeIndex);
+                    seg.setAttribute('aria-selected', i === activeIndex ? 'true' : 'false');
+                }
                 const dot = document.getElementById(`home-dot-${i}`);
                 if (dot) {
                     dot.className = (i === activeIndex)
@@ -3477,22 +3786,26 @@
 
             const configs = {
                 mvp: {
-                    title: `🌟 MVP Early Check-In (${t.mvp || 0} ရက်)`,
+                    icon: gbfIcon('mvp', 'w-4 h-4 text-amber-bright shrink-0', 16),
+                    title: `MVP Early Check-In (${t.mvp || 0} ရက်)`,
                     summary: `09:00 AM မတိုင်မီ ရုံးတက်နိုင်မှု • တစ်ရက်လျှင် +${Number(rewardConfig.mvp_per_day).toLocaleString()} Ks ဆုကြေးရရှိသည်။`,
                     rows: att.filter(r => r.kpi === 'MVP')
                 },
                 ontime: {
-                    title: `🏅 On-Time Check-In (${t.ontime || 0} ရက်)`,
+                    icon: gbfIcon('ontime', 'w-4 h-4 text-emerald-bright shrink-0', 16),
+                    title: `On-Time Check-In (${t.ontime || 0} ရက်)`,
                     summary: `09:00 – 09:15 AM အတွင်း ရုံးတက်နိုင်မှု • Punctuality ရမှတ် အပြည့်ရရှိသည်။`,
                     rows: att.filter(r => r.kpi === 'On-Time')
                 },
                 late: {
-                    title: `❗ Late / Feeding (${t.late || 0} ရက်)`,
+                    icon: gbfIcon('late', 'w-4 h-4 text-amber-400 shrink-0', 16),
+                    title: `Late / Feeding (${t.late || 0} ရက်)`,
                     summary: `09:15 AM နောက်ပိုင်း ရုံးတက်မှု • ၃ ကြိမ်အထိ ဒဏ်ကြေးကင်းလွတ်ခွင့်ရှိပြီး ၄ ကြိမ်မှစ၍ 2,000 MMK နုတ်ယူသည်။`,
                     rows: att.filter(r => r.kpi === 'Late')
                 },
                 afk: {
-                    title: `🚩 Unexcused Absence / AFK (${t.unexcused_absent || 0} ရက်)`,
+                    icon: gbfIcon('afk', 'w-4 h-4 text-rose-400 shrink-0', 16),
+                    title: `Unexcused Absence / AFK (${t.unexcused_absent || 0} ရက်)`,
                     summary: `ခွင့်မဲ့ပျက်ကွက်မှု ၀ ရက်ဖြစ်မှသာ လစဉ် ရက်မှန်ဆုကြေး ${Number(rewardConfig.attendance_bonus).toLocaleString()} MMK ရရှိမည်။`,
                     rows: []
                 }
@@ -3506,12 +3819,12 @@
             box.classList.remove('hidden');
             box.innerHTML = `
                 <div class="flex items-center justify-between mb-1">
-                    <strong class="text-xs font-extrabold text-on-surface dark:text-white">${cfg.title}</strong>
-                    <button type="button" onclick="document.getElementById('single-metric-inspector').classList.add('hidden')" class="text-xs text-slate-400 px-1.5"><i class="fas fa-xmark"></i></button>
+                    <strong class="text-xs font-extrabold text-on-surface dark:text-white inline-flex items-center gap-1.5">${cfg.icon}<span>${cfg.title}</span></strong>
+                    <button type="button" onclick="document.getElementById('single-metric-inspector').classList.add('hidden')" class="text-xs text-slate-400 px-1.5" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
                 </div>
                 <p class="mm-text text-[10px] text-on-surface-variant dark:text-slate-200 mb-2">${cfg.summary}</p>
                 <div class="flex flex-wrap gap-1 mb-2.5">${datesHtml}</div>
-                <button type="button" onclick="openProfileView('${key}')" class="w-full py-2.5 rounded-xl bg-primary text-white text-[10px] font-ui-label font-extrabold uppercase tracking-wider active:scale-95">
+                <button type="button" onclick="openProfileView('${key}')" class="tap-spring w-full py-2.5 rounded-xl bg-primary text-white text-[10px] font-ui-label font-extrabold uppercase tracking-wider">
                     မျက်နှာပြင်အပြည့် အသေးစိတ်ကြည့်ရန် →
                 </button>`;
         }
@@ -3765,7 +4078,7 @@
             const voices = (history.voice || []).filter(v => matchDate(v.date));
             voices.forEach(v => {
                 hasLogs = true;
-                container.innerHTML += `<div class="relative pl-5"><div class="absolute left-[-13px] top-1.5 w-3 h-3 bg-cobalt-vivid rounded-full border-2 border-white z-10"></div><div class="bg-surface-container-low dark:bg-slate-800 rounded-xl p-3"><div class="flex justify-between items-center mb-1"><span class="text-[9.5px] font-extrabold text-secondary dark:text-sky-400">${escapeHtml(v.ticket)} • ${escapeHtml(v.category)}</span><span class="text-[8px] font-bold bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded">${escapeHtml(v.status)}</span></div><p class="mm-text text-[10px] italic mb-1">"${escapeHtml(v.message)}"</p><p class="mm-text text-[9px] text-slate-500 dark:text-slate-300 border-t border-slate-200/70 pt-1">🤖 ${escapeHtml(v.reply)}</p></div></div>`;
+                container.innerHTML += `<div class="relative pl-5"><div class="absolute left-[-13px] top-1.5 w-3 h-3 bg-cobalt-vivid rounded-full border-2 border-white z-10"></div><div class="bg-surface-container-low dark:bg-slate-800 rounded-xl p-3"><div class="flex justify-between items-center mb-1"><span class="text-[9.5px] font-extrabold text-secondary dark:text-sky-400">${escapeHtml(v.ticket)} • ${escapeHtml(v.category)}</span><span class="text-[8px] font-bold bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded">${escapeHtml(v.status)}</span></div><p class="mm-text text-[10px] italic mb-1">"${escapeHtml(v.message)}"</p><p class="mm-text text-[9px] text-slate-500 dark:text-slate-300 border-t border-slate-200/70 pt-1 inline-flex items-start gap-1">${gbfIcon('ai', 'w-3 h-3 text-sky-400 shrink-0 mt-0.5', 12)}<span>${escapeHtml(v.reply)}</span></p></div></div>`;
             });
 
             const teams = (history.teams || []).filter(t => matchDate(t.date));
@@ -3877,7 +4190,7 @@
         function savePayslipToDrive() {
             apiPost(
                 { action: "save_payslip_to_drive", emp_id: currentUser.id, target_month: selectedMonth },
-                "☁️ Payslip PDF ကို Google Drive သို့ သိမ်းဆည်းပြီးပါပြီ!",
+                "Payslip PDF ကို Google Drive သို့ သိမ်းဆည်းပြီးပါပြီ!",
                 null,
                 { timeoutMs: BackendBridge.TIMEOUT_HEAVY_MS, disableOfflineQueue: true }
             );
@@ -3919,7 +4232,7 @@
                         if (callback) callback(data);
                     } else if (data && (data.offline || data.timeout) && !options.disableOfflineQueue) {
                         await GBFOfflineStore.enqueueMutation(payload);
-                        showToast("📶 Offline Outbox ထဲသို့ သိမ်းဆည်းထားပြီး အင်တာနက်ပြန်ရသည်နှင့် အလိုအလျောက် ပို့ပေးပါမည်!", "warning");
+                        showToast("Offline Outbox ထဲသို့ သိမ်းဆည်းထားပြီး အင်တာနက်ပြန်ရသည်နှင့် အလိုအလျောက် ပို့ပေးပါမည်!", "warning");
                         if (callback) callback({ queued: true });
                     } else {
                         showToast((data && data.message) || "Failed", "error");
@@ -3931,7 +4244,7 @@
                     if (submitBtn) submitBtn.disabled = false;
                     if (!options.disableOfflineQueue) {
                         await GBFOfflineStore.enqueueMutation(payload);
-                        showToast("📶 Network ပြတ်တောက်နေသဖြင့် Outbox ထဲသို့ သိမ်းဆည်းထားပါသည်", "warning");
+                        showToast("Network ပြတ်တောက်နေသဖြင့် Outbox ထဲသို့ သိမ်းဆည်းထားပါသည်", "warning");
                     } else {
                         showToast(`Error: ${e.message}`, "error");
                     }
@@ -3946,7 +4259,7 @@
                 globalState.today_state.time_out = type === "Check Out" ? "05:15 PM" : "";
                 updateLiveDistanceBarUI(16.8055, 96.1778);
                 renderFullUI(globalState);
-                showToast(`✅ ${type} အောင်မြင်ပါသည် (MVP 🌟 • 120 m)`, "success");
+                showToast(`${type} အောင်မြင်ပါသည် (MVP • 120 m)`, "success");
                 return;
             }
             blockUI("Acquiring Live GPS...", "Measuring Distance from GBF HQ");
@@ -3954,7 +4267,7 @@
                 navigator.geolocation.getCurrentPosition(
                     p => {
                         updateLiveDistanceBarUI(p.coords.latitude, p.coords.longitude);
-                        apiPost({ action: "attendance", type: type, lat: p.coords.latitude, lng: p.coords.longitude, emp_id: currentUser.id, emp_name: currentUser.name }, `✅ ${type} Success.`);
+                        apiPost({ action: "attendance", type: type, lat: p.coords.latitude, lng: p.coords.longitude, emp_id: currentUser.id, emp_name: currentUser.name }, `${type} Success.`);
                     },
                     () => { unblockUI(); showToast("GPS Error: Location ဖွင့်ပေးပါခင်ဗျာ။", "error"); },
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -3973,7 +4286,7 @@
             const days = Math.ceil(Math.abs(new Date(e) - new Date(s)) / 86400000) + 1;
             apiPost(
                 { action: "leave_request", leave_type: document.getElementById('lv-type').value, start_date: s, end_date: e, total_days: days, reason: r, emp_id: currentUser.id, emp_name: currentUser.name },
-                "📝 အတည်ပြုသူထံ ပေးပို့ပြီးပါပြီ။",
+                "အတည်ပြုသူထံ ပေးပို့ပြီးပါပြီ။",
                 () => { clearDraft('leave'); resetForms(); switchTab('logs'); },
                 { buttonId: 'btn-submit-leave' }
             );
@@ -4018,7 +4331,7 @@
             if (a <= 0 || !r.trim()) return showToast("ပမာဏနှင့် အကြောင်းရင်း ဖြည့်စွက်ပါ", "warning");
             apiPost(
                 { action: "advance_request", requested_amount: a, reason: r, requested_date: new Date().toISOString().split('T')[0], emp_id: currentUser.id, emp_name: currentUser.name },
-                "💸 အတည်ပြုသူထံ ပေးပို့ပြီးပါပြီ။",
+                "အတည်ပြုသူထံ ပေးပို့ပြီးပါပြီ။",
                 () => { clearDraft('advance'); resetForms(); syncAdvanceSubmitLabel(); switchTab('wallet'); },
                 { buttonId: 'btn-submit-advance' }
             );
@@ -4031,7 +4344,7 @@
             if (!msg.trim()) return showToast("အကြောင်းအရာ ရေးသားပေးပါ", "warning");
             apiPost(
                 { action: "submit_voice", category: cat, message: msg.trim(), is_anonymous: isAnon, emp_id: currentUser.id, emp_name: currentUser.name },
-                "🤖 HR-AI နှင့် မန်နေဂျာများထံ ပေးပို့ပြီးပါပြီ။",
+                "HR-AI နှင့် မန်နေဂျာများထံ ပေးပို့ပြီးပါပြီ။",
                 () => { clearDraft('voice'); resetForms(); switchTab('logs'); },
                 { buttonId: 'btn-submit-voice' }
             );
@@ -4047,7 +4360,7 @@
             });
             apiPost(
                 { action: "assign_team", team_name: name, project: document.getElementById('tm-project').value, members: members, emp_id: currentUser.id, emp_name: currentUser.name },
-                "📡 အဖွဲ့ဖွဲ့စည်းပြီး Telegram Group သို့ ပို့ပြီးပါပြီ။",
+                "အဖွဲ့ဖွဲ့စည်းပြီး Telegram Group သို့ ပို့ပြီးပါပြီ။",
                 () => { resetForms(); switchTab('home'); },
                 { buttonId: 'btn-submit-team' }
             );
@@ -4059,7 +4372,7 @@
                     <div class="bg-surface-container-low dark:bg-slate-800 rounded-2xl p-3 border border-error/30 text-[10px]">
                         <div class="flex justify-between items-center mb-1"><span class="font-extrabold">Ko Myo Thant Zaw (3013)</span><span class="bg-error text-white font-bold px-2 py-0.5 rounded-full">Risk: 68%</span></div>
                         <p class="text-slate-400">Win Rate: 72% | Mon/Fri Bridge Ratio: 60%</p>
-                        <p class="mt-1.5 text-primary dark:text-emerald-bright font-bold">🤖 Buddy System ချိတ်ဆက်ပေးရန်နှင့် 1-on-1 ဆွေးနွေးရန်</p>
+                        <p class="mt-1.5 text-primary dark:text-emerald-bright font-bold inline-flex items-center gap-1.5">${gbfIcon('ai', 'w-3.5 h-3.5 shrink-0', 14)}<span>Buddy System ချိတ်ဆက်ပေးရန်နှင့် 1-on-1 ဆွေးနွေးရန်</span></p>
                     </div>`;
                 showToast("AI Burnout Analysis Completed!", "success");
                 return;
@@ -4153,11 +4466,10 @@
 
         function toggleDarkMode() {
             playUiSound('tick');
+            triggerHaptic('light');
             const isDark = !document.body.classList.contains('dark-mode');
-            document.body.classList.toggle('dark-mode', isDark);
-            document.documentElement.classList.toggle('dark', isDark);
+            applyThemeVisuals(isDark);
             localStorage.setItem('gbf_theme', isDark ? 'dark' : 'light');
-            document.getElementById('theme-icon').className = isDark ? 'fas fa-sun text-xs' : 'fas fa-moon text-xs';
         }
 
         function logoutConfirm() {
