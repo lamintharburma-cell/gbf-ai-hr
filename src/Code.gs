@@ -83,9 +83,10 @@ function doPost(e) {
       const isPrivate = data.message.chat.type === "private";
       const text = (data.message.text || "").trim();
       const firstName = data.message.from ? data.message.from.first_name : "ဝန်ထမ်း";
+      const topicThreadId = data.message.message_thread_id || null;
 
       if (text.startsWith("/")) {
-        handleBotCommand_(chatId, isPrivate, firstName, text);
+        handleBotCommand_(chatId, isPrivate, firstName, text, { message_thread_id: topicThreadId });
       } else if (isPrivate && text.length > 0) {
         handleConversationalAIMessage(chatId, firstName, text);
       }
@@ -247,21 +248,26 @@ function initApproverSettings() {
     if (data[i][0]) existingKeys.add(String(data[i][0]).trim());
   }
 
+  const canonical = (typeof mergeSystemSettings_ === "function") ? mergeSystemSettings_({}) : {};
+  const val = (key, fallback) => (canonical[key] !== undefined && canonical[key] !== "") ? String(canonical[key]) : fallback;
+
   const defaultRows = [
-    ["POS_LAYER_TL_TARGETS", "TT,JT,ST", "TL မှ Approve ပေးရမည့် Position Layer များ (TT=Trainee, JT=Junior Tech, ST=Senior Tech)"],
-    ["APPROVER_TL_EMP_IDS", "1002,1006,2006,2007,3012", "TT, JT, ST များအတွက် Approve ပေးမည့် Team Leader (TL) Emp ID များ"],
-    ["TL_ROUTE_BY_DAILY_TEAM", "YES", "YES ထားပါက ယနေ့ Daily_Teams တွင် တွဲထားသော သက်ဆိုင်ရာ TL ထံ ဦးစားပေးပို့မည်"],
-    ["POS_LAYER_TM_TARGETS", "TL,MM", "TM မှ Approve ပေးရမည့် Position Layer များ (TL=Team Leader, MM=Manager / HR)"],
-    ["APPROVER_TM_EMP_IDS", "1001,1004", "TL, MM များအတွက် Approve ပေးမည့် Top Management (TM) Emp ID များ"],
-    ["APPROVER_HR_WATCH_IDS", "1003", "HR မှတ်တမ်းစစ်ဆေးရန် အမြဲအသိပေးမည့် HR Emp ID များ"],
-    ["REWARD_MVP_PER_DAY", "1000", "🌟 နေ့စဉ် MVP (<09:00 AM) တစ်ရက်ချင်း ရရှိမည့် ဆုကြေး (MMK)"],
-    ["REWARD_WEEKLY_MVP_TARGET", "5", "🔥 အပတ်စဉ် MVP Streak Chest ရရှိရန် လိုအပ်သော MVP ရက်အရေအတွက်"],
-    ["REWARD_WEEKLY_MVP_BONUS", "10000", "🎁 အပတ်စဉ် MVP Streak ပြည့်ပါက ရရှိမည့် အပိုဆုကြေး (MMK)"],
-    ["REWARD_ATTENDANCE_BONUS", "50000", "🛡️ လစဉ် ခွင့်မဲ့ပျက်ရက် (0 AFK) ရက်မှန်ဆုကြေး (MMK)"],
-    ["REWARD_MYTHIC_BONUS", "30000", "🏆 MYTHIC Rank (>=90% KPI) ရရှိသူအတွက် လစဉ် ဆုကြေး (MMK)"],
-    ["REWARD_LEGEND_BONUS", "15000", "⚔️ LEGEND Rank (>=80% KPI) ရရှိသူအတွက် လစဉ် ဆုကြေး (MMK)"],
-    ["GROUP_ATTENDANCE_BROADCAST", "YES", "YES ထားပါက Check-In / Check-Out ဝင်တိုင်း Telegram Group သို့ အစဉ်လိုက်စာရင်းနှင့် Map အကွာအဝေး ပို့မည်"],
-    ["GROUP_ATTENDANCE_MODE", "NEW_MESSAGE", "NEW_MESSAGE = ဝင်တိုင်း စာအသစ်ပို့မည် | LIVE_EDIT = ယနေ့ Group စာတစ်စောင်တည်းကို အချိန်နှင့်တစ်ပြေးညီ Update လုပ်မည်"]
+    ["POS_LAYER_TL_TARGETS", val("POS_LAYER_TL_TARGETS", "TT,JT,ST"), "TL မှ Approve ပေးရမည့် Position Layer များ (TT=Trainee, JT=Junior Tech, ST=Senior Tech)"],
+    ["APPROVER_TL_EMP_IDS", val("APPROVER_TL_EMP_IDS", "1002,1006,2006,2007,3012"), "TT, JT, ST များအတွက် Approve ပေးမည့် Team Leader (TL) Emp ID များ"],
+    ["TL_ROUTE_BY_DAILY_TEAM", val("TL_ROUTE_BY_DAILY_TEAM", "YES"), "YES ထားပါက ယနေ့ Daily_Teams တွင် တွဲထားသော သက်ဆိုင်ရာ TL ထံ ဦးစားပေးပို့မည်"],
+    ["POS_LAYER_TM_TARGETS", val("POS_LAYER_TM_TARGETS", "TL,MM"), "TM မှ Approve ပေးရမည့် Position Layer များ (TL=Team Leader, MM=Manager / HR)"],
+    ["APPROVER_TM_EMP_IDS", val("APPROVER_TM_EMP_IDS", "1001,1004"), "TL, MM များအတွက် Approve ပေးမည့် Top Management (TM) Emp ID များ"],
+    ["APPROVER_HR_WATCH_IDS", val("APPROVER_HR_WATCH_IDS", "1003"), "HR မှတ်တမ်းစစ်ဆေးရန် အမြဲအသိပေးမည့် HR Emp ID များ"],
+    ["REWARD_MVP_PER_DAY", val("REWARD_MVP_PER_DAY", "1000"), "🌟 နေ့စဉ် MVP (<09:00 AM) တစ်ရက်ချင်း ရရှိမည့် ဆုကြေး (MMK)"],
+    ["REWARD_WEEKLY_MVP_TARGET", val("REWARD_WEEKLY_MVP_TARGET", "5"), "🔥 အပတ်စဉ် MVP Streak Chest ရရှိရန် လိုအပ်သော MVP ရက်အရေအတွက်"],
+    ["REWARD_WEEKLY_MVP_BONUS", val("REWARD_WEEKLY_MVP_BONUS", "10000"), "🎁 အပတ်စဉ် MVP Streak ပြည့်ပါက ရရှိမည့် အပိုဆုကြေး (MMK)"],
+    ["REWARD_ATTENDANCE_BONUS", val("REWARD_ATTENDANCE_BONUS", "50000"), "🛡️ လစဉ် ခွင့်မဲ့ပျက်ရက် (0 AFK) ရက်မှန်ဆုကြေး (MMK)"],
+    ["REWARD_MYTHIC_BONUS", val("REWARD_MYTHIC_BONUS", "30000"), "🏆 MYTHIC Rank (>=90% KPI) ရရှိသူအတွက် လစဉ် ဆုကြေး (MMK)"],
+    ["REWARD_LEGEND_BONUS", val("REWARD_LEGEND_BONUS", "15000"), "⚔️ LEGEND Rank (>=80% KPI) ရရှိသူအတွက် လစဉ် ဆုကြေး (MMK)"],
+    ["TELEGRAM_GROUP_THREAD_ID", canonical.TELEGRAM_GROUP_THREAD_ID !== undefined ? String(canonical.TELEGRAM_GROUP_THREAD_ID) : "", "Optional Telegram Forum Topic Thread ID (Blank = Main Group)"],
+    ["GROUP_ATTENDANCE_BROADCAST", val("GROUP_ATTENDANCE_BROADCAST", "YES"), "YES ထားပါက Check-In / Check-Out ဝင်တိုင်း Telegram Group သို့ အစဉ်လိုက်စာရင်းနှင့် Map အကွာအဝေး ပို့မည်"],
+    ["GROUP_ATTENDANCE_MODE", val("GROUP_ATTENDANCE_MODE", "LIVE_EDIT"), "LIVE_EDIT = ယနေ့ Group စာတစ်စောင်တည်းကို အချိန်နှင့်တစ်ပြေးညီ Update လုပ်မည် | NEW_MESSAGE = ဝင်တိုင်း စာအသစ်ပို့မည်"],
+    ["GROUP_DIGEST_ENABLED", val("GROUP_DIGEST_ENABLED", "YES"), "YES ထားပါက မနက် 09:20 နှင့် ညနေ 06:15 တွင် Group Summary Digest ပို့မည် (တနင်္ဂနွေ ပိတ်)"]
   ];
 
   const rowsToAppend = defaultRows.filter(r => !existingKeys.has(r[0]));
@@ -295,8 +301,8 @@ function updateRewardSettingsInSheet(data) {
   };
 
   const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
   try {
+    lock.waitLock(10000);
     const rows = sheet.getDataRange().getValues();
     const rowByKey = {};
     for (let i = 1; i < rows.length; i++) {
@@ -324,8 +330,11 @@ function updateRewardSettingsInSheet(data) {
       message: "🎁 ဆုကြေးနှုန်းထားများကို System_Settings တွင် သိမ်းဆည်းပြီးပါပြီ!",
       updated_data: getFullSystemState(auth.empId, auth.empName, data.chat_id, data.selected_month)
     };
+  } catch (error) {
+    console.error("saveRewardSettings Error:", error);
+    return { success: false, message: "Server အလုပ်များနေပါသည်။" };
   } finally {
-    lock.releaseLock();
+    try { lock.releaseLock(); } catch (e) {}
   }
 }
 
@@ -352,8 +361,10 @@ function runSystemDiagnostics() {
     Logger.log("2️⃣ Telegram Bot getMe: " + meRes.getContentText());
     const whInfo = UrlFetchApp.fetch(getTelegramAPI() + "getWebhookInfo", { muteHttpExceptions: true });
     Logger.log("3️⃣ Telegram Webhook Info: " + whInfo.getContentText());
-    const cmdInfo = UrlFetchApp.fetch(getTelegramAPI() + "getMyCommands", { muteHttpExceptions: true });
-    Logger.log("3️⃣b Telegram Menu Commands: " + cmdInfo.getContentText());
+    const cmdInfo = UrlFetchApp.fetch(getTelegramAPI() + "getMyCommands?scope=" + encodeURIComponent(JSON.stringify({ type: "all_private_chats" })), { muteHttpExceptions: true });
+    Logger.log("3️⃣b Telegram Private Menu: " + cmdInfo.getContentText());
+    const grpCmdInfo = UrlFetchApp.fetch(getTelegramAPI() + "getMyCommands?scope=" + encodeURIComponent(JSON.stringify({ type: "all_group_chats" })), { muteHttpExceptions: true });
+    Logger.log("3️⃣c Telegram Group Menu: " + grpCmdInfo.getContentText());
   }
 
   if (!geminiKey) {
@@ -401,7 +412,13 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
   const settings = getSettings();
   const empData = empSheet.getDataRange().getValues();
   const cleanChatId = sanitizeTelegramChatId_(chatId);
-  let userRowIndex = -1, userRole = null, baseSalary = 400000, strikeCount = 0, matchedRowChatId = "";
+  const inputPinOrId = String(empId || "").trim();
+  const isGroupViewer = inputPinOrId === "__GROUP_VIEWER__";
+  let userRowIndex = -1, userRole = isGroupViewer ? "Viewer" : null, baseSalary = isGroupViewer ? 0 : 400000, strikeCount = 0, matchedRowChatId = "", matchedExactEmpId = false;
+  if (isGroupViewer) {
+    empId = "__GROUP_VIEWER__";
+    empName = empName || "GroupViewer";
+  }
   const activeEmployees = [];
 
   for (let i = 1; i < empData.length; i++) {
@@ -416,11 +433,14 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
       activeEmployees.push({ id: rowEmpId, name: rowName, role: rowRole });
     }
 
-    const inputPinOrId = String(empId || "").trim();
-    const isPinOrIdMatch = inputPinOrId !== "" && (rowEmpId === inputPinOrId || rowPin === inputPinOrId);
-    const isSsoMatch = !inputPinOrId && cleanChatId && rowChatId === cleanChatId;
+    if (isGroupViewer || rowStatus.toLowerCase() === "inactive") continue;
 
-    if ((isPinOrIdMatch || isSsoMatch) && rowStatus.toLowerCase() !== "inactive") {
+    const isExactEmpId = inputPinOrId !== "" && rowEmpId === inputPinOrId;
+    const isPinMatch = inputPinOrId !== "" && rowPin === inputPinOrId && !matchedExactEmpId;
+    const isSsoMatch = !inputPinOrId && cleanChatId && rowChatId === cleanChatId && !matchedExactEmpId;
+
+    if (isExactEmpId || isPinMatch || isSsoMatch) {
+      if (isExactEmpId) matchedExactEmpId = true;
       userRowIndex = i + 1;
       empId = rowEmpId;
       empName = rowName;
@@ -432,9 +452,18 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
   }
   if (!userRole) return null;
 
-  const bindResult = (cleanChatId && userRowIndex !== -1)
-    ? bindTelegramChatIdToRow_(empSheet, empData, userRowIndex, cleanChatId, "MINIAPP_PIN_LOGIN")
-    : { bound: false, reason: matchedRowChatId ? "ALREADY_LINKED" : "NO_CHAT_ID" };
+  let bindResult = { bound: false, reason: isGroupViewer ? "GROUP_VIEWER" : (matchedRowChatId ? "ALREADY_LINKED" : "NO_CHAT_ID") };
+  if (!isGroupViewer && cleanChatId && userRowIndex !== -1) {
+    const bindLock = LockService.getScriptLock();
+    const gotLock = bindLock.tryLock(2500);
+    try {
+      bindResult = bindTelegramChatIdToRow_(empSheet, empData, userRowIndex, cleanChatId, "MINIAPP_PIN_LOGIN");
+    } finally {
+      if (gotLock) {
+        try { bindLock.releaseLock(); } catch (e) {}
+      }
+    }
+  }
 
   const positionLayer = resolvePositionLayer(userRole, empId, settings);
   const now = new Date();
@@ -783,10 +812,24 @@ function processWebAppAttendance(data) {
   }
 }
 
-function processWebAppLeave(data) {
+/**
+ * Executes a state-mutating WebApp action under ScriptLock with timeout/exception safety.
+ */
+function withScriptLock_(label, fn) {
   const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
   try {
+    lock.waitLock(10000);
+    return fn();
+  } catch (error) {
+    console.error(`${label} Error:`, error);
+    return { success: false, message: "Server အလုပ်များနေပါသည်။" };
+  } finally {
+    try { lock.releaseLock(); } catch (e) {}
+  }
+}
+
+function processWebAppLeave(data) {
+  return withScriptLock_("processWebAppLeave", () => {
     const dup = checkIdempotency_(data.idempotencyKey);
     if (dup) {
       return Object.assign({}, dup, {
@@ -832,15 +875,11 @@ function processWebAppLeave(data) {
     };
     recordIdempotency_(data.idempotencyKey, res);
     return res;
-  } finally {
-    lock.releaseLock();
-  }
+  });
 }
 
 function processWebAppAdvance(data) {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-  try {
+  return withScriptLock_("processWebAppAdvance", () => {
     const dup = checkIdempotency_(data.idempotencyKey);
     if (dup) {
       return Object.assign({}, dup, {
@@ -889,15 +928,11 @@ function processWebAppAdvance(data) {
     };
     recordIdempotency_(data.idempotencyKey, res);
     return res;
-  } finally {
-    lock.releaseLock();
-  }
+  });
 }
 
 function processWebAppTeam(data) {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-  try {
+  return withScriptLock_("processWebAppTeam", () => {
     const dup = checkIdempotency_(data.idempotencyKey);
     if (dup) {
       return Object.assign({}, dup, {
@@ -914,9 +949,12 @@ function processWebAppTeam(data) {
     sheet.appendRow(["TEAM-" + new Date().getTime(), fDate, data.team_name, data.project, membersStr, JSON.stringify(members)]);
     SpreadsheetApp.flush();
 
-    const groupRosterMsg = buildConsolidatedTeamsGroupMessage_(sheet, fDate, data.team_name, data.project, members);
+    const freshState = getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month);
+    const groupRosterMsg = buildConsolidatedTeamsGroupMessage_(sheet, fDate, data.team_name, data.project, members, freshState);
     if (settings.TELEGRAM_GROUP_CHAT_ID) {
-      sendTelegramHTML(String(settings.TELEGRAM_GROUP_CHAT_ID).trim(), groupRosterMsg);
+      const grpChatId = String(settings.TELEGRAM_GROUP_CHAT_ID).trim();
+      const mode = String(settings.GROUP_ATTENDANCE_MODE || "LIVE_EDIT").toUpperCase();
+      upsertGroupBoardMessage_(grpChatId, "GRP_TEAM_MSG_LATEST", groupRosterMsg, buildGroupTeamsKeyboard_(settings), mode, resolveGroupThreadId_(grpChatId, settings), fDate);
     }
     notifyPerformerAndMembersTeam_(data, members, fDate, data.chat_id);
 
@@ -924,19 +962,15 @@ function processWebAppTeam(data) {
     const res = {
       success: true,
       message: "📡 အဖွဲ့ဖွဲ့စည်းပြီးပါပြီ။",
-      updated_data: getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month)
+      updated_data: freshState
     };
     recordIdempotency_(data.idempotencyKey, res);
     return res;
-  } finally {
-    lock.releaseLock();
-  }
+  });
 }
 
 function processWebAppVoice(data) {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-  try {
+  return withScriptLock_("processWebAppVoice", () => {
     const dup = checkIdempotency_(data.idempotencyKey);
     if (dup) {
       return Object.assign({}, dup, {
@@ -994,7 +1028,5 @@ function processWebAppVoice(data) {
     };
     recordIdempotency_(data.idempotencyKey, res);
     return res;
-  } finally {
-    lock.releaseLock();
-  }
+  });
 }

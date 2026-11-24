@@ -398,10 +398,20 @@ test('Test 7: Bot Option B Commands, CMD_* Inline Callbacks & Performer Receipts
         const rr = numR || 1;
         const cc = numC || 1;
         return {
-          getValue: () => rowsRef[r - 1][c - 1],
-          setValue: v => { rowsRef[r - 1][c - 1] = v; },
+          getValue: () => (rowsRef[r - 1] ? rowsRef[r - 1][c - 1] : ''),
+          setValue: v => {
+            while (rowsRef.length < r) rowsRef.push([]);
+            rowsRef[r - 1][c - 1] = v;
+          },
           getValues: () => rowsRef.slice(r - 1, r - 1 + rr).map(row => row.slice(c - 1, c - 1 + cc)),
-          getDisplayValues: () => rowsRef.slice(r - 1, r - 1 + rr).map(row => row.slice(c - 1, c - 1 + cc).map(String))
+          getDisplayValues: () => rowsRef.slice(r - 1, r - 1 + rr).map(row => row.slice(c - 1, c - 1 + cc).map(v => String(v ?? ''))),
+          setValues: vals => {
+            vals.forEach((rowVals, ri) => {
+              while (rowsRef.length < r + ri) rowsRef.push([]);
+              rowVals.forEach((v, ci) => { rowsRef[r - 1 + ri][c - 1 + ci] = v; });
+            });
+          },
+          setNumberFormat: () => {}
         };
       }
     };
@@ -638,4 +648,257 @@ test('Test 8: Telegram HTML formatter, /askai 4 Quick Buttons & Check-Out durati
   // 6. Consolidated Daily Team Rollout formatting
   const teamHtml = context.buildConsolidatedTeamsGroupMessage_(sheets.Daily_Teams, '2026-11-24', '', '', []);
   assert.ok(teamHtml.includes('Team 1 (Alpha)') && teamHtml.includes('Lead:') && teamHtml.includes('Tech:'));
+});
+
+test('Test 9: Telegram Group Live Board, Topic Thread, Scoped Menus, In-Place Private Edit, Multi-Approver Sync & Digests', () => {
+  const filesToLoad = ['Config.gs', 'Database.gs', 'TelegramIdentity.gs', 'PayrollEngine.gs', 'TelegramBot.gs', 'GeminiAI.gs', 'Code.gs'];
+  const sentMessages = [];
+  const editedMessages = [];
+  const syncedCommandCalls = [];
+  let nextMsgId = 700;
+
+  const empRows = [
+    ['Telegram_Chat_ID', 'Official_Emp_ID', 'Employee_Name', 'Role', 'Phone', 'Joined', 'Base', 'Status', 'PIN', 'Strike'],
+    ['6062798917', '1001', 'Ko La Min Thar', 'CEO / TM', '09111', '2024-01-01', 800000, 'Active', '1001', 0],
+    ['888000222', '1003', 'Ma Hsu Lae Nandar', 'MM / HR', '09222', '2024-01-01', 700000, 'Active', '1003', 0],
+    ['777000111', '3013', 'Ko Myo Thant Zaw', 'JT', '09333', '2025-03-01', 400000, 'Active', '3013', 0],
+    ['', '3015', 'Staff Four', 'JT', '', '', 400000, 'Active', '3015', 0],
+    ['', '3016', 'Staff Five', 'JT', '', '', 400000, 'Active', '3016', 0],
+    ['', '3017', 'Staff Six', 'JT', '', '', 400000, 'Active', '3017', 0],
+    ['', '3018', 'Staff Seven', 'JT', '', '', 400000, 'Active', '3018', 0],
+    ['', '3019', 'Staff Eight', 'JT', '', '', 400000, 'Active', '3019', 0],
+    ['', '3020', 'Staff Nine', 'JT', '', '', 400000, 'Active', '3020', 0]
+  ];
+  const lvRows = [
+    ['Leave_ID', 'Official_Emp_ID', 'Emp_Name', 'Leave_Type', 'Start_Date', 'End_Date', 'Total_Days', 'Reason', 'Pattern', 'HR_Status'],
+    ['LV-9', '3013', 'Ko Myo Thant Zaw', 'Medical', '24.11.2026', '25.11.2026', '2', 'Fever', 'Standard_Day', 'Pending']
+  ];
+  const attRows = [
+    ['Att_ID', 'Date', 'Official_Emp_ID', 'In', 'GPS', 'Out', 'OutGPS', 'Dist', 'Loc', 'KPI', 'Name'],
+    ['ATT-1', '2026-11-24', '1001', '08:42 AM', '16.8,96.1', '', '', '40', 'Normal', 'MVP', 'Ko La Min Thar']
+  ];
+  const teamRows = [
+    ['Team_ID', 'Date', 'Team_Name', 'Project', 'Members'],
+    ['TEAM-1', '2026-11-24', 'Team 1 (Alpha)', 'YTP', 'Ko La Min Thar (Leader), Ko Myo Thant Zaw (JT), Staff Four (JT)']
+  ];
+  const settingRows = [
+    ['Setting_Key', 'Setting_Value', 'Description'],
+    ['TELEGRAM_GROUP_CHAT_ID', '-1003886390064', 'Group'],
+    ['TELEGRAM_GROUP_THREAD_ID', '42', 'Topic'],
+    ['APPROVER_TM_EMP_IDS', '1001', 'TM'],
+    ['APPROVER_TL_EMP_IDS', '1001', 'TL'],
+    ['APPROVER_HR_WATCH_IDS', '1003', 'HR']
+  ];
+
+  function makeSheet(rowsRef) {
+    return {
+      getLastRow: () => rowsRef.length,
+      getLastColumn: () => rowsRef[0].length,
+      getDataRange: () => ({ getValues: () => rowsRef, getDisplayValues: () => rowsRef.map(r => r.map(String)) }),
+      getRange: (r, c, nr, nc) => {
+        const rr = nr || 1, cc = nc || 1;
+        return {
+          getValue: () => (rowsRef[r - 1] ? rowsRef[r - 1][c - 1] : ''),
+          setValue: v => {
+            while (rowsRef.length < r) rowsRef.push([]);
+            rowsRef[r - 1][c - 1] = v;
+          },
+          getValues: () => rowsRef.slice(r - 1, r - 1 + rr).map(row => row.slice(c - 1, c - 1 + cc)),
+          getDisplayValues: () => rowsRef.slice(r - 1, r - 1 + rr).map(row => row.slice(c - 1, c - 1 + cc).map(v => String(v ?? ''))),
+          setValues: vals => {
+            vals.forEach((rowVals, ri) => {
+              while (rowsRef.length < r + ri) rowsRef.push([]);
+              rowVals.forEach((v, ci) => { rowsRef[r - 1 + ri][c - 1 + ci] = v; });
+            });
+          },
+          setNumberFormat: () => {}
+        };
+      }
+    };
+  }
+
+  const sheets = {
+    HR_Employees: makeSheet(empRows),
+    Leave_Management: makeSheet(lvRows),
+    Daily_Attendance: makeSheet(attRows),
+    Daily_Teams: makeSheet(teamRows),
+    System_Settings: makeSheet(settingRows),
+    Advance_Salary: makeSheet([['Req_ID', 'Emp_ID', 'Name', 'Amount', 'Date', 'Reason', 'Status', 'AI']]),
+    HR_Voice_Feedback: makeSheet([['T', 'TS', 'ID', 'Name', 'Cat', 'Msg', 'Sent', 'Rep', 'Stat']]),
+    System_Audit_Logs: makeSheet([['Timestamp', 'Action', 'ID', 'Name', 'Details']])
+  };
+
+  const propStore = { BOT_TOKEN: '12345:TEST', TG_LINK_SECRET: 'hmac-sec', WEB_APP_URL: 'https://example.test/exec' };
+  const cacheStore = {};
+
+  const context = vm.createContext({
+    console, Date, Math, Number, String, Array, Object, Set, JSON, encodeURIComponent, parseInt, parseFloat, isNaN,
+    Utilities: {
+      getUuid: () => 'uuid-9',
+      formatDate: (d, tz, fmt) => (fmt === 'u' ? '2' : '2026-11-24'),
+      computeHmacSha256Signature: (m, s) => [...crypto.createHmac('sha256', s).update(m).digest()],
+      base64EncodeWebSafe: b => Buffer.from(b).toString('base64').replace(/\+/g, '-').replace(/\//g, '_')
+    },
+    PropertiesService: {
+      getScriptProperties: () => ({
+        getProperty: k => propStore[k] || null,
+        setProperty: (k, v) => { propStore[k] = v; }
+      })
+    },
+    CacheService: {
+      getScriptCache: () => ({
+        get: k => cacheStore[k] || null,
+        put: (k, v) => { cacheStore[k] = v; },
+        remove: k => { delete cacheStore[k]; }
+      })
+    },
+    LockService: { getScriptLock: () => ({ tryLock: () => true, waitLock: () => {}, releaseLock: () => {} }) },
+    SpreadsheetApp: { getActiveSpreadsheet: () => ({ getSheetByName: n => sheets[n] || null }), flush: () => {} },
+    UrlFetchApp: {
+      fetch: (url, opts) => {
+        const body = opts && opts.payload ? JSON.parse(opts.payload) : {};
+        if (url.endsWith('/getMe')) {
+          return { getResponseCode: () => 200, getContentText: () => '{"ok":true,"result":{"username":"GBF_HRMS_Bot"}}' };
+        }
+        if (url.endsWith('/setMyCommands')) syncedCommandCalls.push(body);
+        if (url.endsWith('/sendMessage')) {
+          nextMsgId++;
+          sentMessages.push(body);
+          return { getResponseCode: () => 200, getContentText: () => JSON.stringify({ ok: true, result: { message_id: nextMsgId } }) };
+        }
+        if (url.endsWith('/editMessageText')) {
+          editedMessages.push(body);
+          return { getResponseCode: () => 200, getContentText: () => JSON.stringify({ ok: true, result: { message_id: body.message_id } }) };
+        }
+        return { getResponseCode: () => 200, getContentText: () => '{"ok":true,"result":{}}' };
+      }
+    },
+    Logger: { log: () => {} }
+  });
+
+  for (const f of filesToLoad) vm.runInContext(fs.readFileSync(path.join(SRC_DIR, f), 'utf8'), context);
+  context.logToAudit = () => {};
+
+  // 1. Scoped Slash Menus synced for default, all_private_chats, all_group_chats
+  const syncRes = context.syncBotCommands_();
+  assert.equal(syncRes.ok, true);
+  assert.ok(syncedCommandCalls.some(c => c.scope.type === 'all_group_chats' && c.commands.some(x => x.command === 'board') && c.commands.some(x => x.command === 'teams')));
+  assert.ok(syncedCommandCalls.some(c => c.scope.type === 'all_private_chats' && c.commands.some(x => x.command === 'payslip')));
+
+  // 2. Group Attendance defaults to LIVE_EDIT + supports message_thread_id + edits in place on 2nd event
+  const st = context.getFullSystemState('1001', 'Ko La Min Thar', null, '2026-11');
+  const settings = context.getSettings();
+  assert.equal(settings.GROUP_ATTENDANCE_MODE, 'LIVE_EDIT');
+
+  context.broadcastAttendanceToTelegramGroup_(
+    { emp_id: '1001', emp_name: 'Ko La Min Thar', type: 'Check In', lat: 16.8046, lng: 96.1771 },
+    'MVP', 40, 'Normal', '08:42 AM', st, settings
+  );
+  assert.equal(sentMessages.at(-1).message_thread_id, 42);
+  assert.ok(sentMessages.at(-1).reply_markup.inline_keyboard.flat().some(b => b.callback_data === 'CMD_GRP_PENDING'));
+  assert.ok(!sentMessages.at(-1).text.includes('800,000'), 'Group board MUST NOT expose private salary');
+
+  const editsBefore = editedMessages.length;
+  context.broadcastAttendanceToTelegramGroup_(
+    { emp_id: '1001', emp_name: 'Ko La Min Thar', type: 'Check Out', lat: 16.8046, lng: 96.1771 },
+    'MVP', 40, 'Normal', '05:30 PM', st, settings
+  );
+  assert.equal(editedMessages.length, editsBefore + 1, 'Second broadcast in LIVE_EDIT mode must edit existing message in-place');
+
+  // 3. Group inline callbacks show full Pending list (no 5-item cap) and Team readiness tags
+  context.handleCallbackQuery({ id: 'cb-grp-p', data: 'CMD_GRP_PENDING', message: { chat: { id: -1003886390064, type: 'supergroup' }, message_id: 701 } });
+  assert.ok(editedMessages.at(-1).text.includes('Staff Nine'), 'Pending tab must display all pending staff beyond 5');
+
+  context.handleCallbackQuery({ id: 'cb-grp-t', data: 'CMD_GRP_TEAMS', message: { chat: { id: -1003886390064, type: 'supergroup' }, message_id: 701 } });
+  assert.ok(
+    editedMessages.at(-1).text.includes('Team 1 (Alpha)') &&
+    editedMessages.at(-1).text.includes('[<code>🟢 In</code>]') &&
+    editedMessages.at(-1).text.includes('[<code>🏖️ Leave</code>]') &&
+    editedMessages.at(-1).text.includes('[<code>⏳ Pending</code>]')
+  );
+
+  // 4. Group /checkin provides deep-link to Private Bot; Private /start checkin deep-links directly
+  const sentBeforeGrpCmd = sentMessages.length;
+  context.handleBotCommand_('-1003886390064', false, 'Member', '/checkin@GBF_HRMS_Bot');
+  assert.equal(sentMessages.length, sentBeforeGrpCmd + 1);
+  assert.ok(sentMessages.at(-1).reply_markup.inline_keyboard.flat().some(b => b.url && b.url.includes('t.me/GBF_HRMS_Bot?start=checkin')));
+
+  context.handleBotCommand_('6062798917', true, 'Ko La Min Thar', '/start checkin');
+  assert.ok(sentMessages.at(-1).text.includes('Smart Attendance') && sentMessages.at(-1).text.includes('<blockquote>'));
+  assert.ok(!sentMessages.at(-1).text.includes('━━━━'), 'Unified Private Bot cards must use <blockquote> instead of ASCII lines');
+
+  // 5. Private CMD_* callback edits message in-place with Main Menu + Refresh buttons
+  const sentBeforePrivateEdit = sentMessages.length;
+  const editsBeforePrivateEdit = editedMessages.length;
+  context.handleCallbackQuery({ id: 'cb-priv-w', data: 'CMD_WALLET', from: { id: 6062798917, first_name: 'La' }, message: { chat: { id: 6062798917, type: 'private' }, message_id: 500 } });
+  assert.equal(sentMessages.length, sentBeforePrivateEdit, 'Private callback with message_id should edit in place instead of spamming');
+  assert.equal(editedMessages.length, editsBeforePrivateEdit + 1);
+  assert.ok(editedMessages.at(-1).reply_markup.inline_keyboard.flat().some(b => b.callback_data === 'CMD_MAIN_MENU'));
+
+  // 6. Multi-Approver Sync edits ALL sibling approver messages simultaneously & preserves HTML formatting
+  const leaveHtml = '📅 <b>Leave Request</b>  [<code>⏳ PENDING</code>]\n<blockquote>👤 Ko Myo Thant Zaw</blockquote>';
+  const kbLv = context.buildApprovalInlineKeyboard('LV_APP_2_3013', 'LV_REJ_2_3013');
+  context.sendToTierApprovers('3013', 'Ko Myo Thant Zaw', 'JT', leaveHtml, kbLv);
+  const firstDispatchedMsgId = nextMsgId - 1;
+  const editsBeforeSync = editedMessages.length;
+  context.handleCallbackQuery({ id: 'cb-lv-app', data: 'LV_APP_2_3013', from: { first_name: 'Boss' }, message: { chat: { id: 6062798917, type: 'private' }, message_id: firstDispatchedMsgId } });
+  const syncedCount = editedMessages.length - editsBeforeSync;
+  assert.equal(syncedCount, 2, 'Expected BOTH TM and HR Watch sibling approver messages to be synced and cleared');
+  assert.ok(editedMessages.at(-1).text.includes('<b>Leave Request</b>') && editedMessages.at(-1).text.includes('APPROVED ✅'));
+  assert.deepEqual(editedMessages.at(-1).reply_markup, { inline_keyboard: [] });
+
+  // 7. Scheduled Morning & Evening Group Digests post with thread_id & Group buttons
+  const am = context.runMorningAttendanceDigest(true);
+  assert.equal(am.ok, true);
+  assert.ok(sentMessages.at(-1).text.includes('09:20 AM Daily Roll-Call Digest') && sentMessages.at(-1).message_thread_id === 42);
+  const pm = context.runEveningAttendanceDigest(true);
+  assert.equal(pm.ok, true);
+  assert.ok(sentMessages.at(-1).text.includes('06:15 PM End-of-Day Attendance Summary') && sentMessages.at(-1).message_thread_id === 42);
+
+  // 8. Hardening checks (Auth gate, __GROUP_VIEWER__, initApproverSettings SSOT, 4096-char budget, stale click non-clobbering)
+  const viewerState = context.getFullSystemState('__GROUP_VIEWER__', 'GroupViewer', null, '2026-11');
+  assert.equal(viewerState.user.role, 'Viewer');
+  assert.equal(viewerState.user.base_salary, 0);
+
+  context.initApproverSettings();
+  const modeSettingRow = settingRows.find(r => r[0] === 'GROUP_ATTENDANCE_MODE');
+  assert.equal(modeSettingRow && modeSettingRow[1], 'LIVE_EDIT', 'initApproverSettings must canonicalize LIVE_EDIT from mergeSystemSettings_');
+
+  const sentBeforeUnauth = sentMessages.length;
+  context.handleBotCommand_('-1009999999', false, 'Outsider', '/board');
+  assert.equal(sentMessages.length, sentBeforeUnauth + 1);
+  assert.ok(!sentMessages.at(-1).text.includes('Staff Nine'), 'Unauthorized group /board must not expose employee names');
+
+  context.handleBotCommand_('999999', true, 'UnlinkedUser', '/board');
+  assert.ok(!sentMessages.at(-1).text.includes('Staff Nine'), 'Unlinked DM /board must not expose employee names');
+
+  const editsBeforeUnauthCb = editedMessages.length;
+  context.handleCallbackQuery({ id: 'cb-unauth-grp', data: 'CMD_GRP_BOARD', message: { chat: { id: -1009999999, type: 'supergroup' }, message_id: 888 } });
+  assert.equal(editedMessages.length, editsBeforeUnauthCb, 'Unauthorized group CMD_GRP_BOARD callback must be rejected');
+
+  // Pending card with 250 staff must stay <= 4096 chars with balanced <blockquote> tags
+  const massiveState = JSON.parse(JSON.stringify(st));
+  massiveState.system.today_pending_list = Array.from({ length: 250 }, (_, idx) => ({ id: String(4000 + idx), name: `Technician Long Name Number ${idx + 1}` }));
+  const massiveCard = context.buildGroupBoardCard_('pending', massiveState, settings, null);
+  assert.ok(massiveCard.text.length <= 4096, `Expected <= 4096 chars, got ${massiveCard.text.length}`);
+  assert.equal((massiveCard.text.match(/<blockquote>/g) || []).length, (massiveCard.text.match(/<\/blockquote>/g) || []).length, 'Balanced blockquotes required');
+
+  // Durable Properties backup sync when cache expires + stale click must NOT overwrite sibling card
+  lvRows.push(['LV-10', '3013', 'Ko Myo Thant Zaw', 'Casual', '25.11.2026', '25.11.2026', '1', 'Errand', 'Standard_Day', 'Pending']);
+  const kbLv10 = context.buildApprovalInlineKeyboard('LV_APP_3_3013', 'LV_REJ_3_3013');
+  context.sendToTierApprovers('3013', 'Ko Myo Thant Zaw', 'JT', '📅 <b>Leave 10</b>  [<code>⏳ PENDING</code>]\n<blockquote>👤 Ko Myo</blockquote>', kbLv10);
+  const firstMsgLv10 = nextMsgId - 1;
+  const secondMsgLv10 = nextMsgId;
+  // Simulate cache expiry before click, leaving only ScriptProperties PENDING_APPROVAL_TARGETS
+  delete cacheStore['APPROVAL_TARGETS_LV_3'];
+  delete cacheStore['APPROVAL_HTML_LV_3'];
+  const editsBeforeDurable = editedMessages.length;
+  context.handleCallbackQuery({ id: 'cb-lv10-app', data: 'LV_APP_3_3013', from: { first_name: 'PrimaryBoss' }, message: { chat: { id: 6062798917, type: 'private' }, message_id: firstMsgLv10 } });
+  assert.equal(editedMessages.length - editsBeforeDurable, 2, 'Durable ScriptProperties fallback must sync both sibling approver messages');
+  assert.ok(editedMessages.at(-1).text.includes('PrimaryBoss') && editedMessages.at(-1).text.includes('<blockquote>'), 'Fallback sheet card rebuild must keep HTML blockquote');
+
+  const editsBeforeStale = editedMessages.length;
+  context.handleCallbackQuery({ id: 'cb-lv10-stale', data: 'LV_REJ_3_3013', from: { first_name: 'SecondApprover' }, message: { chat: { id: 888000222, type: 'private' }, message_id: secondMsgLv10 } });
+  assert.equal(editedMessages.length - editsBeforeStale, 1, 'Stale second click must edit ONLY the clicked stale message without clobbering sibling copy');
+  assert.equal(editedMessages.at(-1).chat_id, '888000222');
 });

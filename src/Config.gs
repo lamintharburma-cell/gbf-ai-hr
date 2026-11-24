@@ -4,15 +4,16 @@
  */
 
 const GBF_CONFIG = {
-  VERSION: "v9.2.6 Production LTS",
+  VERSION: "v9.3.0 Production LTS",
   TIMEZONE: "Asia/Rangoon",
   GMT_OFFSET: "GMT+6:30",
+  DEFAULT_BOT_USERNAME: "GBF_HRMS_Bot",
   DEFAULT_SPREADSHEET_ID: "1J13zp0CF3Pogq3ijRMWPl0fJNFliNjzzHsXUU_6VEyw",
   DEFAULT_SCRIPT_ID: "1yp2S7zYgTB-bUfBVX9RwSC4HGs9ZKLoaSwjXn2ZTv5fpruUm-g9n49hl",
   DEFAULT_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbyRMUJDUbPJidoXDNrYycqS-WU_AS5Mech41ul7fO88VJYoqKg62SzNmPWkUg0G-kHx/exec",
   GEMINI_MODEL: "gemini-3.8-flash",
   GEMINI_INTERACTIONS_URL: "https://generativelanguage.googleapis.com/v1beta/interactions",
-  SETTINGS_CACHE_KEY: "GBF_SETTINGS_CACHE_V92",
+  SETTINGS_CACHE_KEY: "GBF_SETTINGS_CACHE_V93",
   SETTINGS_CACHE_TTL: 300
 };
 
@@ -100,6 +101,30 @@ function getTelegramAPI() {
 }
 
 /**
+ * Resolves the Telegram bot username (cached 6h) for Group-to-Private deep links (`t.me/<bot>?start=...`).
+ */
+function getBotUsername_() {
+  try {
+    const cache = CacheService.getScriptCache();
+    const cached = cache.get("GBF_BOT_USERNAME");
+    if (cached) return cached;
+    const token = getBotToken();
+    if (token && typeof UrlFetchApp !== "undefined") {
+      const res = UrlFetchApp.fetch(getTelegramAPI() + "getMe", { muteHttpExceptions: true });
+      if (res.getResponseCode() === 200) {
+        const parsed = JSON.parse(res.getContentText());
+        if (parsed && parsed.ok && parsed.result && parsed.result.username) {
+          const uname = String(parsed.result.username).trim();
+          cache.put("GBF_BOT_USERNAME", uname, 21600);
+          return uname;
+        }
+      }
+    }
+  } catch (e) {}
+  return GBF_CONFIG.DEFAULT_BOT_USERNAME || "GBF_HRMS_Bot";
+}
+
+/**
  * 🗄️ Resolves the active GBF Master Database Spreadsheet across bound and standalone contexts.
  */
 function getGBFSpreadsheet_() {
@@ -162,7 +187,9 @@ function getSettings(forceRefresh) {
     REWARD_MYTHIC_BONUS: "30000",
     REWARD_LEGEND_BONUS: "15000",
     GROUP_ATTENDANCE_BROADCAST: "YES",
-    GROUP_ATTENDANCE_MODE: "NEW_MESSAGE"
+    GROUP_ATTENDANCE_MODE: "LIVE_EDIT",
+    TELEGRAM_GROUP_THREAD_ID: "",
+    GROUP_DIGEST_ENABLED: "YES"
   };
 
   const sheet = getGBFSpreadsheet_().getSheetByName("System_Settings");

@@ -1,11 +1,11 @@
-# 📘 GBF Enterprise HR & AI Management System (v9.2.7 Production LTS / @41)
+# 📘 GBF Enterprise HR & AI Management System (v9.3.0 Production LTS / @42)
 ## 🌟 စနစ် လုပ်ဆောင်နိုင်မှုများနှင့် အသုံးပြုသူ လက်စွဲလမ်းညွှန် (System Capabilities & User Manual)
 
 ---
 
 ## ၁။ စနစ် မိတ်ဆက်နှင့် ဝင်ရောက် အသုံးပြုနည်း (System Overview & Access Points)
 
-**GBF Enterprise HR & AI Management System (`v9.2.7 Production LTS`)** သည် Mobile Legends: Bang Bang (MLBB) စတိုင် **Gamified Performance System**၊ Google Gemini 3.8 Flash AI မော်ဒယ်နှင့် Telegram Native Mini App တို့ကို ပေါင်းစပ်ဖန်တီးထားသော လုပ်ငန်းခွင် စီမံခန့်ခွဲမှု ပလက်ဖောင်း ဖြစ်ပါသည်။
+**GBF Enterprise HR & AI Management System (`v9.3.0 Production LTS`)** သည် Mobile Legends: Bang Bang (MLBB) စတိုင် **Gamified Performance System**၊ Google Gemini 3.8 Flash AI မော်ဒယ်၊ Scoped Telegram Group & Bot Interactive Command Center နှင့် Telegram Native Mini App တို့ကို ပေါင်းစပ်ဖန်တီးထားသော လုပ်ငန်းခွင် စီမံခန့်ခွဲမှု ပလက်ဖောင်း ဖြစ်ပါသည်။
 
 ### 🔗 အသုံးပြုနိုင်သည့် လင့်ခ်များနှင့် ဘော့တ်များ
 * **🌐 Web App / Mini App URL:**  
@@ -33,22 +33,27 @@ Google Apps Script ၏ Cross-Origin Iframe ကန့်သတ်ချက်က�
 
 GBF HR Telegram Bot (`@GBF_HRMS_Bot`) သည် **v9.2.4** မှစ၍ Direct HTTP `200 OK` Webhook acknowledgement စနစ်သို့ ပြောင်းလဲထားသောကြောင့် Update များ ပိတ်ဆို့ခြင်း (`302 Found`) လုံးဝမရှိဘဲ ၂၄ နာရီ မြန်ဆန်တိကျစွာ အလုပ်လုပ်ပါသည်။
 
-### ၂.၁ Bot Command Menu & Inline Quick Actions (`Option B`)
-Telegram `/` Menu တွင် **v9.2.5** Command ၈ ခုလုံးကို တရားဝင် Sync လုပ်ထားပြီး Command တိုင်းတွင် Inline Button များဖြင့် ဆက်လက်နှိပ်ကြည့်နိုင်ပါသည်-
-* `/start` / `/app` : Private Chat တွင် Personal Signed Mini App URL (`?tg_id=&tg_sig=`), **`GBF HR App` Menu Button** နှင့် `[📍 Attendance]`, `[🏆 My KPI]`, `[💳 Wallet (50%)]`, `[🧾 Payslip]`, `[🤖 Ask HR-AI Guide]` Interactive Inline ခလုတ်များကို ထုတ်ပေးပါသည်။
-* `/checkin` : ယနေ့ မိမိ၏ Check-In/Out အခြေအနေ၊ GPS Distance နှင့် Map link ကို Chat ထဲတွင် ချက်ချင်းပြသပြီး Mini App Check-In ခလုတ် ပေးပို့ပါသည်။
-* `/mykpi` : လက်ရှိ MLBB Season Rank (`MYTHIC`–`WARRIOR`), KPI Score `%`, Win Rate `%`, Weekly MVP Streak နှင့် ခန့်မှန်းဆုကြေးများကို ထုတ်ပြပေးပါသည်။
-* `/wallet` : အခြေခံလစာ၊ 50% Max Limit၊ Approved/Pending နှင့် ကျန်ရှိသော ထုတ်ယူနိုင်မည့် Credit လက်ကျန် + မကြာသေးမီ မှတ်တမ်းများ ပြသပေးပါသည်။
-* `/payslip` : ယခုလ Digital Payslip (`Base`, `Attendance`, `MVP/Streak`, `Rank`, `Deductions`, `NET PAYABLE MMK`) ကို Chat ထဲတွင် တိုက်ရိုက်ပြသပေးပါသည်။
-* `/askai [မေးခွန်း]` : `/askai` ချည်းနှိပ်ပါက စာရိုက်စရာမလိုဘဲ Quick Question ခလုတ် ၄ ခု (`💰 ဒီလ ဘယ်လောက်ရပြီလဲ`၊ `💳 လစာကြိုထုတ်ခွင့် လက်ကျန်`၊ `⚠️ နောက်ကျကြေး စည်းကမ်း`၊ `🏆 ကျွန်တော့် KPI Rank`) ကို ပြသပေးပြီး၊ `/askai <မေးခွန်း>` ဟု ပို့ပါက HTML formatting (`formatAiToTelegramHtml`) ဖြင့် ချက်ချင်း ဖြေကြားပေးပါသည်။
-* `/link <PIN>` : Private Chat ထဲမှနေ၍ သင်၏ Official PIN ဖြင့် Telegram Chat ID ကို ချိတ်ဆက်ပေးပါသည်။
-* `/id` : သင်၏ Telegram Chat ID နှင့် ချိတ်ဆက်ထားပြီးသော ဝန်ထမ်းအမည်/Employee ID ကို တွဲဖက်ဖော်ပြပေးပါသည်။
+### ၂.၁ Scoped Bot & Group Command Menus (`all_private_chats` vs `all_group_chats` — `v9.3.0`)
+Telegram `/` Menu ကို စကားပြောခန်း အမျိုးအစားအလိုက် **Privacy-Safe Scoped Menus** ဖြင့် သီးခြားခွဲ၍ Sync လုပ်ထားပြီး Private Chat Button နှိပ်တိုင်း message အသစ်များ မပွားဘဲ **In-Place Edit** (`[⬅️ Main Menu]`, `[🔄 Refresh]`) ဖြင့် သပ်ရပ်စွာ ပြောင်းလဲပြသပေးပါသည်-
+* **Private Chat Menu (8 Commands):**
+  * `/start` / `/app` : Personal Signed Mini App URL (`?tg_id=&tg_sig=`), **`GBF HR App` Menu Button** နှင့် `[📍 Attendance]`, `[🏆 My KPI]`, `[💳 Wallet (50%)]`, `[🧾 Payslip]`, `[🤖 Ask HR-AI Guide]` ခလုတ်များ (Group မှ `?start=<tab>` deep link ဖြင့် တိုက်ရိုက်ဖွင့်နိုင်)။
+  * `/checkin` : ယနေ့ မိမိ၏ Check-In/Out အခြေအနေ၊ GPS Distance နှင့် Map link ကို Chat ထဲတွင် ချက်ချင်းပြသပြီး Mini App Check-In ခလုတ် ပေးပို့ပါသည်။
+  * `/mykpi` : လက်ရှိ MLBB Season Rank (`MYTHIC`–`WARRIOR`), KPI Score `%`, Win Rate `%`, Weekly MVP Streak နှင့် ခန့်မှန်းဆုကြေးများကို ထုတ်ပြပေးပါသည်။
+  * `/wallet` : အခြေခံလစာ၊ 50% Max Limit၊ Approved/Pending နှင့် ကျန်ရှိသော ထုတ်ယူနိုင်မည့် Credit လက်ကျန် + မကြာသေးမီ မှတ်တမ်းများ ပြသပေးပါသည်။
+  * `/payslip` : ယခုလ Digital Payslip (`Base`, `Attendance`, `MVP/Streak`, `Rank`, `Deductions`, `NET PAYABLE MMK`) ကို Chat ထဲတွင် တိုက်ရိုက်ပြသပေးပါသည်။
+  * `/askai [မေးခွန်း]` : `/askai` ချည်းနှိပ်ပါက Quick Question ခလုတ် ၄ ခု (`💰 ဒီလ ဘယ်လောက်ရပြီလဲ`၊ `💳 လစာကြိုထုတ်ခွင့် လက်ကျန်`၊ `⚠️ နောက်ကျကြေး စည်းကမ်း`၊ `🏆 ကျွန်တော့် KPI Rank`) ကို ပြသပေးပြီး၊ `/askai <မေးခွန်း>` ဟု ပို့ပါက `<blockquote>` HTML card ဖြင့် ချက်ချင်း ဖြေကြားပေးပါသည်။
+  * `/link <PIN>` : Private Chat ထဲမှနေ၍ သင်၏ Official PIN ဖြင့် Telegram Chat ID ကို ချိတ်ဆက်ပေးပါသည်။
+  * `/id` : သင်၏ Telegram Chat ID နှင့် ချိတ်ဆက်ထားပြီးသော ဝန်ထမ်းအမည်/Employee ID ကို တွဲဖက်ဖော်ပြပေးပါသည်။
+* **Group Chat Menu (4 Privacy-Safe Commands — authorized official group only):**
+  * `/board` : ယနေ့ Group Live Attendance Board ကို Group ထဲတွင် ချက်ချင်းထုတ်ပြပေးပါသည်။
+  * `/teams` : ယနေ့ Field Teams (Alpha / Bravo / Charlie) နှင့် အဖွဲ့ဝင်တစ်ဦးချင်းစီ၏ `[🟢 In]` / `[🏖️ Leave]` / `[⏳ Pending]` Readiness Badge များကို ပြသပေးပါသည်။
+  * `/checkin` / `/id` : Private Bot Portal (`?start=checkin`) သို့ လွှဲပေးသည့် ခလုတ်နှင့် Group/Topic Chat ID စစ်ဆေးမှု။
 
-### ၂.၂ လုပ်ဆောင်သူတိုင်းထံ တိုက်ရိုက်ပြန်ပို့ပေးသည့် Action Receipts & Inline Buttons
-**v9.2.5** မှစ၍ Web App မှ လုပ်ဆောင်ချက်တစ်ခုခု ပြုလုပ်လိုက်တိုင်း Group / Approver ထံသို့သာမက **လုပ်ဆောင်သူ (Performer / Requester) ကိုယ်တိုင်၏ Private Telegram Chat ထံသို့ပါ** Receipt Card နှင့် Interactive Inline Buttons များ အလိုအလျောက် ပြန်ပို့ပေးပါသည်-
+### ၂.၂ လုပ်ဆောင်သူတိုင်းထံ တိုက်ရိုက်ပြန်ပို့ပေးသည့် Action Receipts & Multi-Approver Sync
+**v9.3.0** တွင် Web App မှ လုပ်ဆောင်ချက်တစ်ခုခု ပြုလုပ်လိုက်တိုင်း လုပ်ဆောင်သူ Private Chat ထံသို့ Receipt Card ပေးပို့သည့်အပြင် Approver များစွာထံ ပို့ထားသော Card များကိုပါ Real-Time Sync ပြုလုပ်ပေးပါသည်-
 * **Check-In / Check-Out:** အချိန်၊ Arrival Order (`#1`), KPI (`MVP`/`On-Time`/`Late`), GPS အကွာအဝေး + `[🗺️ ကိုယ်ပိုင် Check-In Map]`, `[🏆 My KPI]`, `[📍 Today Status]`, `[🚀 Open Mini App]` ခလုတ်များ။
-* **Leave & Advance Requests:** တောင်းဆိုမှု Submit လုပ်ချိန်တွင် `Pending Receipt` နှင့် AI Pre-Check ရလဒ် + `[💳 My Wallet]` / `[🧾 Payslip]` / `[📍 Attendance]` ခလုတ်များ ပေးပို့ပေးပြီး၊ Approver က **Approve / Reject** နှိပ်ချိန်တွင်လည်း ပမာဏ/ရက်စွဲ အသေးစိတ်နှင့် Inline ခလုတ်များ ထပ်မံပေးပို့ပေးပါသည်။
-* **3-Team Rollout & HR-AI Voice:** အဖွဲ့ခွဲဝေချိန်တွင် ဖွဲ့စည်းသူနှင့် ပါဝင်သူ ဝန်ထမ်းများထံ Team Receipt ပေးပို့ပေးပြီး၊ HR-AI Voice တင်ပြချိန်တွင် Ticket ID + AI Reply Receipt (Anonymous Mode ဖြစ်ပါက HR ထံ အမည်မဖော်ပြဘဲ လုံခြုံစွာ ထိန်းသိမ်းထားသည်) ပေးပို့ပေးပါသည်။
+* **Leave & Advance + Multi-Approver Sync:** Approver (TL + TM + HR Watch) တစ်ဦးက **Approve / Reject** နှိပ်လိုက်သည်နှင့် အခြား Approver အားလုံး၏ Telegram Chat ထဲရှိ Card များပေါ်မှ Inline ခလုတ်များပါ **တစ်ပြိုင်နက် ပျောက်ကွယ်** သွားပြီး HTML `<b>` / `<blockquote>` formatting မပျက်ဘဲ ဆုံးဖြတ်ချက် Footer ကို STAMP လုပ်ပေးပါသည် (`PropertiesService` durable fallback ပါဝင်)။
+* **3-Team Rollout & HR-AI Voice:** အဖွဲ့ခွဲဝေချိန်တွင် ဖွဲ့စည်းသူနှင့် ပါဝင်သူ ဝန်ထမ်းများထံ Team Receipt ပေးပို့ပေးပြီး၊ HR-AI Voice တင်ပြချိန်တွင် Ticket ID + AI Reply Receipt ပေးပို့ပေးပါသည်။
 
 ### ၂.၃ Telegram HTML Card Formatting & Gemini HR-AI Chatbot (`v9.2.6`)
 * **Markdown-to-HTML Card Engine (`formatAiToTelegramHtml`):** AI မှ ပြန်ဖြေလာသော `**bold**` ကြယ်ပွင့်များ Telegram တွင် မမြင်ရစေရန် `<b>` HTML tags များအဖြစ် အလိုအလျောက် ပြောင်းလဲပေးပြီး ခွင့်၊ ကြိုငွေ၊ Voice နှင့် Attendance Alert Card အားလုံးကို `<blockquote>` စနစ်ဖြင့် သပ်ရပ်စွာ ပေးပို့ပါသည်။
@@ -72,12 +77,13 @@ Telegram `/` Menu တွင် **v9.2.5** Command ၈ ခုလုံးကိ�
 > **⚡ Anti-Loop Deduplication & Instant Button Removal:**  
 > `CacheService` နှင့် `LockService` ဖြင့် ထပ်ခါတလဲလဲ ဝင်လာခြင်းကို တားဆီးထားပြီး၊ ခွင့်ပြုသူက ခလုတ်နှိပ်လိုက်သည်နှင့် တစ်ပြိုင်နက် Inline ခလုတ်များ ချက်ချင်း ဖယ်ရှားခံရကာ ဆုံးဖြတ်ချက် မှတ်တမ်းစာသားဖြင့် အစားထိုးပေးပါသည်။
 
-### ၂.၅ အဖွဲ့လိုက် ရုံးတက်ရောက်မှု တိုက်ရိုက်ကြေညာချက် (Group Attendance Broadcast)
-ဝန်ထမ်းတစ်ဦး Check-In သို့မဟုတ် Check-Out ပြုလုပ်လိုက်ပါက Telegram Group ထဲသို့ အောက်ပါအချက်အလက်များ အလိုအလျောက် ပေးပို့ပေးပါသည် (`NEW_MESSAGE` သို့မဟုတ် `LIVE_EDIT` စနစ်ကို `System_Settings` မှ ရွေးချယ်နိုင်)-
-* ယနေ့ ရုံးရောက်ရှိမှု အလှည့်အစဉ်နှင့် `👑 MVP EARLY (+1,000 MMK)` / `On-Time` / `Late` Badge
-* ဝန်ထမ်းအမည်၊ ID နှင့် ရာထူး (`<blockquote>` Card)
-* Check-In / Check-Out အချိန် (Check-Out တွင် ရုံးတက်ချိန်မှ စုစုပေါင်း အလုပ်ချိန်နာရီ တွက်ချက်ပြသမှု ပါဝင်) နှင့် ရုံးချုပ်မှ ကွာဝေးသည့် အကွာအဝေး (`m` / `km`)
-* `HQ Zone` (≤ 500m) သို့မဟုတ် `Field Site` (> 500m) အမျိုးအလျောက်ခွဲခြားမှုနှင့် Google Maps လမ်းညွှန်လင့်ခ်
+### ၂.၅ Interactive Group Live Board, Topic Threads & Scheduled Digests (`v9.3.0`)
+Telegram Group ထဲသို့ စာအစောင်ရေများစွာ ပြည့်ကျပ်မနေစေရန် **v9.3.0** တွင် `GROUP_ATTENDANCE_MODE` ကို **`LIVE_EDIT`** (တစ်နေ့လျှင် Rolling Board Card တစ်စောင်တည်းကို အချိန်နှင့်တစ်ပြေးညီ Update လုပ်ခြင်း) အဖြစ် မူရင်းသတ်မှတ်ထားပြီး အောက်ပါခလုတ်များဖြင့် In-Place Switch ကြည့်ရှုနိုင်ပါသည်-
+* **`[📊 Live Board]` / `[🔄 Refresh Board]`:** Arrival Order (`🥇 #1`..), `👑 MVP EARLY` / `On-Time` / `Late` Badge, Check-In ➔ Out အလုပ်ချိန်နာရီ၊ `HQ Zone` vs `Field Site` GPS အကွာအဝေးနှင့် Maps လမ်းညွှန် (Privacy Gate ကြောင့် Group Board တွင် လစာ/PIN/ဖုန်းနံပါတ် လုံးဝမဖော်ပြပါ)။
+* **`[⏳ Pending (N)]`:** မဝင်ရသေးသူ ဝန်ထမ်းစာရင်းအပြည့် (5-item cap မရှိဘဲ Telegram 4096-char budget အတွင်း စနစ်တကျ ဖော်ပြ) + ယနေ့ခွင့်စာရင်း။
+* **`[🗼 Field Teams]`:** `Daily_Teams` မှ Alpha/Bravo/Charlie အဖွဲ့စာရင်းနှင့် Member တစ်ဦးချင်းစီ၏ `[🟢 In]` / `[🏖️ Leave]` / `[⏳ Pending]` Readiness Badge များ။
+* **`[🗺️ Map]` & `[🤖 My Private Portal]`:** နောက်ဆုံးဝင်ရောက်သူ၏ Google Maps link နှင့် Bot DM (`?start=portal`) Deep Link။
+* **Forum Topic Support & Scheduled Digests:** `TELEGRAM_GROUP_THREAD_ID` ဖြင့် Telegram Forum Topic သီးသန့်ထဲသို့ ပို့နိုင်ပြီး `GROUP_DIGEST_ENABLED = YES` ဖြစ်ပါက မနက် **09:20 AM Roll-Call** နှင့် ညနေ **06:15 PM End-of-Day Summary** (တနင်္ဂနွေ ပိတ်ရက်ချန်လှပ်) တို့ကို `installGroupDigestTriggers()` မှတစ်ဆင့် အလိုအလျောက် ပေးပို့ပေးပါသည်။
 
 ---
 
@@ -211,4 +217,4 @@ flowchart TD
 ```
 
 ---
-*GBF Enterprise HR & AI Management System v9.2.7 Production LTS (`@41`) — Fully Verified & Operational.*
+*GBF Enterprise HR & AI Management System v9.3.0 Production LTS (`@42`) — Fully Verified & Operational.*

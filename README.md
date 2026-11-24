@@ -1,6 +1,6 @@
-# G.B.F. Enterprise HR & AI Management System (v9.2.7 Production LTS)
+# G.B.F. Enterprise HR & AI Management System (v9.3.0 Production LTS)
 
-Zero-cost Serverless Enterprise Workforce Telemetry, Gamified MLBB KPI/Rewards, 50% Advance Wallet, Telegram Bot Approvals, Signed Telegram Identity SSO, Interactive Bot Menu, `<blockquote>` HTML Cards & Performer Action Receipts, WCAG 2.1 AA Dark Slate UI & Compact Month Switcher, and Gemini 3.8 Flash HR-AI Platform powered by Google Sheets + Google Apps Script + Telegram Native Mini App.
+Zero-cost Serverless Enterprise Workforce Telemetry, Gamified MLBB KPI/Rewards, 50% Advance Wallet, Multi-Approver Telegram Sync & Durable Receipts, Scoped Group Live Attendance Board (`LIVE_EDIT`, Pending Drilldown, Field Team Readiness, Forum Topic Threading & Scheduled 09:20 / 18:15 Digests), Signed Telegram Identity SSO, WCAG 2.1 AA Dark Slate UI & Compact Month Switcher, and Gemini 3.8 Flash HR-AI Platform powered by Google Sheets + Google Apps Script + Telegram Native Mini App.
 
 ---
 
@@ -12,19 +12,19 @@ c:\v9.1_GBF_AI_HR\
 ├── jsconfig.json                   # IDE JS/GS configuration (resolves TS18003)
 ├── README.md                       # Deployment & Verification Runbook
 ├── docs\
-│   └── GBF_HRMS_Capabilities_and_User_Manual.md  # Comprehensive Burmese User & Admin Guide (v9.2.7)
+│   └── GBF_HRMS_Capabilities_and_User_Manual.md  # Comprehensive Burmese User & Admin Guide (v9.3.0)
 ├── src\                            # Production Apps Script Source Root
 │   ├── appsscript.json             # V8 runtime, Asia/Rangoon timezone, OAuth scopes, WebApp access
 │   ├── Config.gs                   # Constants, credentials, formatAiToTelegramHtml, clock/maps helpers
 │   ├── Database.gs                 # 10-table schema migration & ATT-timestamp recovery
 │   ├── GeminiAI.gs                 # Gemini 3.8 Flash Interactions API (/v1beta/interactions)
 │   ├── TelegramIdentity.gs         # HMAC-SHA256 signed Mini App URLs, /link PIN, conflict guards
-│   ├── TelegramBot.gs              # Webhook, Option B commands/callbacks, performer receipts, group feed
+│   ├── TelegramBot.gs              # Webhook, Scoped Bot/Group Live Board, Multi-Approver sync & Digests
 │   ├── PayrollEngine.gs            # Gamified KPI, weekly MVP streaks, 3-AFK forfeiture, batch payroll
 │   ├── Code.gs                     # doGet, doPost (direct HTTP 200 ack), RBAC guard, idempotency
 │   └── Index.html                  # Dark Slate Mini App, Advance Quick Chips, Custom Month Switcher
 ├── tests\
-│   └── smoke.test.mjs              # Node.js built-in test runner suite (8 test suites)
+│   └── smoke.test.mjs              # Node.js built-in test runner suite (9 test suites)
 └── _legacy_backup\                 # Unmodified backup of original v9.1 files
 ```
 
@@ -65,7 +65,7 @@ c:\v9.1_GBF_AI_HR\
    - `Code.gs`
    - `Index.html` (HTML file named `Index`)
 4. Save all files, set `BOT_TOKEN` & `GEMINI_API_KEY` in **Project Settings -> Script Properties** (or run **`configureGBFProductionCredentials(botToken, geminiKey)`** once), then **Deploy -> Manage deployments -> Edit -> New version -> Deploy**.
-5. Run **`setupWebhook()`** and **`runSystemDiagnostics()`** to verify Telegram Bot, Gemini 3.8 Flash Interactions API, and Spreadsheet connectivity.
+5. Run **`setupWebhook()`**, **`installGroupDigestTriggers()`** (once, to enable automated `09:20 AM` & `06:15 PM` Mon–Sat Group Digests), and **`runSystemDiagnostics()`** to verify Telegram Bot, Gemini 3.8 Flash Interactions API, and Spreadsheet connectivity.
 
 ---
 

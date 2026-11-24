@@ -56,7 +56,9 @@ function recoverAttendanceTimesFromAttId() {
     }
 
     if (repairedCount > 0) {
-      sheet.getRange(2, 4, updatedTimes.length, 1).setValues(updatedTimes);
+      const timeRange = sheet.getRange(2, 4, updatedTimes.length, 1);
+      timeRange.setNumberFormat("@");
+      timeRange.setValues(updatedTimes);
       SpreadsheetApp.flush();
       logToAudit("RECOVER_ATTENDANCE_TIMES", "SYSTEM", "DatabaseRepair", `Recovered ${repairedCount} Check_In_Time cells from Att_ID.`);
     }
@@ -399,7 +401,9 @@ function mergeSystemSettings_(existingMap) {
     ["REWARD_MYTHIC_BONUS", "30000", "🏆 MYTHIC Rank (>=90% KPI) ရရှိသူအတွက် လစဉ် ဆုကြေး (MMK)"],
     ["REWARD_LEGEND_BONUS", "15000", "⚔️ LEGEND Rank (>=80% KPI) ရရှိသူအတွက် လစဉ် ဆုကြေး (MMK)"],
     ["GROUP_ATTENDANCE_BROADCAST", "YES", "YES ထားပါက Check-In / Check-Out ဝင်တိုင်း Telegram Group သို့ အစဉ်လိုက်စာရင်းနှင့် Map အကွာအဝေး ပို့မည်"],
-    ["GROUP_ATTENDANCE_MODE", "NEW_MESSAGE", "NEW_MESSAGE = ဝင်တိုင်း စာအသစ်ပို့မည် | LIVE_EDIT = ယနေ့ Group စာတစ်စောင်တည်းကို အချိန်နှင့်တစ်ပြေးညီ Update လုပ်မည်"]
+    ["GROUP_ATTENDANCE_MODE", "LIVE_EDIT", "LIVE_EDIT = ယနေ့ Group Live Board တစ်စောင်တည်းကို Update လုပ်မည် | NEW_MESSAGE = ဝင်တိုင်း စာအသစ်ပို့မည်"],
+    ["TELEGRAM_GROUP_THREAD_ID", "", "Telegram Forum Group တွင် Topic Thread ID သီးသန့်ပို့လိုပါက ထည့်ရန် (မလိုပါက အလွတ်ထားပါ)"],
+    ["GROUP_DIGEST_ENABLED", "YES", "YES = မနက် 09:20 AM Roll-Call နှင့် ညနေ 06:15 PM Summary Auto-Digest Group သို့ ပို့မည်"]
   ];
 
   const mergedRows = [];
