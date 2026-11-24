@@ -1,7 +1,7 @@
-# 📘 G.B.F. Enterprise HR & AI Management System (`v9.3.0 Production LTS / @42`)
+# 📘 G.B.F. Enterprise HR & AI Management System (`v9.3.1 Production LTS / @43`)
 ## 🖥️ Visual Application Guide & Official User Manual (တကယ့် Application မျက်နှာပြင်များဖြင့် အသေးစိတ် အသုံးပြုသူ လက်စွဲ)
 
-**GBF Enterprise HR & AI Management System (`v9.3.0 Production LTS`)** သည် Google Sheets (`10` Master Tables), Google Apps Script Serverless Backend, Gemini 3.8 Flash AI (`gemini-3.8-flash` Interactions API), Telegram Native Mini App (`Index.html`) နှင့် Scoped Telegram Bot / Group Command Center (`@GBF_HRMS_Bot`) တို့ကို တစ်စုတစ်စည်းတည်း ချိတ်ဆက်ထားသော Enterprise HR ပလက်ဖောင်း ဖြစ်ပါသည်။
+**GBF Enterprise HR & AI Management System (`v9.3.1 Production LTS`)** သည် Google Sheets (`10` Master Tables), Google Apps Script Serverless Backend, Gemini 3.8 Flash AI (`gemini-3.8-flash` Interactions API), Telegram Native Mini App (`Index.html` — Tactical Gaming HUD + iOS Native Ergonomics + Telegram-Matched Custom SVG Icons) နှင့် Scoped Telegram Bot / Group Command Center (`@GBF_HRMS_Bot`) တို့ကို တစ်စုတစ်စည်းတည်း ချိတ်ဆက်ထားသော Enterprise HR ပလက်ဖောင်း ဖြစ်ပါသည်။
 
 ---
 
@@ -52,21 +52,20 @@
 | :---: | :---: |
 | <img src="./screenshots/02_home_attendance_hq.png" alt="Home Check-In and Live HQ Distance" width="310"> | <img src="./screenshots/03_home_squads.png" alt="Active Battle Squads Expanded" width="310"> |
 
-### မျက်နှာပြင် အစိတ်အပိုင်းတစ်ခုချင်းစီ ရှင်းလင်းချက်
-1. **Top Leader Command Strip (`TM / MM / TL` Only):** `CEO / TM Command` ကဲ့သို့ ရာထူးအမည်၊ ယနေ့စုစုပေါင်း Active ဝန်ထမ်း (`👥 6/16`) နှင့် **`🧠 AI Command`** shortcut ကို ပြသပေးပါသည်။
-2. **GPS Attendance (`CHECK IN` / `CHECK OUT` Card):**
+### မျက်နှာပြင် အစိတ်အပိုင်းတစ်ခုချင်းစီ ရှင်းလင်းချက် (`Option A Unified Bento HUD`)
+1. **Top Leader Command Strip (`TM / MM / TL` Only):** `CEO / TM Command` ကဲ့သို့ ရာထူးအမည်၊ **`Squads`** နှင့် **`AI Command`** shortcut ခလုတ်များကို ပြသပေးပါသည်။ (Duplicate ဖြစ်နေခဲ့သော Active Counter ကို ဖယ်ရှားပြီး အောက်ပါ GPS Card တွင် တစ်ခုတည်း စုစည်းထားသည်)။
+2. **Unified `GPS ARENA · 500M OPS` & Live HQ Telemetry Card (`CHECK IN` / `CHECK OUT` + Single `#active-counter`):**
+   * **Single Live Active Counter:** ညာဘက်ထောင့်ရှိ Users SVG badge (`6 / 16`) ကို နှိပ်၍ ယနေ့ Check-In Roster ကို တိုက်ရိုက် ဖွင့်/ပိတ်နိုင်ပါသည်။
    * **မနက်ပိုင်း (`NOT_CHECKED_IN`):** အစိမ်းရောင် **`ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)`** ခလုတ်ပေါ်နေပါမည်။ နှိပ်လိုက်သည်နှင့် Browser/Telegram မှ GPS Coordinate ကို ရယူပြီး စာရင်းသွင်းပါသည်။
    * **ရုံးဆင်းချိန် (`CHECKED_IN`):** ခလုတ်သည် အနီရောင် **`ရုံးဆင်းစာရင်းသွင်းမည် (CHECK OUT)`** (`Checked In at 08:42 AM`) အဖြစ် ပြောင်းသွားပါမည်။
    * **နှစ်ခုလုံးပြီးစီးချိန် (`CHECKED_OUT`):** **`ယနေ့ တာဝန်ချိန် ပြီးဆုံးပါပြီ`** (`IN • OUT` အချိန်တွဲဖက်) ပြသပေးပါသည်။
-3. **Live HQ Distance & Map Card:**
-   * GBF HQ (`16.804683, 96.177149`) မှ **≤ 500 m** အတွင်းဖြစ်ပါက `🏢 HQ Zone (≤500m)`၊ **> 500 m** ဖြစ်ပါက `🗼 Field Site` အဖြစ် ပြသပါသည်။
-   * **`တိုင်းမည်`** ခလုတ်ဖြင့် Check-In မလုပ်မီ လက်ရှိ GPS အကွာအဝေးကို ကြိုတင်စစ်ဆေးနိုင်ပြီး **`🗺️ Map`** ခလုတ်ဖြင့် HQ မှ လက်ရှိနေရာသို့ Google Maps Directions ကို ဖွင့်ကြည့်နိုင်ပါသည်။
-4. **Today Checked-In Avatar Stack Inspector:**
-   * Avatar အဝိုင်းများကို နှိပ်၍ ဖွင့်လိုက်ပါက Filter ၃ မျိုး ခွဲကြည့်နိုင်ပါသည်-
-     * **`🟢 ဝင်ပြီး (N)`:** Arrival rank (`#1`, `#2`, ...), Team အမည်, `42 m / 1.9 km` (နှိပ်၍ Map ဖွင့်နိုင်), Check-In အချိန်နှင့် `MVP` / `On-Time` Badge။
-     * **`🏖️ ယနေ့ခွင့် (N)`:** Approved / Pending ခွင့်ယူထားသူများ။
-     * **`⏳ မဝင်ရသေး (N)`:** ယနေ့ Check-In မဝင်ရသေးသူ ဝန်ထမ်းများ။
-5. **ACTIVE BATTLE SQUADS:** `Daily_Teams` တွင် ဖွဲ့စည်းထားသော ယနေ့ **Team 1 (Alpha)**, **Team 2 (Beta)**, **Team 3 (Charlie)** စာရင်း၊ Project (`YTP - Yangon FTTx`, `MPT - FTTx & ONT`, `PSTN Migration`) နှင့် **`Details ▾`** နှိပ်၍ Leader/Tech စာရင်းအပြည့် ကြည့်နိုင်ပါသည်။
+   * **Integrated Live HQ Distance & Map Bar:** GBF HQ (`16.804683, 96.177149`) မှ **≤ 500 m** အတွင်းဖြစ်ပါက `HQ Zone (≤500m)` SVG badge၊ **> 500 m** ဖြစ်ပါက `Field Site` Pylon SVG badge ပြသပြီး **`တိုင်းမည်`** နှင့် **`Map`** ခလုတ်များ တစ်ကတ်တည်းတွင် ပါဝင်ပါသည်။
+3. **Today Checked-In Avatar Stack Inspector:**
+   * Avatar အဝိုင်းများကို နှိပ်၍ ဖွင့်လိုက်ပါက Telegram Semantic SVG Icon Tabs ၃ မျိုး ခွဲကြည့်နိုင်ပါသည်-
+     * **`ဝင်ပြီး (N)`:** Arrival rank (`#1`, `#2`, ...), Team အမည်, HQ Building / Field Pylon SVG `42 m / 1.9 km` (နှိပ်၍ Map ဖွင့်နိုင်), Check-In အချိန်နှင့် `MVP` / `On-Time` Badge။
+     * **`ယနေ့ခွင့် (N)`:** Approved / Pending ခွင့်ယူထားသူများ။
+     * **`မဝင်ရသေး (N)`:** ယနေ့ Check-In မဝင်ရသေးသူ ဝန်ထမ်းများ။
+4. **ACTIVE BATTLE SQUADS:** `Daily_Teams` တွင် ဖွဲ့စည်းထားသော ယနေ့ **Team 1 (Alpha)**, **Team 2 (Beta)**, **Team 3 (Charlie)** စာရင်း (`Crown` SVG Leader badge နှင့် Shield/Bolt/Flame tier icons ပါဝင်) နှင့် **`Details ▾`** နှိပ်၍ Member စာရင်းအပြည့် ကြည့်နိုင်ပါသည်။ (`0` Squad ဖြစ်နေချိန်တွင် **`+ Squad ဖွဲ့မည်`** Actionable Banner ပြသပေးသည်)။
 
 > **⏰ အချိန်အလိုက် Check-In KPI စည်းမျဉ်း (`Asia/Rangoon GMT+6:30`)**
 > * **≤ `09:00 AM`:** `👑 MVP` (Daily MVP Bonus **+1,000 MMK** ရရှိ)
@@ -84,9 +83,9 @@
 * **Sticky Header Controls:**
   * **`Nov '26 ▾` (Compact Month Switcher):** လဟောင်း/လသစ် (`LATEST` badge ပါ) များကို ရွေးချယ်၍ ထိုလအတွက် Radar, KPI, Calendar နှင့် Official Payslip များကို တစ်ပြိုင်နက် ပြောင်းလဲကြည့်ရှုနိုင်ပါသည်။ (Offline outbox item ရှိပါက ☁️ **Outbox Pill** ဘေးတွင် ပေါ်လာပြီး နှိပ်၍ Sync လုပ်နိုင်ပါသည်)
   * **`☀️ / ⚙️` Dark Slate Toggle & Profile Avatar:** Theme ပြောင်းလဲခြင်းနှင့် **`Open Profile`** စာမျက်နှာသို့ တိုက်ရိုက်ဝင်ရောက်ခြင်း။
-* **Swipeable MLBB Hero Card (Slides 1–3):**
-  * **Slide 1 (`1/3 • Radar Chart`):** `Punctuality (အချိန်မှန်)`, `Reliability (ရက်မှန်)`, `MVP Burst (အစောရောက်)`, `Discipline (စည်းကမ်း)`, `Team Spirit (အဖွဲ့စိတ်ဓာတ်)` ဝင်ရိုး ၅ ခု Radar Chart + Win Rate `%`။
-  * **Slide 2 (`2/3 • Battle Stats`):** Present / 26 Workdays ဘားနှင့် **`🌟 MVP`**, **`🏅 OnTime`**, **`❗ Late`**, **`🚩 AFK`** ခလုတ် ၄ ခု — ခလုတ်တစ်ခုခုကို နှိပ်လိုက်ပါက အောက်ဘက်တွင် **Single Metric Inspector** (ရက်စွဲ + Check-In အချိန် Badges နှင့် **`မျက်နှာပြင်အပြည့် အသေးစိတ်ကြည့်ရန် →`**) ပွင့်လာပါမည်။
+* **Season Mastery Hero HUD (`Radar | Stats | Rewards` iOS Segmented Switcher):**
+  * **Slide 1 (`1/3 • Radar Chart`):** Dynamic Tier Crest SVG (`MYTHIC`–`WARRIOR`) နှင့် `Punctuality (အချိန်မှန်)`, `Reliability (ရက်မှန်)`, `MVP Burst (အစောရောက်)`, `Discipline (စည်းကမ်း)`, `Team Spirit (အဖွဲ့စိတ်ဓာတ်)` 2-Line ဝင်ရိုး ၅ ခု Radar Chart + Win Rate `%`။
+  * **Slide 2 (`2/3 • Battle Stats`):** Present / 26 Workdays ဘားနှင့် **`MVP`**, **`OnTime`**, **`Late`**, **`AFK`** SVG ခလုတ် ၄ ခု — ခလုတ်တစ်ခုခုကို နှိပ်လိုက်ပါက အောက်ဘက်တွင် **Single Metric Inspector** (ရက်စွဲ + Check-In အချိန် Badges နှင့် **`မျက်နှာပြင်အပြည့် အသေးစိတ်ကြည့်ရန် →`**) ပွင့်လာပါမည်။
   * **Slide 3 (`3/3 • Rewards & Wallet`):** စုစုပေါင်း ရရှိပြီး ဆုကြေးစုစုပေါင်း (`Total Earned Rewards`) နှင့် `50% Wallet Available` gauge bar။
 
 ---
@@ -228,4 +227,4 @@ Bottom Navigation အလယ်ရှိ **အစိမ်းရောင် `+` 
   4. **"Group ထဲသို့ 09:20 / 06:15 Digest မပို့သေးလျှင်":** Apps Script Editor တွင် **`installGroupDigestTriggers()`** ကို တစ်ကြိမ် `Run` လုပ်ထားကြောင်းနှင့် `System_Settings` တွင် `GROUP_DIGEST_ENABLED = YES` ရှိကြောင်း စစ်ဆေးပါ။
 
 ---
-*GBF Enterprise HR & AI Management System `v9.3.0 Production LTS (@42)` — Verified Visual User Manual (23 Application & Telegram Screenshots).*
+*GBF Enterprise HR & AI Management System `v9.3.1 Production LTS (@43)` — Verified Visual User Manual (23 Application & Telegram Screenshots).*
