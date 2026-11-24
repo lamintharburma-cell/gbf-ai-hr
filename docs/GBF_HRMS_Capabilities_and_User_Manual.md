@@ -1,7 +1,7 @@
-# 📘 G.B.F. Enterprise HR & AI Management System (`v9.4.1 Production LTS / @45`)
+# 📘 G.B.F. Enterprise HR & AI Management System (`v9.4.2 Production LTS / @46`)
 ## 🖥️ Visual Application Guide & Official User Manual (တကယ့် Application မျက်နှာပြင်များဖြင့် အသေးစိတ် အသုံးပြုသူ လက်စွဲ)
 
-**GBF Enterprise HR & AI Management System (`v9.4.1 Production LTS`)** သည် Google Sheets (`11` Master Tables — **`KPI_Formula_Registry`** တွက်ချက်မှု Audit Table အပါအဝင်), Google Apps Script Serverless Backend, Gemini 3.8 Flash AI (`gemini-3.8-flash` Interactions API), Telegram Native Mini App (`Index.html` — **MLBB Astral Steel-Navy & 5-Hue Color Harmony HUD** + GPS-First Home + Desktop Top Navigation + iOS Native Ergonomics) နှင့် Scoped Telegram Bot / Group Command Center (`@GBF_HRMS_Bot`) တို့ကို တစ်စုတစ်စည်းတည်း ချိတ်ဆက်ထားသော Enterprise HR ပလက်ဖောင်း ဖြစ်ပါသည်။
+**GBF Enterprise HR & AI Management System (`v9.4.2 Production LTS`)** သည် Google Sheets (`11` Master Tables — **`KPI_Formula_Registry`** တွက်ချက်မှု Audit Table အပါအဝင်), Google Apps Script Serverless Backend, Gemini 3.8 Flash AI (`gemini-3.8-flash` Interactions API), Telegram Native Mini App (`Index.html` — **MLBB Astral Steel-Navy & 5-Hue Color Harmony HUD** + GPS-First Home + Desktop Top Navigation + iOS Native Ergonomics) နှင့် Scoped Telegram Bot / Group Command Center (`@GBF_HRMS_Bot`) တို့ကို တစ်စုတစ်စည်းတည်း ချိတ်ဆက်ထားသော Enterprise HR ပလက်ဖောင်း ဖြစ်ပါသည်။
 
 ---
 
@@ -60,9 +60,9 @@
    * ရက်ဟောင်းများအတွက် မိမိ Check-In နှင့် တာဝန်ကျ Battle Squad များကို **`History` Tab** ရှိ Calendar တွင် ရက်ရွေးချယ်၍ အသေးစိတ် (`#logs-day-snapshot`) ကြည့်ရှုနိုင်ပါသည်။
 4. **Unified `GPS ARENA · 500M OPS` & Live HQ Telemetry Card (`CHECK IN` / `CHECK OUT` + Single `#active-counter`):**
    * **Single Live Active Counter:** ညာဘက်ထောင့်ရှိ Users SVG badge (`6 / 16`) ကို နှိပ်၍ ယနေ့ Check-In Roster ကို တိုက်ရိုက် ဖွင့်/ပိတ်နိုင်ပါသည်။
-   * **မနက်ပိုင်း (`NOT_CHECKED_IN`):** အစိမ်းရောင် **`ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)`** ခလုတ်ပေါ်နေပါမည်။ နှိပ်လိုက်သည်နှင့် Browser/Telegram မှ GPS Coordinate ကို ရယူပြီး စာရင်းသွင်းပါသည်။
-   * **ရုံးဆင်းချိန် (`CHECKED_IN`):** ခလုတ်သည် အနီရောင် **`ရုံးဆင်းစာရင်းသွင်းမည် (CHECK OUT)`** (`Checked In at 08:42 AM`) အဖြစ် ပြောင်းသွားပါမည်။
-   * **နှစ်ခုလုံးပြီးစီးချိန် (`CHECKED_OUT`):** **`ယနေ့ တာဝန်ချိန် ပြီးဆုံးပါပြီ`** (`IN • OUT` အချိန်တွဲဖက်) ပြသပေးပါသည်။
+   * **မနက်ပိုင်း (`NOT_CHECKED_IN`):** အစိမ်းရောင် **`ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)`** ခလုတ်နှင့် Live HQ Distance Bar အပြည့်အစုံ ပေါ်နေပါမည်။ နှိပ်လိုက်သည်နှင့် Browser/Telegram မှ GPS Coordinate ကို ရယူပြီး စာရင်းသွင်းပါသည်။
+   * **ရုံးဆင်းချိန် (`CHECKED_IN` — Auto Compact 1-Row):** Check-In ပြီးသည်နှင့် ကတ်တစ်ခုလုံးကို **၁ ကြောင်းစာ Compact Pill (`IN 08:44 AM · Squad` + `Check Out` + `N/Total` + `▾`)** အဖြစ် အလိုအလျောက် ချုံ့ပေးသဖြင့် Live Roster နှင့် Squads များကို တိုက်ရိုက်မြင်ရပါသည်။ (`▾` နှိပ်၍ GPS Distance & Map အသေးစိတ်ကို အချိန်မရွေး ပြန်ဖွင့်/ပိတ်နိုင်သည်)
+   * **နှစ်ခုလုံးပြီးစီးချိန် (`CHECKED_OUT` — Auto Compact 1-Row):** **`08:44 AM → 05:15 PM · Squad`** ၁ ကြောင်းစာ Summary အဖြစ် ပြသပေးပါသည်။ (`▾` နှိပ်၍ အသေးစိတ် ပြန်ဖွင့်ကြည့်နိုင်သည်)
    * **Integrated Live HQ Distance & Map Bar:** GBF HQ (`16.804683, 96.177149`) မှ **≤ 500 m** အတွင်းဖြစ်ပါက `HQ Zone (≤500m)` SVG badge၊ **> 500 m** ဖြစ်ပါက `Field Site` Pylon SVG badge ပြသပြီး **`တိုင်းမည်`** နှင့် **`Map`** ခလုတ်များ တစ်ကတ်တည်းတွင် ပါဝင်ပါသည်။
 5. **Today Checked-In Avatar Stack Inspector:**
    * Avatar အဝိုင်းများကို နှိပ်၍ ဖွင့်လိုက်ပါက Telegram Semantic SVG Icon Tabs ၃ မျိုး ခွဲကြည့်နိုင်ပါသည်-
@@ -243,4 +243,4 @@ Bottom Navigation အလယ်ရှိ **အစိမ်းရောင် `+` 
   4. **"Group ထဲသို့ 09:20 / 06:15 Digest မပို့သေးလျှင်":** Apps Script Editor တွင် **`installGroupDigestTriggers()`** ကို တစ်ကြိမ် `Run` လုပ်ထားကြောင်းနှင့် `System_Settings` တွင် `GROUP_DIGEST_ENABLED = YES` ရှိကြောင်း စစ်ဆေးပါ။
 
 ---
-*GBF Enterprise HR & AI Management System `v9.4.1 Production LTS (@45)` — Verified Visual User Manual (GPS-First Option A Streamline & Path B Governance).*
+*GBF Enterprise HR & AI Management System `v9.4.2 Production LTS (@46)` — Verified Visual User Manual (Post-Check-In 1-Line Collapsible GPS Bar, Screen Hardening & Path B Governance).*
