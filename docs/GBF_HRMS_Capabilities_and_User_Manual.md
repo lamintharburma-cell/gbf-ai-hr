@@ -1,7 +1,7 @@
-# 📘 G.B.F. Enterprise HR & AI Management System (`v9.4.0 Production LTS / @44`)
+# 📘 G.B.F. Enterprise HR & AI Management System (`v9.4.1 Production LTS / @45`)
 ## 🖥️ Visual Application Guide & Official User Manual (တကယ့် Application မျက်နှာပြင်များဖြင့် အသေးစိတ် အသုံးပြုသူ လက်စွဲ)
 
-**GBF Enterprise HR & AI Management System (`v9.4.0 Production LTS`)** သည် Google Sheets (`11` Master Tables — **`KPI_Formula_Registry`** တွက်ချက်မှု Audit Table အပါအဝင်), Google Apps Script Serverless Backend, Gemini 3.8 Flash AI (`gemini-3.8-flash` Interactions API), Telegram Native Mini App (`Index.html` — **MLBB Astral Steel-Navy & 5-Hue Color Harmony HUD** + Top-of-Home Calendar Strip + iOS Native Ergonomics) နှင့် Scoped Telegram Bot / Group Command Center (`@GBF_HRMS_Bot`) တို့ကို တစ်စုတစ်စည်းတည်း ချိတ်ဆက်ထားသော Enterprise HR ပလက်ဖောင်း ဖြစ်ပါသည်။
+**GBF Enterprise HR & AI Management System (`v9.4.1 Production LTS`)** သည် Google Sheets (`11` Master Tables — **`KPI_Formula_Registry`** တွက်ချက်မှု Audit Table အပါအဝင်), Google Apps Script Serverless Backend, Gemini 3.8 Flash AI (`gemini-3.8-flash` Interactions API), Telegram Native Mini App (`Index.html` — **MLBB Astral Steel-Navy & 5-Hue Color Harmony HUD** + GPS-First Home + Desktop Top Navigation + iOS Native Ergonomics) နှင့် Scoped Telegram Bot / Group Command Center (`@GBF_HRMS_Bot`) တို့ကို တစ်စုတစ်စည်းတည်း ချိတ်ဆက်ထားသော Enterprise HR ပလက်ဖောင်း ဖြစ်ပါသည်။
 
 ---
 
@@ -52,12 +52,12 @@
 | :---: | :---: |
 | <img src="./screenshots/02_home_attendance_hq.png" alt="Home Check-In and Live HQ Distance" width="310"> | <img src="./screenshots/03_home_squads.png" alt="Active Battle Squads Expanded" width="310"> |
 
-### မျက်နှာပြင် အစိတ်အပိုင်းတစ်ခုချင်းစီ ရှင်းလင်းချက် (`Option A Unified Bento HUD + Option 2 Top Calendar`)
-1. **Header Brand & Portrait Bar:** ဘယ်ဘက်ထိပ်တွင် **GBF Logo Emblem** (Google Sheet logo URL သို့ offline SVG emblem fallback) နှင့် ညာဘက်ထိပ်တွင် Profile ဓာတ်ပုံမတင်ရသေးသူများအတွက်ပါ **အမြဲမြင်သာသော Human Portrait SVG Avatar** ပါရှိပါသည်။
+### မျက်နှာပြင် အစိတ်အပိုင်းတစ်ခုချင်းစီ ရှင်းလင်းချက် (`Option A Streamlined GPS-First HUD + Desktop Top Nav`)
+1. **Header Brand, Desktop Navigation (`>=1024px`) & Portrait Bar:** ဘယ်ဘက်ထိပ်တွင် **GBF Logo Button** (`<button>` home link), Desktop (`>=1024px`) မျက်နှာပြင်တွင် **Sticky Top Navigation Bar (`#desktop-top-nav`)** နှင့် Mobile (`<1024px`) တွင် Safe-Area Bottom Navigation Bar ကို ခွဲခြားထားသဖြင့် Desktop ပေါ်တွင် Overlay မဖုံးပါ။ ညာဘက်ထိပ်တွင် **Human Portrait SVG Avatar** ပါရှိပါသည်။
 2. **Top Leader Command Strip (`TM / MM / TL` Only):** `CEO / TM Command` ကဲ့သို့ ရာထူးအမည်၊ **`Squads`** နှင့် **`AI Command`** shortcut ခလုတ်များကို ပြသပေးပါသည်။
-3. **Top-of-Home Date Calendar (`#home-calendar-top-card` — Option 2 Smart Strip + Month Drawer):**
-   * **7-Day Week Strip & Month Dropdown:** GPS Arena အပေါ်ဆုံးတွင် တစ်ပတ်စာ နေ့စွဲများကို အရောင် Dot များ (`🟡 MVP` / `🟢 On-Time` / `🔴 Late` / `🔵 Squad/Activity`) ဖြင့် ပြသထားပြီး Month ခေါင်းစဉ်နှိပ်၍ Full Month Drawer ဖွင့်ကြည့်နိုင်သလို `<` `>` ခလုတ်များဖြင့် လကူးပြောင်းနိုင်ပါသည်။
-   * **Daily Personal Check-In & Battle Squad Card:** ရက်စွဲတစ်ခုခုကို နှိပ်လိုက်သည်နှင့် မိမိ၏ **`IN → OUT`** အချိန်၊ KPI Badge နှင့် ထိုနေ့တွင် တွဲဖက်တာဝန်ကျခဲ့သော **Battle Squad & Members** ကို ချက်ချင်းပြသပေးပြီး အောက်ဘက် **Roster နှင့် Battle Squads Card များကိုပါ ထိုနေ့ Data (`month_daily_snapshots`) အတိုင်း Sync** ပြောင်းလဲပေးပါသည်။ (`ယနေ့သို့` / `Live ယနေ့` ဖြင့် ယနေ့ Live Board သို့ ပြန်ကူးနိုင်သည်)။
+3. **GPS-First Above-the-Fold Mission Card & Slim `Today Squad` Pill (`#home-today-squad-chip`):**
+   * ပင်မစာမျက်နှာ ဖွင့်လိုက်သည်နှင့် အဓိက **`CHECK IN / CHECK OUT`** ခလုတ်ကို ထိပ်ဆုံးတွင် တိုက်ရိုက်မြင်ရပြီး ၎င်းအောက်တွင် **`[2026-11-25] 08:44 AM MVP • Team 1 (Alpha)`** နှင့် **`ပြက္ခဒိန် ▸`** button ၁ ကြောင်းတည်း ကျစ်လျစ်စွာ ပါရှိပါသည်။
+   * ရက်ဟောင်းများအတွက် မိမိ Check-In နှင့် တာဝန်ကျ Battle Squad များကို **`History` Tab** ရှိ Calendar တွင် ရက်ရွေးချယ်၍ အသေးစိတ် (`#logs-day-snapshot`) ကြည့်ရှုနိုင်ပါသည်။
 4. **Unified `GPS ARENA · 500M OPS` & Live HQ Telemetry Card (`CHECK IN` / `CHECK OUT` + Single `#active-counter`):**
    * **Single Live Active Counter:** ညာဘက်ထောင့်ရှိ Users SVG badge (`6 / 16`) ကို နှိပ်၍ ယနေ့ Check-In Roster ကို တိုက်ရိုက် ဖွင့်/ပိတ်နိုင်ပါသည်။
    * **မနက်ပိုင်း (`NOT_CHECKED_IN`):** အစိမ်းရောင် **`ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)`** ခလုတ်ပေါ်နေပါမည်။ နှိပ်လိုက်သည်နှင့် Browser/Telegram မှ GPS Coordinate ကို ရယူပြီး စာရင်းသွင်းပါသည်။
@@ -135,7 +135,7 @@
 
 | **Interactive Calendar & Daily Timeline** | **အသုံးပြုပုံ လမ်းညွှန်** |
 | :---: | :--- |
-| <img src="./screenshots/06_history_calendar_timeline.png" alt="History Calendar and Vertical Timeline" width="320"> | 1. Bottom Nav မှ **`History`** (သို့ Home မှ **`Interactive Calendar & Timeline`**) ကို နှိပ်ပါ။<br>2. အပေါ်ဆုံး Filter မှ **`Weekly (အပတ်စဉ်)`**, **`Daily (နေ့စဉ်)`**, **`Monthly (လစဉ်)`** မြင်ကွင်း ၃ မျိုးကို ပြောင်းလဲကြည့်နိုင်ပါသည်။<br>3. ဘယ်/ညာ `<` `>` ခလုတ်များဖြင့် ရက်သတ္တပတ်/လ ရွှေ့နိုင်ပြီး ရက်စွဲတစ်ခုချင်းစီပေါ် နှိပ်ပါက အောက်ဘက် **Timeline** ကို ထိုနေ့တစ်နေ့တည်းအတွက် Filter လုပ်ပြပေးပါမည်။<br>4. **`တစ်လလုံးပြရန်`** ခလုတ်နှိပ်၍ Full-Month Timeline သို့ ပြန်ကြည့်နိုင်ပြီး Top-Right **`+ ခွင့်`** ခလုတ်မှ Leave Form သို့ တိုက်ရိုက်သွားနိုင်ပါသည်။<br>5. နေ့စွဲကွက်အောက်ရှိ အစက်အရောင်များ — 🟡 `MVP` / 🟢 `On-Time` / 🔴 `Late` / 🔵 `Team/Voice` ကို ကိုယ်စားပြုပါသည်။ |
+| <img src="./screenshots/06_history_calendar_timeline.png" alt="History Calendar and Vertical Timeline" width="320"> | 1. Bottom/Top Nav မှ **`History`** (သို့ Home GPS card ရှိ **`ပြက္ခဒိန် ▸`**) ကို နှိပ်ပါ။<br>2. အပေါ်ဆုံး Filter မှ **`Weekly (အပတ်စဉ်)`**, **`Daily (နေ့စဉ်)`**, **`Monthly (လစဉ်)`** မြင်ကွင်း ၃ မျိုးကို ပြောင်းလဲကြည့်နိုင်ပါသည်။<br>3. ဘယ်/ညာ `<` `>` ခလုတ်များဖြင့် ရက်သတ္တပတ်/လ ရွှေ့နိုင်ပြီး ရက်စွဲတစ်ခုချင်းစီပေါ် နှိပ်ပါက **Day Snapshot Card (`#logs-day-snapshot`)** တွင် ထိုနေ့၏ **မိမိ IN/OUT + တွဲဖက် Battle Squad (Alpha/Beta/Charlie)** နှင့် **Timeline** ကို ပြသပေးပါမည်။<br>4. **`တစ်လလုံးပြရန်`** ခလုတ်နှိပ်၍ Full-Month Timeline သို့ ပြန်ကြည့်နိုင်ပြီး Top-Right **`+ ခွင့်`** ခလုတ်မှ Leave Form သို့ တိုက်ရိုက်သွားနိုင်ပါသည်။<br>5. နေ့စွဲကွက်အောက်ရှိ အစက်အရောင်များ — 🟡 `MVP` / 🟢 `On-Time` / 🔴 `Late` / 🔵 `Team/Voice` ကို ကိုယ်စားပြုပါသည်။ |
 
 ---
 
@@ -243,4 +243,4 @@ Bottom Navigation အလယ်ရှိ **အစိမ်းရောင် `+` 
   4. **"Group ထဲသို့ 09:20 / 06:15 Digest မပို့သေးလျှင်":** Apps Script Editor တွင် **`installGroupDigestTriggers()`** ကို တစ်ကြိမ် `Run` လုပ်ထားကြောင်းနှင့် `System_Settings` တွင် `GROUP_DIGEST_ENABLED = YES` ရှိကြောင်း စစ်ဆေးပါ။
 
 ---
-*GBF Enterprise HR & AI Management System `v9.4.0 Production LTS (@44)` — Verified Visual User Manual (23 Application & Telegram Screenshots & Path B Governance).*
+*GBF Enterprise HR & AI Management System `v9.4.1 Production LTS (@45)` — Verified Visual User Manual (GPS-First Option A Streamline & Path B Governance).*

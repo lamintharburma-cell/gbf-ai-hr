@@ -113,12 +113,13 @@ test('Test 2: src/Index.html DOM, CSS, Accessibility & Offline/URI Hardening int
     'pin-dot-0', 'pin-dot-1', 'pin-dot-2', 'pin-dot-3',
     'btn-chk-in', 'btn-chk-leave', 'btn-chk-pending',
     'home-dot-0', 'home-dot-1', 'home-dot-2',
-    'hbeam-0', 'hbeam-1', 'hbeam-2',
+    'home-today-squad-chip',
     'home-seg-0', 'home-seg-1', 'home-seg-2',
     'home-ring-present', 'home-ring-workdays', 'home-ring-winrate', 'home-ring-mvp',
     'home-strip-mvp', 'home-strip-ontime', 'home-strip-late', 'home-strip-afk',
     'kpi-flt-all', 'kpi-flt-mvp', 'kpi-flt-ontime', 'kpi-flt-late', 'kpi-flt-afk',
     'cal-mode-weekly', 'cal-mode-daily', 'cal-mode-monthly',
+    'dnav-home', 'dnav-logs', 'dnav-wallet', 'dnav-voice', 'dnav-ai',
     'nav-home', 'nav-logs', 'nav-wallet', 'nav-voice', 'nav-ai',
     'tab-home', 'tab-kpi-detail', 'tab-logs', 'tab-wallet', 'tab-leave', 'tab-advance', 'tab-voice', 'tab-team', 'tab-ai'
   ];
