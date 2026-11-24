@@ -1088,8 +1088,8 @@
                     <div class="lg:col-span-7 space-y-3.5">
 
                         <!-- Unified Operations & Live GPS Mission Card -->
-                        <div class="glass-card hud-hover-lift rounded-3xl p-3 space-y-2.5 border border-sky-400/30">
-                            <div class="flex items-center justify-between gap-2 px-0.5">
+                        <div id="gps-arena-card" class="glass-card hud-hover-lift rounded-3xl p-3 space-y-2.5 border border-sky-400/30 transition-all">
+                            <div id="gps-arena-header-row" class="flex items-center justify-between gap-2 px-0.5">
                                 <div class="flex items-center gap-2 min-w-0">
                                     <span class="relative flex h-2.5 w-2.5 shrink-0">
                                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-65" style="background: var(--hue-jade);"></span>
@@ -1097,66 +1097,73 @@
                                     </span>
                                     <h2 class="text-[10.5px] font-ui-label font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-100 truncate">GPS Arena · 500m Ops</h2>
                                 </div>
-                                <button type="button" onclick="toggleTodayCheckinPanel()" title="ယနေ့တက်ရောက်သူ စာရင်းဖွင့်ကြည့်ရန်" class="tap-spring inline-flex items-center gap-1.5 text-[10px] font-extrabold tabular-nums whitespace-nowrap px-2.5 py-1 rounded-full border border-sky-400/35 bg-sky-500/10 text-sky-700 dark:text-sky-300" id="active-counter">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                                    <span>0 / 0</span>
-                                </button>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <button type="button" onclick="toggleTodayCheckinPanel()" title="ယနေ့တက်ရောက်သူ စာရင်းဖွင့်ကြည့်ရန်" class="tap-spring inline-flex items-center gap-1.5 text-[10px] font-extrabold tabular-nums whitespace-nowrap px-2.5 py-1 rounded-full border border-sky-400/35 bg-sky-500/10 text-sky-700 dark:text-sky-300" id="active-counter">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                        <span>0 / 0</span>
+                                    </button>
+                                    <button type="button" id="btn-gps-collapse" onclick="toggleGpsArenaDetails()" title="အတိုချုံ့ပြရန်" aria-label="Collapse GPS Arena Details" class="hidden touch-target tap-spring w-7 h-7 rounded-full border border-slate-300/60 dark:border-sky-400/30 bg-white/75 dark:bg-slate-800/80 text-slate-700 dark:text-sky-300 items-center justify-center shrink-0">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>
+                                    </button>
+                                </div>
                             </div>
 
                             <div id="smart-attendance-wrapper" class="w-full"></div>
 
-                            <!-- Slim 1-Line Today Status + Squad Pill (Routes Past Dates to History) -->
-                            <div id="home-today-squad-chip" class="px-2.5 py-2 rounded-2xl mlbb-std-row flex items-center justify-between gap-2">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span id="home-chip-date-badge" class="px-2 py-0.5 rounded-lg bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-400/30 text-[10px] font-extrabold tabular-nums shrink-0">ယနေ့</span>
-                                    <span id="home-chip-squad-text" class="text-[11px] font-bold text-slate-900 dark:text-white truncate">Check-In နှင့် Squad အခြေအနေ</span>
-                                </div>
-                                <button type="button" onclick="switchTab('logs')" class="touch-target tap-spring px-2 py-1 rounded-xl text-[10.5px] font-extrabold text-sky-700 dark:text-sky-300 whitespace-nowrap shrink-0 inline-flex items-center gap-1">
-                                    <span>ပြက္ခဒိန် ▸</span>
-                                </button>
-                            </div>
-
-                            <!-- Integrated HQ Distance & Field Telemetry Bar -->
-                            <div class="pt-2.5 border-t border-slate-200/70 dark:border-sky-400/20 space-y-2">
-                                <div class="flex items-center justify-between gap-2">
+                            <div id="gps-arena-collapsible" class="space-y-2.5">
+                                <!-- Slim 1-Line Today Status + Squad Pill (Routes Past Dates to History) -->
+                                <div id="home-today-squad-chip" class="px-2.5 py-2 rounded-2xl mlbb-std-row flex items-center justify-between gap-2">
                                     <div class="flex items-center gap-2 min-w-0">
-                                        <span class="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-400/30 flex items-center justify-center shrink-0">
-                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.3-6.4 2.1 2-6.3z"/></svg>
-                                        </span>
-                                        <div class="min-w-0">
-                                            <div class="flex items-center gap-1.5 flex-wrap">
-                                                <span class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate" id="live-distance-readout">ရုံးချုပ်နှင့် အကွာအဝေး တိုင်းတာရန်</span>
-                                                <span id="live-zone-badge" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[8px] font-extrabold whitespace-nowrap border border-emerald-500/30">GPS Ready</span>
+                                        <span id="home-chip-date-badge" class="px-2 py-0.5 rounded-lg bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-400/30 text-[10px] font-extrabold tabular-nums shrink-0">ယနေ့</span>
+                                        <span id="home-chip-squad-text" class="text-[11px] font-bold text-slate-900 dark:text-white truncate">Check-In နှင့် Squad အခြေအနေ</span>
+                                    </div>
+                                    <button type="button" onclick="switchTab('logs')" class="touch-target tap-spring px-2 py-1 rounded-xl text-[10.5px] font-extrabold text-sky-700 dark:text-sky-300 whitespace-nowrap shrink-0 inline-flex items-center gap-1">
+                                        <span>ပြက္ခဒိန် ▸</span>
+                                    </button>
+                                </div>
+
+                                <!-- Integrated HQ Distance & Field Telemetry Bar -->
+                                <div class="pt-2.5 border-t border-slate-200/70 dark:border-sky-400/20 space-y-2">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <span class="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-400/30 flex items-center justify-center shrink-0">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.3-6.4 2.1 2-6.3z"/></svg>
+                                            </span>
+                                            <div class="min-w-0">
+                                                <div class="flex items-center gap-1.5 flex-wrap">
+                                                    <span class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate" id="live-distance-readout">ရုံးချုပ်နှင့် အကွာအဝေး တိုင်းတာရန်</span>
+                                                    <span id="live-zone-badge" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[8px] font-extrabold whitespace-nowrap border border-emerald-500/30">GPS Ready</span>
+                                                </div>
+                                                <p class="mm-text text-[9px] text-slate-600 dark:text-slate-300" id="live-distance-sub">ရုံးချုပ် (≤500m) သို့မဟုတ် Field Site အကွာအဝေးကို Map ဖြင့် ပြသပေးသည်</p>
                                             </div>
-                                            <p class="mm-text text-[9px] text-slate-600 dark:text-slate-300" id="live-distance-sub">ရုံးချုပ် (≤500m) သို့မဟုတ် Field Site အကွာအဝေးကို Map ဖြင့် ပြသပေးသည်</p>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 shrink-0">
+                                            <button type="button" onclick="measureLiveGpsDistance()" class="touch-target tap-spring px-2.5 py-1.5 rounded-xl bg-white/80 dark:bg-slate-800/80 border border-blue-500/25 text-slate-900 dark:text-white text-[9.5px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap" title="Refresh GPS Distance">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="color: var(--hue-cyan);" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/></svg>
+                                                <span>တိုင်းမည်</span>
+                                            </button>
+                                            <a id="live-map-measure-link" href="https://www.google.com/maps/dir/16.804683,96.177149/16.804683,96.177149" onclick="return openSafeMapLink(event, this.href)" target="_top" rel="noopener noreferrer" class="touch-target mlbb-steel-btn tap-spring px-2.5 py-1.5 rounded-xl text-[9.5px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
+                                                <span>Map</span>
+                                            </a>
                                         </div>
                                     </div>
-                                    <div class="flex items-center gap-1.5 shrink-0">
-                                        <button type="button" onclick="measureLiveGpsDistance()" class="touch-target tap-spring px-2.5 py-1.5 rounded-xl bg-white/80 dark:bg-slate-800/80 border border-blue-500/25 text-slate-900 dark:text-white text-[9.5px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap" title="Refresh GPS Distance">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="color: var(--hue-cyan);" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/></svg>
-                                            <span>တိုင်းမည်</span>
-                                        </button>
-                                        <a id="live-map-measure-link" href="https://www.google.com/maps/dir/16.804683,96.177149/16.804683,96.177149" onclick="return openSafeMapLink(event, this.href)" target="_top" rel="noopener noreferrer" class="touch-target mlbb-steel-btn tap-spring px-2.5 py-1.5 rounded-xl text-[9.5px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
-                                            <span>Map</span>
-                                        </a>
-                                    </div>
-                                </div>
 
-                                <div>
-                                    <div class="flex justify-between items-center text-[8px] font-bold text-slate-600 dark:text-slate-300 mb-1 tabular-nums">
-                                        <span class="inline-flex items-center gap-1">
-                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--hue-jade);" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
-                                            ရုံးချုပ် HQ (0m)
-                                        </span>
-                                        <span>500m Zone</span>
-                                        <span class="inline-flex items-center gap-1">
-                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--hue-cyan);" aria-hidden="true"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
-                                            Field Site (km)
-                                        </span>
-                                    </div>
-                                    <div class="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-900/80 overflow-hidden relative">
-                                        <div id="live-distance-bar" class="h-1.5 transition-all duration-500" style="width: 18%; background: linear-gradient(90deg, var(--hue-jade), var(--hue-cyan), var(--hue-gold), var(--hue-coral));"></div>
+                                    <div>
+                                        <div class="flex justify-between items-center text-[8px] font-bold text-slate-600 dark:text-slate-300 mb-1 tabular-nums">
+                                            <span class="inline-flex items-center gap-1">
+                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--hue-jade);" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+                                                ရုံးချုပ် HQ (0m)
+                                            </span>
+                                            <span>500m Zone</span>
+                                            <span class="inline-flex items-center gap-1">
+                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--hue-cyan);" aria-hidden="true"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
+                                                Field Site (km)
+                                            </span>
+                                        </div>
+                                        <div class="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-900/80 overflow-hidden relative">
+                                            <div id="live-distance-bar" class="h-1.5 transition-all duration-500" style="width: 18%; background: linear-gradient(90deg, var(--hue-jade), var(--hue-cyan), var(--hue-gold), var(--hue-coral));"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1497,17 +1504,17 @@
                     </div>
 
                     <div class="reward-pass-card p-4 rounded-3xl space-y-3">
-                        <div class="flex items-center justify-between border-b border-white/10 pb-2.5 gap-2">
+                        <div class="flex flex-wrap items-center justify-between border-b border-white/10 pb-2.5 gap-2">
                             <div class="flex items-center gap-2 min-w-0">
                                 <div class="w-9 h-9 rounded-2xl bg-amber-bright/20 border border-amber-bright/40 text-amber-bright flex items-center justify-center text-base shadow-sm shrink-0">
                                     <i class="fas fa-trophy"></i>
                                 </div>
                                 <div class="min-w-0">
                                     <span class="text-[8.5px] font-ui-label font-extrabold uppercase tracking-widest text-amber-bright">MLBB Reward Pass &amp; Bounties</span>
-                                    <h3 class="text-sm font-black text-white tabular-nums whitespace-nowrap" id="reward-total-earned">စုစုပေါင်း ဆုကြေး: 0 MMK</h3>
+                                    <h3 class="text-sm font-black text-white tabular-nums break-words leading-snug" id="reward-total-earned">စုစုပေါင်း ဆုကြေး: 0 MMK</h3>
                                 </div>
                             </div>
-                            <button type="button" id="btn-open-reward-settings" onclick="openRewardSettingsModal()" data-role="TM MM TL" class="hidden px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-[9px] font-ui-label font-extrabold text-amber-bright items-center gap-1 active:scale-95 shrink-0">
+                            <button type="button" id="btn-open-reward-settings" onclick="openRewardSettingsModal()" data-role="TM MM TL" class="hidden touch-target px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-[9px] font-ui-label font-extrabold text-amber-bright items-center gap-1 active:scale-95 shrink-0">
                                 <i class="fas fa-sliders"></i> <span>ဆုကြေးသတ်မှတ်ရန်</span>
                             </button>
                         </div>
@@ -1624,7 +1631,7 @@
                                     <p class="text-[9px] text-emerald-200 font-ui-label font-bold uppercase tracking-wider">50% Base Salary Advance Limit</p>
                                     <h3 class="text-base font-black text-white mt-0.5 tabular-nums whitespace-nowrap">လက်ကျန်: <span id="wallet-remaining" class="text-emerald-bright">0</span> <span class="text-[10px]">MMK</span></h3>
                                 </div>
-                                <button type="button" onclick="switchTab('advance')" class="bg-emerald-bright hover:brightness-105 text-dark-surface font-ui-label font-extrabold text-[9.5px] px-3 py-2 rounded-xl shadow-md active:scale-95 transition-all uppercase shrink-0">
+                                <button type="button" onclick="switchTab('advance')" class="touch-target bg-emerald-bright hover:brightness-105 text-dark-surface font-ui-label font-extrabold text-[9.5px] px-3 py-2 rounded-xl shadow-md active:scale-95 transition-all uppercase shrink-0">
                                     <i class="fas fa-hand-holding-usd mr-1"></i> ငွေထုတ်ရန်
                                 </button>
                             </div>
@@ -1644,7 +1651,7 @@
                                     <i class="fas fa-receipt text-amber-700 dark:text-amber-bright"></i>
                                     <span>ကြိုတင်ငွေ ထုတ်ယူထားသည့် မှတ်တမ်း</span>
                                 </h3>
-                                <button type="button" onclick="switchTab('advance')" class="text-[9px] font-extrabold text-primary dark:text-emerald-bright bg-canvas-mint dark:bg-emerald-dark/60 px-2.5 py-1 rounded-lg">+ အသစ်ထုတ်ရန်</button>
+                                <button type="button" onclick="switchTab('advance')" class="touch-target text-[9px] font-extrabold text-primary dark:text-emerald-bright bg-canvas-mint dark:bg-emerald-dark/60 px-2.5 py-1.5 rounded-lg">+ အသစ်ထုတ်ရန်</button>
                             </div>
                             <div id="advance-history-ledger" class="space-y-2"></div>
                         </div>
@@ -1843,8 +1850,9 @@
                             <span class="text-[10px] font-extrabold text-on-surface-variant dark:text-slate-200 uppercase block mb-1.5">အဖွဲ့ဝင်များ ရွေးချယ်ပါ</span>
                             <div id="team-members-list" class="border border-slate-200 dark:border-slate-700 p-2 rounded-xl space-y-1 bg-surface-container-low dark:bg-slate-800 max-h-48 overflow-y-auto"></div>
                         </div>
-                        <button type="submit" id="btn-submit-team" class="w-full bg-dark-surface hover:brightness-110 text-white font-ui-label font-extrabold py-3.5 rounded-xl active:scale-95 transition-all shadow-md text-xs uppercase tracking-wider disabled:opacity-50">
-                            <i class="fas fa-broadcast-tower mr-1"></i> အဖွဲ့ဖွဲ့စည်းပြီး Telegram ပို့မည်
+                        <button type="submit" id="btn-submit-team" class="touch-target w-full bg-slate-900 dark:bg-sky-600 hover:brightness-110 text-white font-ui-label font-extrabold py-3.5 rounded-xl active:scale-95 transition-all shadow-md text-xs uppercase tracking-wider disabled:opacity-50 inline-flex items-center justify-center gap-2">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
+                            <span>အဖွဲ့ဖွဲ့စည်းပြီး Telegram ပို့မည်</span>
                         </button>
                     </form>
                 </div>
@@ -1898,7 +1906,7 @@
         <div onclick="event.stopPropagation()" class="ios-scroll w-full max-w-lg glass-card rounded-3xl p-4 space-y-3 shadow-2xl border-t-4 border-t-emerald-bright">
             <div class="flex items-center justify-between pb-2 border-b border-slate-200/70 dark:border-slate-700/70">
                 <span class="text-xs font-extrabold uppercase tracking-wider text-on-surface dark:text-white">Quick Actions</span>
-                <button type="button" onclick="closeQuickActionSheet()" aria-label="Close Quick Actions" class="tap-spring w-8 h-8 rounded-full bg-surface-container-low dark:bg-slate-800 flex items-center justify-center text-xs">
+                <button type="button" onclick="closeQuickActionSheet()" aria-label="Close Quick Actions" class="touch-target tap-spring w-8 h-8 rounded-full bg-surface-container-low dark:bg-slate-800 flex items-center justify-center text-xs">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
             </div>
@@ -1948,7 +1956,7 @@
                         <span>Reward &amp; Bonus နှုန်းထား သတ်မှတ်ရန်</span>
                     </h3>
                 </div>
-                <button type="button" onclick="closeRewardSettingsModal()" aria-label="Close Reward Settings" class="tap-spring w-8 h-8 rounded-full bg-surface-container-low dark:bg-slate-800 flex items-center justify-center text-xs">
+                <button type="button" onclick="closeRewardSettingsModal()" aria-label="Close Reward Settings" class="touch-target tap-spring w-8 h-8 rounded-full bg-surface-container-low dark:bg-slate-800 flex items-center justify-center text-xs">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
             </div>
@@ -2513,6 +2521,8 @@
         let globalState = null;
         let isSubmitting = false;
         let pinBuffer = "";
+        let gpsArenaExpanded = false;
+        let lastTodayAttendanceStatus = null;
 
         let homeRadarChartInstance = null;
         let profileRadarChartInstance = null;
@@ -3400,24 +3410,12 @@
             renderMonthPickerUI(d.available_months);
             document.querySelectorAll('.payslip-month').forEach(el => el.innerText = selectedMonth);
 
-            if (d.system) {
-                const counterEl = document.getElementById('active-counter');
-                if (counterEl) {
-                    counterEl.innerHTML = `${gbfIcon('users', 'w-3 h-3 shrink-0', 12)}<span>${Number(d.system.today_active || 0)} / ${Number(d.system.total_emp || 0)}</span>`;
-                }
-            }
-
-            const wrapper = document.getElementById('smart-attendance-wrapper');
             const st = (d.today_state && d.today_state.status) ? d.today_state.status : "NOT_CHECKED_IN";
-            if (wrapper) {
-                if (st === "NOT_CHECKED_IN") {
-                    wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check In')" class="cta-pulse-ring tap-spring w-full font-black p-3.5 rounded-2xl shadow-[0_10px_24px_-6px_rgba(56,189,248,0.42)] flex items-center justify-between border border-cyan-200/60" style="background: linear-gradient(90deg, #22C55E 0%, #4ADE80 54%, #38BDF8 100%); color: #042F2E;"><div class="flex items-center gap-3 text-left"><div class="hud-chamfer w-10 h-10 bg-white/30 border border-white/45 flex items-center justify-center shrink-0">${gbfIcon('radar', 'w-5 h-5 text-slate-950', 20)}</div><div><span class="block text-xs font-extrabold tracking-wide uppercase">ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)</span><span class="block text-[9.5px] font-bold opacity-85 mt-0.5">GPS 500m &amp; Field Site Verification</span></div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>`;
-                } else if (st === "CHECKED_IN") {
-                    wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check Out')" class="cta-pulse-ring tap-spring w-full bg-gradient-to-r from-rose-600 to-pink-600 text-white font-bold p-3.5 rounded-2xl shadow-[0_10px_24px_-6px_rgba(225,29,72,0.45)] flex items-center justify-between border border-rose-300/45"><div class="flex items-center gap-3 text-left"><div class="hud-chamfer w-10 h-10 bg-white/15 border border-white/20 flex items-center justify-center shrink-0">${gbfIcon('signout', 'w-5 h-5 text-rose-100', 20)}</div><div><span class="block text-xs font-extrabold tracking-wide uppercase">ရုံးဆင်းစာရင်းသွင်းမည် (CHECK OUT)</span><span class="block text-[9.5px] text-rose-100 mt-0.5 tabular-nums">Checked In at ${escapeHtml(d.today_state.time_in)}</span></div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="text-white/80 shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>`;
-                } else {
-                    wrapper.innerHTML = `<div class="w-full bg-emerald-500/15 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 font-bold p-3.5 rounded-2xl flex items-center justify-between border border-emerald-500/40"><div class="flex items-center gap-3 text-left"><div class="hud-chamfer w-10 h-10 bg-emerald-500 text-white flex items-center justify-center shrink-0">${gbfIcon('ontime', 'w-5 h-5', 20)}</div><div><span class="block text-xs font-extrabold uppercase">ယနေ့ တာဝန်ချိန် ပြီးဆုံးပါပြီ</span><span class="block text-[9.5px] mt-0.5 tabular-nums">IN: ${escapeHtml(d.today_state.time_in)} • OUT: ${escapeHtml(d.today_state.time_out)}</span></div></div></div>`;
-                }
+            if (st !== lastTodayAttendanceStatus) {
+                lastTodayAttendanceStatus = st;
+                gpsArenaExpanded = false;
             }
+            renderGpsArenaCard(d);
 
             syncProfilePhotoUI(d.user.id, d.user.name);
             const profName = document.getElementById('prof-user-name');
@@ -3775,20 +3773,90 @@
             return { snap, myChk, myLv, myTeam, dotColor };
         }
 
-        function renderHomeTodaySquadChip(d) {
-            const badgeEl = document.getElementById('home-chip-date-badge');
-            const textEl = document.getElementById('home-chip-squad-text');
-            if (!textEl || !d) return;
+        function getTodayCompactSummary(d) {
             const todayIso = getYangonTodayIso();
-            if (badgeEl) badgeEl.innerText = todayIso;
             const { myChk, myLv, myTeam, snap } = getHomeDateMarkerInfo(d, todayIso);
-            const liveIn = !myChk && d.today_state && d.today_state.time_in
+            const liveIn = !myChk && d && d.today_state && d.today_state.time_in
                 ? { time: d.today_state.time_in, kpi: 'Checked-In' }
                 : null;
             const att = myChk || liveIn;
             const attTxt = att ? `${att.time} ${att.kpi}` : (myLv ? `${myLv.type} (${myLv.status})` : 'Check-In မဝင်သေး');
-            const squadTxt = myTeam ? `${myTeam.name} (${myTeam.project})` : (snap.teams.length > 0 ? `HQ / Standby (အဖွဲ့ ${snap.teams.length})` : 'Squad မခွဲရသေး');
-            textEl.innerText = `${attTxt} • ${squadTxt}`;
+            const squadShort = myTeam ? myTeam.name : (snap.teams.length > 0 ? `Standby (${snap.teams.length})` : 'Squad မခွဲရသေး');
+            const squadFull = myTeam ? `${myTeam.name} (${myTeam.project})` : (snap.teams.length > 0 ? `HQ / Standby (အဖွဲ့ ${snap.teams.length})` : 'Squad မခွဲရသေး');
+            return { todayIso, attTxt, squadShort, squadFull };
+        }
+
+        function toggleGpsArenaDetails() {
+            playUiSound('tick');
+            triggerHaptic('light');
+            gpsArenaExpanded = !gpsArenaExpanded;
+            if (globalState) renderGpsArenaCard(globalState);
+        }
+
+        function renderGpsArenaCard(d) {
+            if (!d) return;
+            const cardEl = document.getElementById('gps-arena-card');
+            const headerRow = document.getElementById('gps-arena-header-row');
+            const collapsibleEl = document.getElementById('gps-arena-collapsible');
+            const collapseBtn = document.getElementById('btn-gps-collapse');
+            const counterEl = document.getElementById('active-counter');
+            const wrapper = document.getElementById('smart-attendance-wrapper');
+
+            const activeCount = Number((d.system && d.system.today_active) || 0);
+            const totalCount = Number((d.system && d.system.total_emp) || 0);
+            if (counterEl) {
+                counterEl.innerHTML = `${gbfIcon('users', 'w-3 h-3 shrink-0', 12)}<span>${activeCount} / ${totalCount}</span>`;
+            }
+
+            const st = (d.today_state && d.today_state.status) ? d.today_state.status : "NOT_CHECKED_IN";
+            const isCollapsed = (st !== "NOT_CHECKED_IN") && !gpsArenaExpanded;
+
+            if (cardEl) {
+                cardEl.classList.toggle('p-2.5', isCollapsed);
+                cardEl.classList.toggle('p-3', !isCollapsed);
+                cardEl.classList.toggle('space-y-2.5', !isCollapsed);
+            }
+            if (headerRow) headerRow.classList.toggle('hidden', isCollapsed);
+            if (collapsibleEl) collapsibleEl.classList.toggle('hidden', isCollapsed);
+            if (collapseBtn) {
+                const showCollapse = (st !== "NOT_CHECKED_IN") && !isCollapsed;
+                collapseBtn.classList.toggle('hidden', !showCollapse);
+                collapseBtn.classList.toggle('inline-flex', showCollapse);
+                collapseBtn.setAttribute('aria-expanded', showCollapse ? 'true' : 'false');
+            }
+
+            if (!wrapper) return;
+            if (isCollapsed) {
+                const summary = getTodayCompactSummary(d);
+                const statusIndicator = st === "CHECKED_IN"
+                    ? `<span class="relative flex h-2.5 w-2.5 shrink-0"><span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-65" style="background: var(--hue-jade);"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5" style="background: var(--hue-jade);"></span></span>`
+                    : `<span class="w-5 h-5 rounded-lg bg-emerald-500 text-white flex items-center justify-center shrink-0">${gbfIcon('ontime', 'w-3 h-3', 12)}</span>`;
+                const summaryLine = st === "CHECKED_IN"
+                    ? `IN ${escapeHtml(d.today_state.time_in || '--:--')} · ${escapeHtml(summary.squadShort)}`
+                    : `${escapeHtml(d.today_state.time_in || '--:--')} → ${escapeHtml(d.today_state.time_out || '--:--')} · ${escapeHtml(summary.squadShort)}`;
+                const checkoutActionBtn = st === "CHECKED_IN"
+                    ? `<button type="button" onclick="handleSmartAttendance('Check Out')" class="touch-target tap-spring bg-gradient-to-r from-rose-600 to-pink-600 text-white font-extrabold text-[10px] px-2.5 py-1.5 rounded-xl border border-rose-300/45 whitespace-nowrap shadow-sm shrink-0">Check Out</button>`
+                    : '';
+                wrapper.innerHTML = `<div class="flex items-center justify-between gap-2 min-w-0"><div class="flex items-center gap-2 min-w-0 flex-1">${statusIndicator}<span class="text-[11px] font-extrabold text-slate-900 dark:text-white truncate tabular-nums">${summaryLine}</span></div><div class="flex items-center gap-1 shrink-0">${checkoutActionBtn}<button type="button" onclick="toggleTodayCheckinPanel()" title="ယနေ့တက်ရောက်သူ စာရင်းဖွင့်ကြည့်ရန်" class="touch-target tap-spring inline-flex items-center gap-1 text-[10px] font-extrabold tabular-nums whitespace-nowrap px-2 py-1 rounded-xl border border-sky-400/35 bg-sky-500/10 text-sky-700 dark:text-sky-300 shrink-0">${gbfIcon('users', 'w-3 h-3 shrink-0', 12)}<span>${activeCount} / ${totalCount}</span></button><button type="button" onclick="toggleGpsArenaDetails()" title="GPS နှင့် အသေးစိတ်ဖွင့်ရန်" aria-label="Expand GPS Arena Details" aria-expanded="false" class="touch-target tap-spring w-8 h-8 rounded-xl border border-slate-300/60 dark:border-sky-400/30 bg-white/75 dark:bg-slate-800/80 text-slate-700 dark:text-sky-300 inline-flex items-center justify-center shrink-0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div></div>`;
+                return;
+            }
+
+            if (st === "NOT_CHECKED_IN") {
+                wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check In')" class="cta-pulse-ring tap-spring w-full font-black p-3.5 rounded-2xl shadow-[0_10px_24px_-6px_rgba(56,189,248,0.42)] flex items-center justify-between border border-cyan-200/60" style="background: linear-gradient(90deg, #22C55E 0%, #4ADE80 54%, #38BDF8 100%); color: #042F2E;"><div class="flex items-center gap-3 text-left"><div class="hud-chamfer w-10 h-10 bg-white/30 border border-white/45 flex items-center justify-center shrink-0">${gbfIcon('radar', 'w-5 h-5 text-slate-950', 20)}</div><div><span class="block text-xs font-extrabold tracking-wide uppercase">ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)</span><span class="block text-[9.5px] font-bold opacity-85 mt-0.5">GPS 500m &amp; Field Site Verification</span></div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>`;
+            } else if (st === "CHECKED_IN") {
+                wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check Out')" class="cta-pulse-ring tap-spring w-full bg-gradient-to-r from-rose-600 to-pink-600 text-white font-bold p-3.5 rounded-2xl shadow-[0_10px_24px_-6px_rgba(225,29,72,0.45)] flex items-center justify-between border border-rose-300/45"><div class="flex items-center gap-3 text-left"><div class="hud-chamfer w-10 h-10 bg-white/15 border border-white/20 flex items-center justify-center shrink-0">${gbfIcon('signout', 'w-5 h-5 text-rose-100', 20)}</div><div><span class="block text-xs font-extrabold tracking-wide uppercase">ရုံးဆင်းစာရင်းသွင်းမည် (CHECK OUT)</span><span class="block text-[9.5px] text-rose-100 mt-0.5 tabular-nums">Checked In at ${escapeHtml(d.today_state.time_in)}</span></div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="text-white/80 shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>`;
+            } else {
+                wrapper.innerHTML = `<div class="w-full bg-emerald-500/15 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 font-bold p-3.5 rounded-2xl flex items-center justify-between border border-emerald-500/40"><div class="flex items-center gap-3 text-left"><div class="hud-chamfer w-10 h-10 bg-emerald-500 text-white flex items-center justify-center shrink-0">${gbfIcon('ontime', 'w-5 h-5', 20)}</div><div><span class="block text-xs font-extrabold uppercase">ယနေ့ တာဝန်ချိန် ပြီးဆုံးပါပြီ</span><span class="block text-[9.5px] mt-0.5 tabular-nums">IN: ${escapeHtml(d.today_state.time_in)} • OUT: ${escapeHtml(d.today_state.time_out)}</span></div></div></div>`;
+            }
+        }
+
+        function renderHomeTodaySquadChip(d) {
+            const badgeEl = document.getElementById('home-chip-date-badge');
+            const textEl = document.getElementById('home-chip-squad-text');
+            if (!textEl || !d) return;
+            const summary = getTodayCompactSummary(d);
+            if (badgeEl) badgeEl.innerText = summary.todayIso;
+            textEl.innerText = `${summary.attTxt} • ${summary.squadFull}`;
         }
 
         function renderTodayCheckinSection(d, targetDate) {
@@ -4057,14 +4125,15 @@
             chev.style.transform = panel.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
         }
 
-        function renderRewardPassSystem(d, metrics) {
+        function computeClientRewardsSummary(d, metrics) {
             const cfg = rewardConfig;
-            const mvpCount = metrics.e || 0;
-            const afkCount = metrics.a || 0;
-            const rank = metrics.rank || 'WARRIOR';
+            const safeMetrics = metrics || computeClientKpiSummary(d || { totals: {}, user: {} });
+            const mvpCount = safeMetrics.e || 0;
+            const afkCount = safeMetrics.a || 0;
+            const rank = safeMetrics.rank || 'WARRIOR';
             const forfeited = afkCount >= 3;
 
-            const streak = d.weekly_streak || {};
+            const streak = (d && d.weekly_streak) || {};
             const targetSlots = Math.max(1, Math.min(7, Number(cfg.weekly_mvp_target) || 5));
             const progressCount = Math.min(targetSlots, streak.maxWeekMvp != null ? streak.maxWeekMvp : Math.min(targetSlots, mvpCount));
             const achievedWeeks = streak.achievedWeeks != null ? streak.achievedWeeks : (progressCount >= targetSlots ? 1 : 0);
@@ -4072,12 +4141,25 @@
 
             const earnedMvpDaily = forfeited ? 0 : mvpCount * (Number(cfg.mvp_per_day) || 1000);
             const earnedWeeklyStreak = weeklyStreakUnlocked ? (achievedWeeks * (Number(cfg.weekly_mvp_bonus) || 10000)) : 0;
-            const earnedAttendance = (metrics.p > 0 && afkCount === 0) ? (Number(cfg.attendance_bonus) || 50000) : 0;
-            const earnedRank = (metrics.p > 0 && !forfeited)
+            const earnedAttendance = (safeMetrics.p > 0 && afkCount === 0) ? (Number(cfg.attendance_bonus) || 50000) : 0;
+            const earnedRank = (safeMetrics.p > 0 && !forfeited)
                 ? (rank === 'MYTHIC' ? (Number(cfg.mythic_rank_bonus) || 30000) : (rank === 'LEGEND' ? (Number(cfg.legend_rank_bonus) || 15000) : 0))
                 : 0;
 
             const totalEarned = earnedMvpDaily + earnedWeeklyStreak + earnedAttendance + earnedRank;
+            return {
+                cfg, mvpCount, afkCount, rank, forfeited,
+                targetSlots, progressCount, achievedWeeks, weeklyStreakUnlocked,
+                totalEarned, earnedMvpDaily, earnedWeeklyStreak, earnedAttendance, earnedRank
+            };
+        }
+
+        function renderRewardPassSystem(d, metrics) {
+            const {
+                cfg, mvpCount, afkCount, rank, forfeited,
+                targetSlots, progressCount, weeklyStreakUnlocked,
+                totalEarned, earnedMvpDaily, earnedWeeklyStreak, earnedAttendance, earnedRank
+            } = computeClientRewardsSummary(d, metrics);
 
             const totalEl = document.getElementById('reward-total-earned');
             if (totalEl) totalEl.innerText = `စုစုပေါင်း ဆုကြေး: ${totalEarned.toLocaleString()} MMK`;
@@ -4665,13 +4747,15 @@
             if (!content || !globalState || !globalState.wallet) return;
             const w = globalState.wallet;
             const t = globalState.totals || {};
+            const m = computeClientKpiSummary(globalState);
+            const effectiveRewards = rewardsSummary || computeClientRewardsSummary(globalState, m);
             const workDays = Math.max(1, Number(t.working_days || (globalState.reward_config && globalState.reward_config.working_days)) || getClientMonthWorkDays(selectedMonth));
             const dailyRate = Math.round((w.base_salary || 400000) / workDays);
             const absDed = (t.unexcused_absent || 0) * dailyRate;
             const latePen = (t.late || 0) > 3 ? ((t.late - 3) * 2000) : 0;
-            const attBonus = rewardsSummary ? rewardsSummary.earnedAttendance : (w.bonus_active ? (Number(rewardConfig.attendance_bonus) || 50000) : 0);
-            const mvpStreakBonus = rewardsSummary ? (rewardsSummary.earnedMvpDaily + rewardsSummary.earnedWeeklyStreak) : 0;
-            const rankBonus = rewardsSummary ? rewardsSummary.earnedRank : 0;
+            const attBonus = effectiveRewards.earnedAttendance;
+            const mvpStreakBonus = effectiveRewards.earnedMvpDaily + effectiveRewards.earnedWeeklyStreak;
+            const rankBonus = effectiveRewards.earnedRank;
             const advDed = w.used_advance || 0;
             const net = Math.max(0, (w.base_salary + attBonus + mvpStreakBonus + rankBonus) - (advDed + absDed + latePen));
 
@@ -4823,9 +4907,14 @@
             const e = document.getElementById('lv-end').value;
             const r = document.getElementById('lv-reason').value;
             if (!s || !e || !r.trim()) return showToast("အချက်အလက် အားလုံး ဖြည့်စွက်ပါ", "warning");
-            const days = Math.ceil(Math.abs(new Date(e) - new Date(s)) / 86400000) + 1;
+            const startMs = Date.parse(`${s}T00:00:00Z`);
+            const endMs = Date.parse(`${e}T00:00:00Z`);
+            if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs < startMs) {
+                return showToast("ပြီးဆုံးရက် (End Date) သည် စတင်ရက်ထက် စော၍မရပါ", "warning");
+            }
+            const days = Math.round((endMs - startMs) / 86400000) + 1;
             apiPost(
-                { action: "leave_request", leave_type: document.getElementById('lv-type').value, start_date: s, end_date: e, total_days: days, reason: r, emp_id: currentUser.id, emp_name: currentUser.name },
+                { action: "leave_request", leave_type: document.getElementById('lv-type').value, start_date: s, end_date: e, total_days: days, reason: r.trim(), emp_id: currentUser.id, emp_name: currentUser.name },
                 "အတည်ပြုသူထံ ပေးပို့ပြီးပါပြီ။",
                 () => { clearDraft('leave'); resetForms(); switchTab('logs'); },
                 { buttonId: 'btn-submit-leave' }
@@ -4869,8 +4958,13 @@
             const a = parseFloat(document.getElementById('adv-amount').value) || 0;
             const r = document.getElementById('adv-reason').value;
             if (a <= 0 || !r.trim()) return showToast("ပမာဏနှင့် အကြောင်းရင်း ဖြည့်စွက်ပါ", "warning");
+            const hasWallet = Boolean(globalState && globalState.wallet);
+            const rem = hasWallet ? Math.max(0, Number(globalState.wallet.remaining_advance || 0)) : 0;
+            if (hasWallet && a > rem) {
+                return showToast(`လက်ကျန် 50% Advance Limit (${rem.toLocaleString()} MMK) ထက် ကျော်လွန်၍ မရပါ`, "warning");
+            }
             apiPost(
-                { action: "advance_request", requested_amount: a, reason: r, requested_date: getYangonTodayIso(), emp_id: currentUser.id, emp_name: currentUser.name },
+                { action: "advance_request", requested_amount: a, reason: r.trim(), requested_date: getYangonTodayIso(), emp_id: currentUser.id, emp_name: currentUser.name },
                 "အတည်ပြုသူထံ ပေးပို့ပြီးပါပြီ။",
                 () => { clearDraft('advance'); resetForms(); syncAdvanceSubmitLabel(); switchTab('wallet'); },
                 { buttonId: 'btn-submit-advance' }

@@ -149,7 +149,11 @@ test('Test 2: src/Index.html DOM, CSS, Accessibility & Offline/URI Hardening int
   assert.ok(html.includes('chat_sig'), 'Missing chat_sig client payload propagation');
   assert.ok(html.includes('adv-form-progress-bar') && html.includes('selectAdvanceChip'), 'Missing Advance 50% progress bar or quick chips');
   assert.ok(declaredIds.has('month-picker-btn') && declaredIds.has('month-picker-menu'), 'Missing compact month picker popover DOM IDs');
+  assert.ok(declaredIds.has('gps-arena-card') && declaredIds.has('gps-arena-header-row') && declaredIds.has('gps-arena-collapsible') && declaredIds.has('btn-gps-collapse'), 'Missing collapsible GPS Arena DOM IDs');
   assert.ok(appScript.includes('toggleMonthMenu') && appScript.includes('selectMonthOption') && appScript.includes('renderMonthPickerUI'), 'Missing month picker JS helpers');
+  assert.ok(appScript.includes('toggleGpsArenaDetails') && appScript.includes('renderGpsArenaCard') && appScript.includes('computeClientRewardsSummary'), 'Missing GPS collapse & reward summary helpers');
+  assert.ok(!htmlMarkupOnly.includes('fa-broadcast-tower'), 'Broken FA6 fa-broadcast-tower icon must not be present');
+  assert.ok(appScript.includes('endMs < startMs') && appScript.includes('a > rem'), 'Missing client-side inverted leave date & 50% advance guards');
 
   // 5. WCAG 2.1/2.2 Contrast, Focus-Visible, Label & Reduced-Motion guards
   const htmlLines = html.split(/\r?\n/);
