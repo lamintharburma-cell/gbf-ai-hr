@@ -1,7 +1,7 @@
-# 📘 G.B.F. Enterprise HR & AI Management System (`v9.3.1 Production LTS / @43`)
+# 📘 G.B.F. Enterprise HR & AI Management System (`v9.4.0 Production LTS / @44`)
 ## 🖥️ Visual Application Guide & Official User Manual (တကယ့် Application မျက်နှာပြင်များဖြင့် အသေးစိတ် အသုံးပြုသူ လက်စွဲ)
 
-**GBF Enterprise HR & AI Management System (`v9.3.1 Production LTS`)** သည် Google Sheets (`10` Master Tables), Google Apps Script Serverless Backend, Gemini 3.8 Flash AI (`gemini-3.8-flash` Interactions API), Telegram Native Mini App (`Index.html` — Tactical Gaming HUD + iOS Native Ergonomics + Telegram-Matched Custom SVG Icons) နှင့် Scoped Telegram Bot / Group Command Center (`@GBF_HRMS_Bot`) တို့ကို တစ်စုတစ်စည်းတည်း ချိတ်ဆက်ထားသော Enterprise HR ပလက်ဖောင်း ဖြစ်ပါသည်။
+**GBF Enterprise HR & AI Management System (`v9.4.0 Production LTS`)** သည် Google Sheets (`11` Master Tables — **`KPI_Formula_Registry`** တွက်ချက်မှု Audit Table အပါအဝင်), Google Apps Script Serverless Backend, Gemini 3.8 Flash AI (`gemini-3.8-flash` Interactions API), Telegram Native Mini App (`Index.html` — **MLBB Astral Steel-Navy & 5-Hue Color Harmony HUD** + Top-of-Home Calendar Strip + iOS Native Ergonomics) နှင့် Scoped Telegram Bot / Group Command Center (`@GBF_HRMS_Bot`) တို့ကို တစ်စုတစ်စည်းတည်း ချိတ်ဆက်ထားသော Enterprise HR ပလက်ဖောင်း ဖြစ်ပါသည်။
 
 ---
 
@@ -52,20 +52,24 @@
 | :---: | :---: |
 | <img src="./screenshots/02_home_attendance_hq.png" alt="Home Check-In and Live HQ Distance" width="310"> | <img src="./screenshots/03_home_squads.png" alt="Active Battle Squads Expanded" width="310"> |
 
-### မျက်နှာပြင် အစိတ်အပိုင်းတစ်ခုချင်းစီ ရှင်းလင်းချက် (`Option A Unified Bento HUD`)
-1. **Top Leader Command Strip (`TM / MM / TL` Only):** `CEO / TM Command` ကဲ့သို့ ရာထူးအမည်၊ **`Squads`** နှင့် **`AI Command`** shortcut ခလုတ်များကို ပြသပေးပါသည်။ (Duplicate ဖြစ်နေခဲ့သော Active Counter ကို ဖယ်ရှားပြီး အောက်ပါ GPS Card တွင် တစ်ခုတည်း စုစည်းထားသည်)။
-2. **Unified `GPS ARENA · 500M OPS` & Live HQ Telemetry Card (`CHECK IN` / `CHECK OUT` + Single `#active-counter`):**
+### မျက်နှာပြင် အစိတ်အပိုင်းတစ်ခုချင်းစီ ရှင်းလင်းချက် (`Option A Unified Bento HUD + Option 2 Top Calendar`)
+1. **Header Brand & Portrait Bar:** ဘယ်ဘက်ထိပ်တွင် **GBF Logo Emblem** (Google Sheet logo URL သို့ offline SVG emblem fallback) နှင့် ညာဘက်ထိပ်တွင် Profile ဓာတ်ပုံမတင်ရသေးသူများအတွက်ပါ **အမြဲမြင်သာသော Human Portrait SVG Avatar** ပါရှိပါသည်။
+2. **Top Leader Command Strip (`TM / MM / TL` Only):** `CEO / TM Command` ကဲ့သို့ ရာထူးအမည်၊ **`Squads`** နှင့် **`AI Command`** shortcut ခလုတ်များကို ပြသပေးပါသည်။
+3. **Top-of-Home Date Calendar (`#home-calendar-top-card` — Option 2 Smart Strip + Month Drawer):**
+   * **7-Day Week Strip & Month Dropdown:** GPS Arena အပေါ်ဆုံးတွင် တစ်ပတ်စာ နေ့စွဲများကို အရောင် Dot များ (`🟡 MVP` / `🟢 On-Time` / `🔴 Late` / `🔵 Squad/Activity`) ဖြင့် ပြသထားပြီး Month ခေါင်းစဉ်နှိပ်၍ Full Month Drawer ဖွင့်ကြည့်နိုင်သလို `<` `>` ခလုတ်များဖြင့် လကူးပြောင်းနိုင်ပါသည်။
+   * **Daily Personal Check-In & Battle Squad Card:** ရက်စွဲတစ်ခုခုကို နှိပ်လိုက်သည်နှင့် မိမိ၏ **`IN → OUT`** အချိန်၊ KPI Badge နှင့် ထိုနေ့တွင် တွဲဖက်တာဝန်ကျခဲ့သော **Battle Squad & Members** ကို ချက်ချင်းပြသပေးပြီး အောက်ဘက် **Roster နှင့် Battle Squads Card များကိုပါ ထိုနေ့ Data (`month_daily_snapshots`) အတိုင်း Sync** ပြောင်းလဲပေးပါသည်။ (`ယနေ့သို့` / `Live ယနေ့` ဖြင့် ယနေ့ Live Board သို့ ပြန်ကူးနိုင်သည်)။
+4. **Unified `GPS ARENA · 500M OPS` & Live HQ Telemetry Card (`CHECK IN` / `CHECK OUT` + Single `#active-counter`):**
    * **Single Live Active Counter:** ညာဘက်ထောင့်ရှိ Users SVG badge (`6 / 16`) ကို နှိပ်၍ ယနေ့ Check-In Roster ကို တိုက်ရိုက် ဖွင့်/ပိတ်နိုင်ပါသည်။
    * **မနက်ပိုင်း (`NOT_CHECKED_IN`):** အစိမ်းရောင် **`ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)`** ခလုတ်ပေါ်နေပါမည်။ နှိပ်လိုက်သည်နှင့် Browser/Telegram မှ GPS Coordinate ကို ရယူပြီး စာရင်းသွင်းပါသည်။
    * **ရုံးဆင်းချိန် (`CHECKED_IN`):** ခလုတ်သည် အနီရောင် **`ရုံးဆင်းစာရင်းသွင်းမည် (CHECK OUT)`** (`Checked In at 08:42 AM`) အဖြစ် ပြောင်းသွားပါမည်။
    * **နှစ်ခုလုံးပြီးစီးချိန် (`CHECKED_OUT`):** **`ယနေ့ တာဝန်ချိန် ပြီးဆုံးပါပြီ`** (`IN • OUT` အချိန်တွဲဖက်) ပြသပေးပါသည်။
    * **Integrated Live HQ Distance & Map Bar:** GBF HQ (`16.804683, 96.177149`) မှ **≤ 500 m** အတွင်းဖြစ်ပါက `HQ Zone (≤500m)` SVG badge၊ **> 500 m** ဖြစ်ပါက `Field Site` Pylon SVG badge ပြသပြီး **`တိုင်းမည်`** နှင့် **`Map`** ခလုတ်များ တစ်ကတ်တည်းတွင် ပါဝင်ပါသည်။
-3. **Today Checked-In Avatar Stack Inspector:**
+5. **Today Checked-In Avatar Stack Inspector:**
    * Avatar အဝိုင်းများကို နှိပ်၍ ဖွင့်လိုက်ပါက Telegram Semantic SVG Icon Tabs ၃ မျိုး ခွဲကြည့်နိုင်ပါသည်-
      * **`ဝင်ပြီး (N)`:** Arrival rank (`#1`, `#2`, ...), Team အမည်, HQ Building / Field Pylon SVG `42 m / 1.9 km` (နှိပ်၍ Map ဖွင့်နိုင်), Check-In အချိန်နှင့် `MVP` / `On-Time` Badge။
      * **`ယနေ့ခွင့် (N)`:** Approved / Pending ခွင့်ယူထားသူများ။
      * **`မဝင်ရသေး (N)`:** ယနေ့ Check-In မဝင်ရသေးသူ ဝန်ထမ်းများ။
-4. **ACTIVE BATTLE SQUADS:** `Daily_Teams` တွင် ဖွဲ့စည်းထားသော ယနေ့ **Team 1 (Alpha)**, **Team 2 (Beta)**, **Team 3 (Charlie)** စာရင်း (`Crown` SVG Leader badge နှင့် Shield/Bolt/Flame tier icons ပါဝင်) နှင့် **`Details ▾`** နှိပ်၍ Member စာရင်းအပြည့် ကြည့်နိုင်ပါသည်။ (`0` Squad ဖြစ်နေချိန်တွင် **`+ Squad ဖွဲ့မည်`** Actionable Banner ပြသပေးသည်)။
+6. **ACTIVE BATTLE SQUADS:** `Daily_Teams` တွင် ဖွဲ့စည်းထားသော ယနေ့ (သို့မဟုတ် Top Calendar မှ ရွေးချယ်ထားသောနေ့) **Team 1 (Alpha)**, **Team 2 (Beta)**, **Team 3 (Charlie)** စာရင်း (`Crown` SVG Leader badge နှင့် exact member token check ပါဝင်) နှင့် **`Details ▾`** နှိပ်၍ Member စာရင်းအပြည့် ကြည့်နိုင်ပါသည်။ (`0` Squad ဖြစ်နေချိန်တွင် **`+ Squad ဖွဲ့မည်`** Actionable Banner ပြသပေးသည်)။
 
 > **⏰ အချိန်အလိုက် Check-In KPI စည်းမျဉ်း (`Asia/Rangoon GMT+6:30`)**
 > * **≤ `09:00 AM`:** `👑 MVP` (Daily MVP Bonus **+1,000 MMK** ရရှိ)
@@ -83,10 +87,11 @@
 * **Sticky Header Controls:**
   * **`Nov '26 ▾` (Compact Month Switcher):** လဟောင်း/လသစ် (`LATEST` badge ပါ) များကို ရွေးချယ်၍ ထိုလအတွက် Radar, KPI, Calendar နှင့် Official Payslip များကို တစ်ပြိုင်နက် ပြောင်းလဲကြည့်ရှုနိုင်ပါသည်။ (Offline outbox item ရှိပါက ☁️ **Outbox Pill** ဘေးတွင် ပေါ်လာပြီး နှိပ်၍ Sync လုပ်နိုင်ပါသည်)
   * **`☀️ / ⚙️` Dark Slate Toggle & Profile Avatar:** Theme ပြောင်းလဲခြင်းနှင့် **`Open Profile`** စာမျက်နှာသို့ တိုက်ရိုက်ဝင်ရောက်ခြင်း။
-* **Season Mastery Hero HUD (`Radar | Stats | Rewards` iOS Segmented Switcher):**
-  * **Slide 1 (`1/3 • Radar Chart`):** Dynamic Tier Crest SVG (`MYTHIC`–`WARRIOR`) နှင့် `Punctuality (အချိန်မှန်)`, `Reliability (ရက်မှန်)`, `MVP Burst (အစောရောက်)`, `Discipline (စည်းကမ်း)`, `Team Spirit (အဖွဲ့စိတ်ဓာတ်)` 2-Line ဝင်ရိုး ၅ ခု Radar Chart + Win Rate `%`။
-  * **Slide 2 (`2/3 • Battle Stats`):** Present / 26 Workdays ဘားနှင့် **`MVP`**, **`OnTime`**, **`Late`**, **`AFK`** SVG ခလုတ် ၄ ခု — ခလုတ်တစ်ခုခုကို နှိပ်လိုက်ပါက အောက်ဘက်တွင် **Single Metric Inspector** (ရက်စွဲ + Check-In အချိန် Badges နှင့် **`မျက်နှာပြင်အပြည့် အသေးစိတ်ကြည့်ရန် →`**) ပွင့်လာပါမည်။
-  * **Slide 3 (`3/3 • Rewards & Wallet`):** စုစုပေါင်း ရရှိပြီး ဆုကြေးစုစုပေါင်း (`Total Earned Rewards`) နှင့် `50% Wallet Available` gauge bar။
+* **Season Mastery Hero HUD (`Radar | စာရင်းချုပ် | ဆုကြေး` iOS Segmented Switcher — 3 Rings + 4-Chip Micro-Strip):**
+  * **3 Hero Telemetry Rings:** Dynamic **`Present / Month_WorkDays`** (`19 /25`), **`Win Rate %` (`အနိုင်ရနှုန်း`)**, **`MVP (အစော)`** + အောက်တွင် **4-Chip Micro-Strip (`MVP · အချိန်မှန် · နောက်ကျ · ပျက်ကွက်`)** တွဲဖက်ပြသပေးပါသည်။
+  * **Slide 1 (`1/3 • Radar ဝင်ရိုး`):** Spiderweb Pentagon Mesh Radar တွင် **`အချိန်မှန်မှု (Punctuality)`**, **`ရက်မှန်မှု (Reliability)`**, **`MVP (အစော)`**, **`စည်းကမ်း (Discipline)`**, **`အဖွဲ့စိတ်ဓာတ် (Team Spirit)`** ဝင်ရိုး ၅ ခု + Win Rate `%` ကို MLBB Astral Neon Mesh ဖြင့် ပြသပါသည်။
+  * **Slide 2 (`2/3 • စာရင်းချုပ်`):** Present / Monthly Working Days (`System_Settings`) ဘားနှင့် **`MVP`**, **`OnTime`**, **`Late`**, **`AFK`** SVG ခလုတ် ၄ ခု — ခလုတ်တစ်ခုခုကို နှိပ်လိုက်ပါက အောက်ဘက်တွင် **Single Metric Inspector** (ရက်စွဲ + Check-In အချိန် Badges နှင့် **`မျက်နှာပြင်အပြည့် အသေးစိတ်ကြည့်ရန် →`**) ပွင့်လာပါမည်။
+  * **Slide 3 (`3/3 • ဆုကြေး & Wallet`):** စုစုပေါင်း ရရှိပြီး ဆုကြေးစုစုပေါင်း (`Total Earned Rewards`) နှင့် `50% Wallet Available` gauge bar။
 
 ---
 
@@ -102,9 +107,17 @@
   * **`Switch PIN`:** လက်ရှိ session မှ ထွက်၍ အခြားဝန်ထမ်း PIN ဖြင့် ဝင်ရောက်ရန်။
 * **Weekly MVP Streak Chest & Reward Pass Bounties:**
   * ISO Week (တနင်္လာ–တနင်္ဂနွေ) တစ်ပတ်အတွင်း MVP **၅ ရက်** ပြည့်တိုင်း ကြယ် ၅ ပွင့် ပြည့်ကာ **`+10,000 MMK / Week`** unlocked ဖြစ်ပါမည်။
-  * **`⚙️ ဆုကြေးသတ်မှတ်ရန်` (`TM / MM / TL` Only):** Admin/Leaders များသည် ဆုကြေးနှုန်းထားများကို Modal မှ ပြင်ဆင်နိုင်ပါသည်။
-* **KPI Score Formula (0–100%) & Rank Tiers:**
-  $$\text{KPI Score} = \underbrace{\min\!\left(40, \frac{26 - \text{AFK}}{26}\times 40\right)}_{\text{Reliability (40)}} + \underbrace{\left(\frac{\text{MVP}+\text{OnTime}}{\text{Total Checks}}\times 40\right)}_{\text{Punctuality (40)}} + \underbrace{\max(0,\, 20 - 3\cdot\text{Late} - 10\cdot\text{AFK} - 2\cdot\text{Strike})}_{\text{Behavior (20)}}$$
+  * **`⚙️ ဆုကြေးသတ်မှတ်ရန်` (`TM / MM / TL` Only):** Admin/Leaders များသည် ဆုကြေးနှုန်းထားများ၊ လအလိုက် **Monthly Working Days (`WORKING_DAYS_YYYY_MM`)** နှင့် **`KPI_Formula_Registry`** Sync ကို Modal မှ ပြင်ဆင်နိုင်ပါသည်။
+* **Path B Enterprise KPI & 5-Axis Radar Formulas (`v9.4.0` — Normalized across Backend, UI & Bot):**
+  * **Win Rate (`အနိုင်ရနှုန်း`):** $$\text{Win Rate} = \text{round}\!\left(\frac{\text{MVP} + \text{OnTime}}{\max(1,\; \text{MVP} + \text{OnTime} + \text{Late} + \text{AFK})} \times 100\right)$$ *(Approved Leave မပါဝင်ဘဲ Late နှင့် AFK မရှိမှ 100% ရရှိမည်)*
+  * **5 Radar Axes (0–100%):**
+    * `Punctuality` = $\text{MVP}+\text{OnTime}$ over total checks (`0%` if `Present = 0`)
+    * `Reliability` = $(\text{Month WorkDays} - \text{AFK}) / \text{Month WorkDays}$ (`System_Settings` dynamic denominator)
+    * `MVP (အစော)` = $\min(100,\, \text{round}(\text{MVP} / \text{Present} \times 100))$
+    * `Discipline` = $\max(0,\, \text{round}(0.5\cdot\text{Punctuality} + 0.5\cdot\text{Reliability} - 15\cdot\text{Strike}))$
+    * `Team Spirit` = **Field Operations** ဝန်ထမ်းများအတွက် $\text{Distinct Squad Days} / \text{Present}$ | **Non-Operation ဌာနများ** (`TM`, `MM`, `Support`) အတွက် Check-In Presence rate $\text{Present} / (\text{Present} + \text{AFK})$
+  * **KPI Score Formula (0–100%) & Rank Tiers:**
+    $$\text{KPI Score} = \underbrace{\min\!\left(40, \frac{\text{WorkDays} - \text{AFK}}{\text{WorkDays}}\times 40\right)}_{\text{Reliability (40)}} + \underbrace{\left(\frac{\text{MVP}+\text{OnTime}}{\text{Total Checks}}\times 40\right)}_{\text{Punctuality (40)}} + \underbrace{\max(0,\, 20 - 3\cdot\text{Late} - 10\cdot\text{AFK} - 2\cdot\text{Strike})}_{\text{Behavior (20)}}$$ *(when `Present = 0`, `KPI Score = 0` and Rank = `WARRIOR`)*
 
 | Tier | Score / Condition | Stars | Default Rank Bonus |
 | :--- | :--- | :---: | :--- |
@@ -137,7 +150,7 @@
   * **`💵 ငွေထုတ်ရန်`** (သို့ **`+ အသစ်ထုတ်ရန်`**) နှိပ်၍ Advance Salary Request Form သို့ တိုက်ရိုက်သွားနိုင်ပါသည်။
 * **Official Payslip (`<yyyy-MM>`):**
   * **`Payroll_Prep_Ledger`** တွင် HR မှ Generate လုပ်ပြီးသားဖြစ်ပါက Approved Ledger ကိုပြသပြီး၊ မလုပ်ရသေးပါက Live Preview (`EST-yyyyMM-empId`) ကို တွက်ချက်ပြသပေးပါသည်။
-  * **Bonuses & Deductions Breakdown:** Base Salary `+` Attendance Bonus (`0 AFK: +50,000 MMK`) `+` Daily MVP & Weekly Streak `+` MLBB Season Rank Bonus `-` Approved Advance Deduction `-` Absence Deduction (`AFK × round(Base / 26)`) `-` Late Penalty (`Late > 3 => (Late - 3) × 2,000 MMK`) `=` **`NET PAYABLE`**။
+  * **Bonuses & Deductions Breakdown:** Base Salary `+` Attendance Bonus (`0 AFK: +50,000 MMK`) `+` Daily MVP & Weekly Streak `+` MLBB Season Rank Bonus `-` Approved Advance Deduction `-` Absence Deduction (`AFK × round(Base / Month_WorkDays)` — dynamic `System_Settings` working days) `-` Late Penalty (`Late > 3 => (Late - 3) × 2,000 MMK`) `=` **`NET PAYABLE`**။
   * **`☁️ Drive`:** Google Drive ထဲသို့ `GBF_Payslip_<empId>_<month>.pdf` ဖိုင်အဖြစ် တိုက်ရိုက် Save လုပ်ပေးပါသည်။
   * **`🖨️ PDF`:** Browser Print / PDF Export မျက်နှာပြင် ဖွင့်ပေးပါသည်။
 
@@ -175,8 +188,9 @@ Bottom Navigation အလယ်ရှိ **အစိမ်းရောင် `+` 
 * **`Admin` Tab (`nav-ai` — `TM / MM / TL` RBAC Only):**
   * **`🔄 Run AI Analysis`:** ဝန်ထမ်းအားလုံး၏ Win Rate နှင့် Mon/Fri Bridge ratio ကို Gemini AI + O(1) Batch context ဖြင့် တွက်ချက်ကာ **`AI_Predictive_Analytics`** Sheet သို့ သိမ်းဆည်းပြီး **Burnout Risk Watchlist** ထုတ်ပြန်ပေးပါသည်။
   * **`🧾 Generate Payroll`:** ဝန်ထမ်းအားလုံး၏ တစ်လတာ Base Salary, Bonuses, Deductions နှင့် Net Payable ကို Batch တွက်ချက်၍ **`Payroll_Prep_Ledger`** Sheet ထဲသို့ သိမ်းဆည်းပေးပါသည်။ (Staff `JT/TT/ST` မှ ခေါ်ဆိုပါက Server-side RBAC မှ ပယ်ချပါသည်)
-* **🎁 Reward & Bonus Settings Modal (`Profile` ➔ `ဆုကြေးသတ်မှတ်ရန်`):**
-  * `Daily MVP`, `Weekly MVP Target (Days)`, `Weekly MVP Chest Bonus`, `0 AFK Attendance Bonus`, `MYTHIC Rank Bonus`, `LEGEND Rank Bonus` နှုန်းထား ၆ မျိုးလုံးကို Edit လုပ်၍ **`SAVE REWARD SETTINGS`** နှိပ်လိုက်ပါက Google Sheets `System_Settings` ထဲသို့ ချက်ချင်း Update လုပ်ပေးပါသည်။
+* **🎁 Reward, Monthly Working Days & Formula Governance Modal (`Profile` ➔ `ဆုကြေးသတ်မှတ်ရန်`):**
+  * `Daily MVP`, `Weekly MVP Target`, `Weekly MVP Chest Bonus`, `0 AFK Attendance Bonus`, `MYTHIC Rank Bonus`, `LEGEND Rank Bonus` နှင့် **`လစဉ် အလုပ်လုပ်ရက် စုစုပေါင်း (WORKING_DAYS_YYYY_MM)`** တို့ကို Edit လုပ်၍ **`SAVE SETTINGS`** နှိပ်ပါက Google Sheets `System_Settings` နှင့် **`KPI_Formula_Registry`** Audit Table သို့ အလိုအလျောက် Sync လုပ်ပေးပါသည်။
+  * **`Audit Sheet Sync` ခလုတ်:** တွက်ချက်မှုစည်းမျဉ်း (`KPI-01`..`KPI-10`, `PAY-01`..`PAY-03` — စုစုပေါင်း `13` ချက်) ကို Google Sheets **`KPI_Formula_Registry`** Tab (11th Governance Table) သို့ တိုက်ရိုက် Update လုပ်ပေးပါသည်။
 
 ---
 
@@ -218,8 +232,10 @@ Bottom Navigation အလယ်ရှိ **အစိမ်းရောင် `+` 
 * **Offline-First Architecture (`GBF_HR_OfflineDB_v2`):**
   * Watchdog Bridge သည် Fast queries (`8.5s`) နှင့် Heavy RPC (`25s`) Timeout ထားရှိပြီး `GAS_URL` + `google.script.run` နှစ်မျိုးလုံးကို fallback အသုံးပြုပါသည်။
   * အင်တာနက် ပြတ်တောက်နေချိန် Check-In / Request တင်ပြပါက `IndexedDB` **`outbox_queue`** (`idempotencyKey` ပါ) ထဲတွင် သိမ်းဆည်းထားပြီး Sticky Header တွင် **☁️ Outbox Count Pill** ပြသပေးကာ လိုင်းပြန်ရသည်နှင့် Server မှ double-write မဖြစ်စေဘဲ အလိုအလျောက် Sync ပေးပို့ပေးပါသည်။
-* **Google Sheets 10 Master Tables (`GBF_DB_SCHEMA`):**
-  `HR_Employees`, `Daily_Attendance`, `Leave_Management`, `Advance_Salary`, `Daily_Teams`, `HR_Voice_Feedback`, `AI_Predictive_Analytics`, `Payroll_Prep_Ledger`, `System_Settings`, `System_Audit_Logs`
+* **Google Sheets 11 Master Tables (`GBF_DB_SCHEMA`):**
+  `HR_Employees`, `Daily_Attendance`, `Leave_Management`, `Advance_Salary`, `Daily_Teams`, `HR_Voice_Feedback`, `AI_Predictive_Analytics`, `Payroll_Prep_Ledger`, `System_Settings`, `System_Audit_Logs`, **`KPI_Formula_Registry`**
+* **Auth Architecture Scope (Security Transparency Note):**
+  * Telegram Mini App Launch နှင့် `/link` binding များသည် HMAC-SHA256 `tg_id`/`tg_sig` ဖြင့် verified ဖြစ်ပြီး Leader/Admin Actions (`generate_monthly_payroll`, `update_reward_settings`, `sync_formula_registry`, `run_ai_predictions`) ကို `assertAuthorizedRole_` RBAC layer မှ ကာကွယ်ထားပါသည်။ *(Standalone Browser PIN mode နှင့် Digital Payslip GET link များသည် လက်ရှိတွင် `emp_id` parameter ပေါ်အခြေခံထားသဖြင့် Future Release တွင် Signed Session Token Auth ထပ်မံတိုးမြှင့်ရန် CTO Roadmap ထဲတွင် မှတ်တမ်းတင်ထားပါသည်)*
 * **အဖြစ်များသော ပြဿနာ ဖြေရှင်းချက်များ (FAQ):**
   1. **"GPS Error: Location ဖွင့်ပေးပါခင်ဗျာ":** ဖုန်း Location (GPS) နှင့် Telegram/Browser Location Permission ကို **Allow** ဖွင့်ပြီး `တိုင်းမည်` ကို ပြန်နှိပ်ပါ။
   2. **"/board နှိပ်သော်လည်း ခွင့်ပြုချက် မရှိပါ ဟုပေါ်နေလျှင်":** Group ထဲတွင် `TELEGRAM_GROUP_CHAT_ID` (`System_Settings`) ထဲသတ်မှတ်ထားသော တရားဝင် Group ဖြစ်ရမည်ဖြစ်ပြီး၊ Private DM တွင် `/link <PIN>` ဖြင့် အရင်ချိတ်ဆက်ထားရပါမည်။
@@ -227,4 +243,4 @@ Bottom Navigation အလယ်ရှိ **အစိမ်းရောင် `+` 
   4. **"Group ထဲသို့ 09:20 / 06:15 Digest မပို့သေးလျှင်":** Apps Script Editor တွင် **`installGroupDigestTriggers()`** ကို တစ်ကြိမ် `Run` လုပ်ထားကြောင်းနှင့် `System_Settings` တွင် `GROUP_DIGEST_ENABLED = YES` ရှိကြောင်း စစ်ဆေးပါ။
 
 ---
-*GBF Enterprise HR & AI Management System `v9.3.1 Production LTS (@43)` — Verified Visual User Manual (23 Application & Telegram Screenshots).*
+*GBF Enterprise HR & AI Management System `v9.4.0 Production LTS (@44)` — Verified Visual User Manual (23 Application & Telegram Screenshots & Path B Governance).*

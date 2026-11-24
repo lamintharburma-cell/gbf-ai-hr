@@ -113,6 +113,10 @@ test('Test 2: src/Index.html DOM, CSS, Accessibility & Offline/URI Hardening int
     'pin-dot-0', 'pin-dot-1', 'pin-dot-2', 'pin-dot-3',
     'btn-chk-in', 'btn-chk-leave', 'btn-chk-pending',
     'home-dot-0', 'home-dot-1', 'home-dot-2',
+    'hbeam-0', 'hbeam-1', 'hbeam-2',
+    'home-seg-0', 'home-seg-1', 'home-seg-2',
+    'home-ring-present', 'home-ring-workdays', 'home-ring-winrate', 'home-ring-mvp',
+    'home-strip-mvp', 'home-strip-ontime', 'home-strip-late', 'home-strip-afk',
     'kpi-flt-all', 'kpi-flt-mvp', 'kpi-flt-ontime', 'kpi-flt-late', 'kpi-flt-afk',
     'cal-mode-weekly', 'cal-mode-daily', 'cal-mode-monthly',
     'nav-home', 'nav-logs', 'nav-wallet', 'nav-voice', 'nav-ai',
@@ -139,6 +143,7 @@ test('Test 2: src/Index.html DOM, CSS, Accessibility & Offline/URI Hardening int
   assert.ok(html.includes('line-height: 1.65'), 'Missing Myanmar line-height: 1.65');
   assert.ok(html.includes('gbf-tg-chat-id'), 'Missing gbf-tg-chat-id meta tag');
   assert.ok(html.includes('gbf-tg-chat-sig'), 'Missing gbf-tg-chat-sig meta tag');
+  assert.ok(!/T00:00:00["']\s*\)/.test(appScript), 'Non-UTC T00:00:00 date parsing shifts dates by -1 day in Yangon UTC+6:30; use T00:00:00Z + UTC Date methods');
   assert.ok(html.includes('resolveSignedTelegramIdentity'), 'Missing resolveSignedTelegramIdentity');
   assert.ok(html.includes('chat_sig'), 'Missing chat_sig client payload propagation');
   assert.ok(html.includes('adv-form-progress-bar') && html.includes('selectAdvanceChip'), 'Missing Advance 50% progress bar or quick chips');
@@ -285,6 +290,44 @@ test('Test 4: Gamified Payroll, KPI & 3-AFK Forfeiture Policy unit tests', () =>
   // Case D: Elapsed workdays check for 2026-11 up to Nov 19 (excludes Nov 1, 8, 15 Sundays -> 16 days)
   const elapsedNov19 = context.countElapsedWorkDays_('2026-11', new Date(Date.UTC(2026, 10, 19, 3, 0, 0)));
   assert.equal(elapsedNov19, 16);
+
+  // Case E: v9.4 Monthly Working Days Settings, WinRate AFK Gate, MVP/Present, Op vs Non-Op Team Spirit & Formula Registry
+  assert.equal(context.resolveMonthWorkingDays_('2026-11', { WORKING_DAYS_2026_11: '24' }), 24);
+  assert.equal(context.resolveMonthWorkingDays_('2026-11', {}), 25);
+  assert.equal(context.resolveMonthWorkingDays_('2026-10', {}), 27);
+  assert.equal(context.isOperationDepartment_('Field Operations', 'Senior Tech'), true);
+  assert.equal(context.isOperationDepartment_('Project Management', 'Executive Operations Manager'), false);
+
+  const opEmpCalc = context.computeEmployeeKpiAndPayroll_(
+    { present: 10, mvp: 10, ontime: 0, late: 0, unexcused_absent: 0, advance: 0, working_days: 25, team_days: 8, is_operation_dept: true },
+    500000,
+    rewardConfig,
+    singleWeekStreak,
+    0,
+    25
+  );
+  assert.equal(opEmpCalc.winRate, 100);
+  assert.equal(opEmpCalc.dailyRate, 20000);
+  assert.equal(opEmpCalc.radarValues[2], 100); // MVP: 10 / 10 = 100%
+  assert.equal(opEmpCalc.radarValues[4], 80);  // Field Ops Team Spirit: 8 squad days / 10 present = 80%
+
+  const hqEmpCalc = context.computeEmployeeKpiAndPayroll_(
+    { present: 10, mvp: 5, ontime: 5, late: 0, unexcused_absent: 2, advance: 0, working_days: 25, team_days: 0, is_operation_dept: false },
+    500000,
+    rewardConfig,
+    { achievedWeeks: 0, unlocked: false },
+    0,
+    25
+  );
+  assert.equal(hqEmpCalc.winRate, Math.round((10 / 12) * 100)); // AFK included in WinRate denominator
+  assert.equal(hqEmpCalc.radarValues[2], 50); // MVP: 5 / 10 = 50%
+  assert.equal(hqEmpCalc.radarValues[4], Math.round((10 / 12) * 100)); // Non-Op uses Check-In Presence rate
+
+  const regRows = context.getOfficialKpiFormulaRegistryRows_({ WORKING_DAYS_2026_11: '25' }, 'v9.4.0');
+  assert.equal(regRows.length, 13);
+  assert.ok(regRows.some(r => r[0] === 'KPI-04') && regRows.some(r => r[0] === 'KPI-09') && regRows.some(r => r[0] === 'PAY-01'));
+  assert.equal(context.hasSquadMemberName_('Ko Myo Thant Zaw (JT), Ko Tin Tun Aung (JT)', 'Ko Myo'), false, 'Substring Ko Myo must NOT match Ko Myo Thant Zaw');
+  assert.equal(context.hasSquadMemberName_('Ko Myo (TL), Ko Khant Ko Ko Latt (ST)', 'Ko Myo'), true);
 });
 
 test('Test 5: ATT-<epoch_ms> Check-In Time Recovery produces exact hh:mm a string', () => {

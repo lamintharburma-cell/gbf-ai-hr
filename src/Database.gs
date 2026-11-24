@@ -88,6 +88,7 @@ function migrateAndNormalizeGBFDatabase() {
     const existingPayroll = readLegacySheetRows_(ss, "Payroll_Prep_Ledger", 15);
     const existingSettings = readLegacySettings_(ss);
     const existingLogs = readLegacySheetRows_(ss, "System_Audit_Logs", 5);
+    const mergedSettingsRows = mergeSystemSettings_(existingSettings);
 
     ["Calc_Data", "Sheet5", "Sheet1"].forEach(scratchName => {
       const s = ss.getSheetByName(scratchName);
@@ -105,8 +106,10 @@ function migrateAndNormalizeGBFDatabase() {
     writeTableSheet_(ss, "HR_Voice_Feedback", GBF_DB_SCHEMA.HR_Voice_Feedback, existingVoice);
     writeTableSheet_(ss, "AI_Predictive_Analytics", GBF_DB_SCHEMA.AI_Predictive_Analytics, existingAi);
     writeTableSheet_(ss, "Payroll_Prep_Ledger", GBF_DB_SCHEMA.Payroll_Prep_Ledger, existingPayroll);
-    writeTableSheet_(ss, "System_Settings", GBF_DB_SCHEMA.System_Settings, mergeSystemSettings_(existingSettings));
+    writeTableSheet_(ss, "System_Settings", GBF_DB_SCHEMA.System_Settings, mergedSettingsRows);
     writeTableSheet_(ss, "System_Audit_Logs", GBF_DB_SCHEMA.System_Audit_Logs, existingLogs);
+    invalidateSettingsCache_();
+    syncKpiFormulaRegistrySheet_(ss, getSettings(true));
 
     applyEnterpriseFormatting_(ss);
     invalidateSettingsCache_();
@@ -114,10 +117,10 @@ function migrateAndNormalizeGBFDatabase() {
     const auditSheet = ss.getSheetByName("System_Audit_Logs");
     auditSheet.appendRow([
       Utilities.formatDate(new Date(), GBF_CONFIG.GMT_OFFSET, "yyyy-MM-dd HH:mm:ss"),
-      "DB_MIGRATION_V9_2",
+      "DB_MIGRATION_V9_4",
       "SYSTEM",
       "GBF HR AI Management Team",
-      `Normalized 10 tables. Preserved ${existingEmployees.length} staff, ${existingAttendance.length} attendance, ${existingLeaves.length} leaves, ${existingAdvances.length} advances, ${existingTeams.length} teams.`
+      `Normalized 11 tables (incl. KPI_Formula_Registry). Preserved ${existingEmployees.length} staff, ${existingAttendance.length} attendance, ${existingLeaves.length} leaves, ${existingAdvances.length} advances, ${existingTeams.length} teams.`
     ]);
 
     Logger.log("✅ GBF Master Database Migration & Normalization Completed Successfully!");
@@ -140,12 +143,14 @@ function setupFreshGBFDatabase() {
   writeTableSheet_(ss, "AI_Predictive_Analytics", GBF_DB_SCHEMA.AI_Predictive_Analytics, []);
   writeTableSheet_(ss, "Payroll_Prep_Ledger", GBF_DB_SCHEMA.Payroll_Prep_Ledger, []);
   writeTableSheet_(ss, "System_Settings", GBF_DB_SCHEMA.System_Settings, mergeSystemSettings_({}));
+  invalidateSettingsCache_();
+  syncKpiFormulaRegistrySheet_(ss, getSettings(true));
   writeTableSheet_(ss, "System_Audit_Logs", GBF_DB_SCHEMA.System_Audit_Logs, [[
     Utilities.formatDate(new Date(), GBF_CONFIG.GMT_OFFSET, "yyyy-MM-dd HH:mm:ss"),
-    "DB_INIT_V9_2",
+    "DB_INIT_V9_4",
     "SYSTEM",
     "GBF HR AI Management Team",
-    "Initialized GBF Master Database with Official 16 Personnel, Approver Matrix & Reward Pass Settings"
+    "Initialized GBF Master Database with Official 16 Personnel, Formula Registry, Working Days & Reward Pass Settings"
   ]]);
 
   const defaultSheet = ss.getSheetByName("Sheet1");
@@ -400,6 +405,11 @@ function mergeSystemSettings_(existingMap) {
     ["REWARD_ATTENDANCE_BONUS", "50000", "🛡️ လစဉ် ခွင့်မဲ့ပျက်ရက် (0 AFK) ရက်မှန်ဆုကြေး (MMK)"],
     ["REWARD_MYTHIC_BONUS", "30000", "🏆 MYTHIC Rank (>=90% KPI) ရရှိသူအတွက် လစဉ် ဆုကြေး (MMK)"],
     ["REWARD_LEGEND_BONUS", "15000", "⚔️ LEGEND Rank (>=80% KPI) ရရှိသူအတွက် လစဉ် ဆုကြေး (MMK)"],
+    ["WORKING_DAYS_DEFAULT", "26", "📅 Default Scheduled Working Days per Month (လအလိုက် သီးခြားမသတ်မှတ်ထားပါက သုံးမည့် ရက်)"],
+    ["WORKING_DAYS_2026_10", "27", "📅 2026-10 အောက်တိုဘာလ အလုပ်လုပ်ရက် စုစုပေါင်း (Mon–Sat)"],
+    ["WORKING_DAYS_2026_11", "25", "📅 2026-11 နိုဝင်ဘာလ အလုပ်လုပ်ရက် စုစုပေါင်း (Mon–Sat)"],
+    ["WORKING_DAYS_2026_12", "27", "📅 2026-12 ဒီဇင်ဘာလ အလုပ်လုပ်ရက် စုစုပေါင်း (Mon–Sat)"],
+    ["MONTH_WORKING_DAYS_OVERRIDES", "", "📅 Custom Overrides Format: 2027-01:26,2027-02:24 (Optional)"],
     ["GROUP_ATTENDANCE_BROADCAST", "YES", "YES ထားပါက Check-In / Check-Out ဝင်တိုင်း Telegram Group သို့ အစဉ်လိုက်စာရင်းနှင့် Map အကွာအဝေး ပို့မည်"],
     ["GROUP_ATTENDANCE_MODE", "LIVE_EDIT", "LIVE_EDIT = ယနေ့ Group Live Board တစ်စောင်တည်းကို Update လုပ်မည် | NEW_MESSAGE = ဝင်တိုင်း စာအသစ်ပို့မည်"],
     ["TELEGRAM_GROUP_THREAD_ID", "", "Telegram Forum Group တွင် Topic Thread ID သီးသန့်ပို့လိုပါက ထည့်ရန် (မလိုပါက အလွတ်ထားပါ)"],
@@ -428,8 +438,10 @@ function mergeSystemSettings_(existingMap) {
 }
 
 function writeTableSheet_(ss, sheetName, headers, rows) {
+  if (!ss || typeof ss.getSheetByName !== "function") return null;
   let sheet = ss.getSheetByName(sheetName);
   if (!sheet) {
+    if (typeof ss.insertSheet !== "function") return null;
     sheet = ss.insertSheet(sheetName);
   }
   sheet.clear();
@@ -487,6 +499,7 @@ function applyEnterpriseFormatting_(ss) {
   }
 
   Object.keys(GBF_DB_SCHEMA).forEach(name => {
+    if (name === "KPI_Formula_Registry") return;
     const s = ss.getSheetByName(name);
     if (s) {
       s.autoResizeColumns(1, GBF_DB_SCHEMA[name].length);

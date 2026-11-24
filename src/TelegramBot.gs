@@ -752,7 +752,7 @@ function findTodayTeamLeaderEmpIds(requesterName, configuredTlIds, cachedEmpRows
   let matchedMembersText = "";
 
   for (let i = teamData.length - 1; i >= 0; i--) {
-    if (normalizeDateStr(teamData[i][1]) === todayStr && String(teamData[i][4]).includes(requesterName)) {
+    if (normalizeDateStr(teamData[i][1]) === todayStr && hasSquadMemberName_(teamData[i][4], requesterName)) {
       matchedMembersText = String(teamData[i][4]);
       break;
     }
@@ -762,7 +762,7 @@ function findTodayTeamLeaderEmpIds(requesterName, configuredTlIds, cachedEmpRows
   const matchedTlIds = [];
   configuredTlIds.forEach(tlId => {
     const info = getEmployeeContactInfo(tlId, cachedEmpRows);
-    if (info.name && matchedMembersText.includes(info.name)) {
+    if (info.name && hasSquadMemberName_(matchedMembersText, info.name)) {
       matchedTlIds.push(tlId);
     }
   });
@@ -1240,7 +1240,7 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
   if (!state) return buildUnlinkedAccountReply_(clean);
 
   if (actionKey === "ASKQ_EARN") {
-    const calc = computeEmployeeKpiAndPayroll_(state.totals, state.wallet.base_salary, state.reward_config, state.weekly_streak, state.user.strike_count);
+    const calc = computeEmployeeKpiAndPayroll_(state.totals, state.wallet.base_salary, state.reward_config, state.weekly_streak, state.user.strike_count, state.totals.working_days);
     const penalties = Number(calc.latePenalty || 0) + Number(calc.absenceDeduction || 0);
     const netExclAdvance = Math.max(0, Number(state.wallet.base_salary || 0) + Number(calc.totalBonuses || 0) - penalties - Number(calc.advanceDeduction || 0));
     const text = `🤖 <b>GBF HR-AI Assistant</b>\n` +
@@ -1332,13 +1332,13 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
   }
 
   // Default: MYKPI
-  const calc = computeEmployeeKpiAndPayroll_(state.totals, state.wallet.base_salary, state.reward_config, state.weekly_streak, state.user.strike_count);
+  const calc = computeEmployeeKpiAndPayroll_(state.totals, state.wallet.base_salary, state.reward_config, state.weekly_streak, state.user.strike_count, state.totals.working_days);
   const stars = "⭐".repeat(Math.max(1, calc.stars || 1));
   const forfeitNote = calc.monthlyBonusesForfeited ? "\n🚩 <i>3+ AFK ဖြစ်ထားသဖြင့် လစဉ် Bonus များ ပျက်ပြယ်ထားပါသည်။</i>" : "";
   const text = `🏆 <b>MLBB Gamified KPI &amp; Season Rank (${currentMonth})</b>\n` +
     `<blockquote>👤 <b>Player:</b> ${escapeHtmlText_(state.user.name)} (<code>${escapeHtmlText_(state.user.id)}</code> • ${escapeHtmlText_(state.user.role)})\n` +
     `🎖️ <b>Rank:</b> <b>${escapeHtmlText_(calc.rank)}</b> ${stars} (<b>${calc.kpiScore}% KPI</b> • <b>${calc.winRate}% Win Rate</b>)\n` +
-    `📊 <b>Present:</b> ${state.totals.present}d | 🌟 <b>MVP:</b> ${state.totals.mvp} | 🟢 <b>On-Time:</b> ${state.totals.ontime} | ❗ <b>Late:</b> ${state.totals.late} | 🚩 <b>AFK:</b> ${state.totals.unexcused_absent}\n` +
+    `📊 <b>Present:</b> ${state.totals.present}/${calc.workingDays}d | 🌟 <b>MVP:</b> ${state.totals.mvp} | 🟢 <b>On-Time:</b> ${state.totals.ontime} | ❗ <b>Late:</b> ${state.totals.late} | 🚩 <b>AFK:</b> ${state.totals.unexcused_absent}\n` +
     `🔥 <b>Weekly MVP Streak:</b> ${state.weekly_streak.currentWeekMvp}/${state.reward_config.weekly_mvp_target} (Unlocked Weeks: ${state.weekly_streak.achievedWeeks})\n` +
     `🎁 <b>Est. Total Bonuses:</b> <code>${Number(calc.totalBonuses || 0).toLocaleString()} MMK</code> | ⚡ <b>Strike:</b> ${state.user.strike_count}/3${forfeitNote}</blockquote>`;
   return {
@@ -1896,7 +1896,6 @@ function runEveningAttendanceDigest(ignoreSunday) {
           3750
         )
       : `${head}\n✅ <b>ရုံးတက်သူအားလုံး Check-Out စာရင်းသွင်းပြီး ဖြစ်ပါသည်။</b>${tail}`;
-      `— <b>GBF HR Automated Operations</b>`;
 
     const kb = buildGroupBoardCard_("board", st, settings, null).reply_markup;
     const threadId = resolveGroupThreadId_(groupChatId, settings);

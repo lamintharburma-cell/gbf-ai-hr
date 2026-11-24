@@ -84,9 +84,9 @@ function countWeeklyMvpStreaks_(attendanceRows, targetMonth, weeklyTarget) {
 }
 
 /**
- * 🏆 Pure Gamified KPI & Payroll Calculator aligned 1:1 with GBF Gamified HR Policy (MLBB Edition).
+ * 🏆 Pure Gamified KPI & Payroll Calculator aligned 1:1 with GBF Gamified HR Policy (MLBB Astral v9.4).
  */
-function computeEmployeeKpiAndPayroll_(totals, baseSalary, rewardConfig, weeklyStreakInfo, strikeCount) {
+function computeEmployeeKpiAndPayroll_(totals, baseSalary, rewardConfig, weeklyStreakInfo, strikeCount, workingDaysOverride) {
   const cfg = rewardConfig || {};
   const mvp = Number(totals.mvp) || 0;
   const ontime = Number(totals.ontime) || 0;
@@ -95,14 +95,30 @@ function computeEmployeeKpiAndPayroll_(totals, baseSalary, rewardConfig, weeklyS
   const afk = Number(totals.unexcused_absent) || 0;
   const usedAdvance = Number(totals.advance) || 0;
   const strikes = Number(strikeCount) || 0;
+  const isOpDept = totals.is_operation_dept !== false;
+  const teamDays = Number(totals.team_days) || 0;
 
   const totalChecks = mvp + ontime + late;
   const medals = mvp + ontime;
-  const targetDays = 26;
+  const targetDays = Math.max(1, Number(workingDaysOverride) || Number(totals.working_days) || 26);
 
-  const winRate = totalChecks > 0 ? Math.round((medals / totalChecks) * 100) : 100;
+  /* Win Rate Rule: Winning requires NOT being AFK and NOT being Late */
+  const winDenom = totalChecks + afk;
+  const winRate = winDenom > 0 ? Math.round((medals / winDenom) * 100) : (present > 0 ? 100 : 0);
+  const punctualityPct = totalChecks > 0 ? Math.round((medals / totalChecks) * 100) : 0;
+  const reliabilityPct = present > 0 ? Math.max(0, Math.min(100, Math.round(((targetDays - afk) / targetDays) * 100))) : 0;
+  const mvpPct = present > 0 ? Math.min(100, Math.round((mvp / present) * 100)) : 0;
+  const disciplinePct = present > 0
+    ? Math.max(0, Math.min(100, Math.round(((punctualityPct * 0.5) + (reliabilityPct * 0.5)) - (strikes * 15))))
+    : 0;
+  const teamSpiritPct = present > 0
+    ? (isOpDept
+      ? Math.min(100, Math.round((teamDays / present) * 100))
+      : Math.min(100, Math.round((present / Math.max(1, present + afk)) * 100)))
+    : 0;
+
   const reliabilityScore = Math.min(40, ((Math.max(0, targetDays - afk)) / targetDays) * 40);
-  const punctualityScore = totalChecks > 0 ? ((medals / totalChecks) * 40) : 40;
+  const punctualityScore = totalChecks > 0 ? ((medals / totalChecks) * 40) : 0;
   const behaviorScore = Math.max(0, 20 - (late * 3) - (afk * 10) - (strikes * 2));
   const kpiScore = present > 0 ? Math.min(100, Math.max(0, Math.round(reliabilityScore + punctualityScore + behaviorScore))) : 0;
 
@@ -149,7 +165,7 @@ function computeEmployeeKpiAndPayroll_(totals, baseSalary, rewardConfig, weeklyS
     : 0;
 
   const totalBonuses = attendanceBonus + dailyMvpBonus + weeklyStreakBonus + rankBonus;
-  const dailyRate = Math.round((Number(baseSalary) || 400000) / 26);
+  const dailyRate = Math.round((Number(baseSalary) || 400000) / targetDays);
   const absenceDeduction = afk * dailyRate;
   const latePenalty = late > 3 ? (late - 3) * 2000 : 0;
   const netPayable = Math.max(0, (baseSalary + totalBonuses) - (usedAdvance + absenceDeduction + latePenalty));
@@ -159,6 +175,8 @@ function computeEmployeeKpiAndPayroll_(totals, baseSalary, rewardConfig, weeklyS
     kpiScore: kpiScore,
     rank: rank,
     stars: stars,
+    workingDays: targetDays,
+    radarValues: [punctualityPct, reliabilityPct, mvpPct, disciplinePct, teamSpiritPct],
     monthlyBonusesForfeited: monthlyBonusesForfeited,
     attendanceBonus: attendanceBonus,
     dailyMvpBonus: dailyMvpBonus,
@@ -180,7 +198,8 @@ function computeEmployeeKpiAndPayroll_(totals, baseSalary, rewardConfig, weeklyS
 function loadMonthlyBatchContext_(ss, targetMonth) {
   const settings = getSettings();
   const now = new Date();
-  const elapsedWorkDays = countElapsedWorkDays_(targetMonth, now);
+  const monthWorkDays = resolveMonthWorkingDays_(targetMonth, settings);
+  const elapsedWorkDays = Math.min(monthWorkDays, countElapsedWorkDays_(targetMonth, now));
   const rewardConfig = {
     mvp_per_day: parseFloat(settings.REWARD_MVP_PER_DAY) || 1000,
     weekly_mvp_target: parseInt(settings.REWARD_WEEKLY_MVP_TARGET, 10) || 5,
@@ -194,11 +213,21 @@ function loadMonthlyBatchContext_(ss, targetMonth) {
   const attSheet = ss.getSheetByName("Daily_Attendance");
   const lvSheet = ss.getSheetByName("Leave_Management");
   const advSheet = ss.getSheetByName("Advance_Salary");
+  const teamSheet = ss.getSheetByName("Daily_Teams");
 
   const empRows = empSheet && empSheet.getLastRow() > 1 ? empSheet.getDataRange().getValues().slice(1) : [];
   const attRows = attSheet && attSheet.getLastRow() > 1 ? attSheet.getDataRange().getDisplayValues().slice(1) : [];
   const lvRows = lvSheet && lvSheet.getLastRow() > 1 ? lvSheet.getDataRange().getDisplayValues().slice(1) : [];
   const advRows = advSheet && advSheet.getLastRow() > 1 ? advSheet.getDataRange().getDisplayValues().slice(1) : [];
+  const teamRows = teamSheet && teamSheet.getLastRow() > 1 ? teamSheet.getDataRange().getDisplayValues().slice(1) : [];
+
+  const monthTeamsByDate = [];
+  teamRows.forEach(r => {
+    const tDate = normalizeDateStr(r[1]);
+    if (tDate && tDate.startsWith(targetMonth)) {
+      monthTeamsByDate.push({ date: tDate, members: String(r[4] || "") });
+    }
+  });
 
   const attByEmp = {};
   attRows.forEach(r => {
@@ -247,6 +276,8 @@ function loadMonthlyBatchContext_(ss, targetMonth) {
     if (!empId || !empName || status.toLowerCase() === "inactive") return;
 
     const role = String(r[3] || "Staff").trim();
+    const department = String(r[10] || "").trim();
+    const isOpDept = isOperationDepartment_(department, role);
     const baseSalary = parseFloat(String(r[6] || "400000").replace(/,/g, "")) || 400000;
     const strikeCount = parseInt(r[9], 10) || 0;
 
@@ -263,6 +294,11 @@ function loadMonthlyBatchContext_(ss, targetMonth) {
     const unexcusedAbsent = present > 0 ? Math.max(0, elapsedWorkDays - accounted) : 0;
     const usedAdvance = advByEmp[empId] || 0;
 
+    const empTeamDates = new Set();
+    monthTeamsByDate.forEach(tr => {
+      if (hasSquadMemberName_(tr.members, empName)) empTeamDates.add(tr.date);
+    });
+
     const totals = {
       present: present,
       mvp: mvp,
@@ -270,16 +306,22 @@ function loadMonthlyBatchContext_(ss, targetMonth) {
       late: late,
       leave: leaveMeta.approvedDays,
       unexcused_absent: unexcusedAbsent,
-      advance: usedAdvance
+      advance: usedAdvance,
+      working_days: monthWorkDays,
+      elapsed_work_days: elapsedWorkDays,
+      team_days: empTeamDates.size,
+      is_operation_dept: isOpDept
     };
 
     const streakInfo = countWeeklyMvpStreaks_(empAtt, targetMonth, rewardConfig.weekly_mvp_target);
-    const calc = computeEmployeeKpiAndPayroll_(totals, baseSalary, rewardConfig, streakInfo, strikeCount);
+    const calc = computeEmployeeKpiAndPayroll_(totals, baseSalary, rewardConfig, streakInfo, strikeCount, monthWorkDays);
 
     employees.push({
       empId: empId,
       empName: empName,
       role: role,
+      department: department,
+      isOperationDept: isOpDept,
       baseSalary: baseSalary,
       strikeCount: strikeCount,
       totals: totals,
@@ -289,7 +331,7 @@ function loadMonthlyBatchContext_(ss, targetMonth) {
     });
   });
 
-  return { targetMonth: targetMonth, rewardConfig: rewardConfig, employees: employees };
+  return { targetMonth: targetMonth, workingDays: monthWorkDays, rewardConfig: rewardConfig, employees: employees };
 }
 
 /**
@@ -421,10 +463,87 @@ function generateMonthlyPayroll(targetMonth, requestedEmpId) {
     });
 
     batchUpsertById_(paySheet, 0, 15, sheetRows);
+    invalidateSettingsCache_();
+    syncKpiFormulaRegistrySheet_(ss, getSettings(true));
     SpreadsheetApp.flush();
     logToAudit("PAYROLL_GENERATED", auth.empId, auth.empName, `Generated ${payrollList.length} payroll records for ${month}`);
 
     return { success: true, total_records: payrollList.length, payroll: payrollList };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * 📐 Builds the auditable GBF KPI & Payroll Calculation Formula Registry rows (`KPI_Formula_Registry` sheet).
+ */
+function getOfficialKpiFormulaRegistryRows_(settings, versionLabel) {
+  const cfg = settings || {};
+  const earlyTime = String(cfg.TIME_EARLY || "09:00");
+  const lateTime = String(cfg.TIME_LATE || "09:15");
+  const novDays = resolveMonthWorkingDays_("2026-11", cfg);
+  const mvpDay = Number(cfg.REWARD_MVP_PER_DAY) || 1000;
+  const wkTarget = Number(cfg.REWARD_WEEKLY_MVP_TARGET) || 5;
+  const wkBonus = Number(cfg.REWARD_WEEKLY_MVP_BONUS) || 10000;
+  const attBonus = Number(cfg.REWARD_ATTENDANCE_BONUS) || 50000;
+  const mythicBonus = Number(cfg.REWARD_MYTHIC_BONUS) || 30000;
+  const legendBonus = Number(cfg.REWARD_LEGEND_BONUS) || 15000;
+  const updatedStr = typeof Utilities !== "undefined"
+    ? Utilities.formatDate(new Date(), GBF_CONFIG.GMT_OFFSET, "yyyy-MM-dd HH:mm:ss")
+    : new Date().toISOString().slice(0, 19).replace("T", " ");
+  const ver = versionLabel || GBF_CONFIG.VERSION || "v9.4.0 Production LTS";
+
+  return [
+    ["KPI-01", "Attendance Tag", "Check-In အချိန်အဆင့် ခွဲခြားခြင်း", `HH:mm <= ${earlyTime} => MVP | <= ${lateTime} => On-Time | > ${lateTime} => Late`, "System_Settings!TIME_EARLY, TIME_LATE", "All Departments", `08:45 AM => MVP | 09:05 AM => On-Time | 09:20 AM => Late`, ver, updatedStr],
+    ["KPI-02", "Workday Denominator", "လအလိုက် ရုံးဖွင့်ရက်စုစုပေါင်း", "System_Settings[WORKING_DAYS_YYYY_MM] -> MONTH_WORKING_DAYS_OVERRIDES -> Mon–Sat Calendar Count", "System_Settings!WORKING_DAYS_2026_11, WORKING_DAYS_DEFAULT", "All Departments", `2026-11 => ${novDays} Working Days (Excludes Sundays)`, ver, updatedStr],
+    ["KPI-03", "Absenteeism (AFK)", "ခွင့်မဲ့ပျက်ကွက် (AFK) တွက်ချက်မှု", "max(0, min(Month_WorkDays, Elapsed_MonSat) - (Present + Approved_Leave)) [when Present > 0]", "Daily_Attendance + Leave_Management + System_Settings", "All Departments", `Elapsed 20 - (18 Present + 1 Leave) = 1 AFK`, ver, updatedStr],
+    ["KPI-04", "Win Rate %", "အနိုင်ရနှုန်း (မပျက်ရ + နောက်မကျရ)", "round(((MVP + OnTime) / max(1, MVP + OnTime + Late + AFK)) * 100)", "Daily_Attendance + KPI-03 AFK (Excludes Approved Leave)", "All Departments", `(16 MVP + 4 OnTime) / (21 + 0 AFK) = 95% | 10+10, 0 AFK => 100%`, ver, updatedStr],
+    ["KPI-05", "Radar Axis 1", "အချိန်မှန်မှု (Punctuality)", "round(((MVP + OnTime) / max(1, MVP + OnTime + Late)) * 100)", "Daily_Attendance!KPI_Status", "All Departments", `(16 + 4) / 21 = 95%`, ver, updatedStr],
+    ["KPI-06", "Radar Axis 2", "ရက်မှန်မှု (Reliability)", "max(0, min(100, round(((Month_WorkDays - AFK) / Month_WorkDays) * 100)))", "KPI-02 Month_WorkDays + KPI-03 AFK", "All Departments", `(${novDays} - 0) / ${novDays} = 100%`, ver, updatedStr],
+    ["KPI-07", "Radar Axis 3", "MVP (အစော) ရရှိနှုန်း", "Present > 0 ? min(100, round((MVP / Present) * 100)) : 0", "Daily_Attendance (MVP count / Present days)", "All Departments", `10 days present & 10 MVP => 100% | 16/21 => 76%`, ver, updatedStr],
+    ["KPI-08", "Radar Axis 4", "စည်းကမ်း (Discipline)", "Present > 0 ? max(0, min(100, round((Punctuality*0.5 + Reliability*0.5) - (Strikes*15)))) : 0", "Punctuality + Reliability + HR_Employees!Strike_Count", "All Departments", `(95*0.5 + 100*0.5) - 0 = 98%`, ver, updatedStr],
+    ["KPI-09", "Radar Axis 5", "အဖွဲ့စိတ်ဓာတ် (Team Spirit)", "Op Dept: min(100, round((Distinct_Squad_Days / Present) * 100)) | Non-Op Dept: round((Present / (Present + AFK)) * 100)", "HR_Employees!Department + Daily_Teams + Daily_Attendance", "Field Operations vs Non-Op Depts", `Field Ops: 18 squad days / 20 present = 90% | Non-Op: 21/21 = 100%`, ver, updatedStr],
+    ["KPI-10", "Season Rank & Score", "စုစုပေါင်း KPI Score နှင့် Season Rank", "KPI = round(40*(Target-AFK)/Target + 40*(MVP+OnTime)/Checks + max(0,20-Late*3-AFK*10-Strike*2)); AFK>=3 caps Rank=ELITE & Bonus=0", "PayrollEngine.gs!computeEmployeeKpiAndPayroll_", "All Departments", `MYTHIC >=90 | LEGEND >=80 | EPIC >=60 | ELITE >=40`, ver, updatedStr],
+    ["PAY-01", "Payroll Daily Rate", "နေ့တွက်လစာနှုန်း (လအလိုက် ရုံးဖွင့်ရက်)", "round(Base_Salary / Month_WorkDays)", "HR_Employees!Base_Salary + System_Settings!WORKING_DAYS_YYYY_MM", "All Departments", `Base 500,000 / ${novDays}d = ${Math.round(500000 / novDays).toLocaleString()} Ks/day`, ver, updatedStr],
+    ["PAY-02", "Gamified Bonuses", "MVP + Weekly Streak + Zero-AFK + Rank Bonus", `If AFK<3: MVP*${mvpDay} + Weeks(>=${wkTarget}MVP)*${wkBonus} + ZeroAFK*${attBonus} + Rank(MYTHIC=${mythicBonus}/LEGEND=${legendBonus})`, "System_Settings!REWARD_* keys", "All Departments (AFK >= 3 forfeits all)", `16*${mvpDay} + 1*${wkBonus} + ${attBonus} + ${mythicBonus}`, ver, updatedStr],
+    ["PAY-03", "Advance & Deductions", "50% ကြိုထုတ်ငွေ နှင့် နောက်ကျ/ပျက်ကွက် ဖြတ်တောက်ငွေ", "Advance_Max = Base*0.50 | Absence_Ded = AFK*Daily_Rate | Late_Penalty = Late>3 ? (Late-3)*2000 : 0", "Advance_Salary + Daily_Attendance + KPI-03", "All Departments", `5 Late => (5-3)*2,000 = 4,000 MMK`, ver, updatedStr]
+  ];
+}
+
+function syncKpiFormulaRegistrySheet_(ss, settings) {
+  if (!ss) return 0;
+  const rows = getOfficialKpiFormulaRegistryRows_(settings || getSettings());
+  writeTableSheet_(ss, "KPI_Formula_Registry", GBF_DB_SCHEMA.KPI_Formula_Registry, rows);
+  const sheet = ss.getSheetByName("KPI_Formula_Registry");
+  if (sheet) {
+    sheet.getRange(1, 1, rows.length + 1, GBF_DB_SCHEMA.KPI_Formula_Registry.length).setWrap(true);
+    sheet.setColumnWidth(1, 95);
+    sheet.setColumnWidth(2, 145);
+    sheet.setColumnWidth(3, 210);
+    sheet.setColumnWidth(4, 340);
+    sheet.setColumnWidth(5, 230);
+    sheet.setColumnWidth(6, 170);
+    sheet.setColumnWidth(7, 250);
+    sheet.setColumnWidth(8, 130);
+    sheet.setColumnWidth(9, 150);
+  }
+  return rows.length;
+}
+
+function syncKpiFormulaRegistrySheet(requestedEmpId) {
+  const auth = assertAuthorizedRole_(requestedEmpId, ["TM", "MM", "TL"]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message };
+  }
+  const ss = getGBFSpreadsheet_();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    invalidateSettingsCache_();
+    const count = syncKpiFormulaRegistrySheet_(ss, getSettings(true));
+    SpreadsheetApp.flush();
+    logToAudit("FORMULA_REGISTRY_SYNCED", auth.empId, auth.empName, `Synced ${count} rows to KPI_Formula_Registry sheet.`);
+    return { success: true, total_rules: count, message: `✅ တွက်ချက်မှုစည်းမျဉ်း (${count}) ခုကို KPI_Formula_Registry Sheet သို့ မှတ်တမ်းတင်ပြီးပါပြီ!` };
   } finally {
     lock.releaseLock();
   }
@@ -473,7 +592,7 @@ function getEmployeePayslipData(empId, month) {
         const stats = getFullSystemState(empId, empName, null, month);
         if (stats) {
           const streakInfo = stats.weekly_streak || { achievedWeeks: 0 };
-          const calc = computeEmployeeKpiAndPayroll_(stats.totals, stats.wallet.base_salary, stats.reward_config, streakInfo, stats.user.strike_count);
+          const calc = computeEmployeeKpiAndPayroll_(stats.totals, stats.wallet.base_salary, stats.reward_config, streakInfo, stats.user.strike_count, stats.totals.working_days);
           return {
             success: true,
             payslip: {

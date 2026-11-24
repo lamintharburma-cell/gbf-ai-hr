@@ -142,6 +142,8 @@ function dispatchApiAction_(data) {
       return savePayslipPdfToDrive(safeData.emp_id, safeData.target_month);
     case "update_reward_settings":
       return updateRewardSettingsInSheet(safeData);
+    case "sync_formula_registry":
+      return syncKpiFormulaRegistrySheet(safeData.emp_id);
     default:
       return { success: false, message: "Unknown action: " + action };
   }
@@ -248,7 +250,11 @@ function initApproverSettings() {
     if (data[i][0]) existingKeys.add(String(data[i][0]).trim());
   }
 
-  const canonical = (typeof mergeSystemSettings_ === "function") ? mergeSystemSettings_({}) : {};
+  const canonicalRows = (typeof mergeSystemSettings_ === "function") ? mergeSystemSettings_({}) : [];
+  const canonical = {};
+  if (Array.isArray(canonicalRows)) {
+    canonicalRows.forEach(r => { if (r && r[0]) canonical[String(r[0]).trim()] = r[1]; });
+  }
   const val = (key, fallback) => (canonical[key] !== undefined && canonical[key] !== "") ? String(canonical[key]) : fallback;
 
   const defaultRows = [
@@ -264,6 +270,11 @@ function initApproverSettings() {
     ["REWARD_ATTENDANCE_BONUS", val("REWARD_ATTENDANCE_BONUS", "50000"), "🛡️ လစဉ် ခွင့်မဲ့ပျက်ရက် (0 AFK) ရက်မှန်ဆုကြေး (MMK)"],
     ["REWARD_MYTHIC_BONUS", val("REWARD_MYTHIC_BONUS", "30000"), "🏆 MYTHIC Rank (>=90% KPI) ရရှိသူအတွက် လစဉ် ဆုကြေး (MMK)"],
     ["REWARD_LEGEND_BONUS", val("REWARD_LEGEND_BONUS", "15000"), "⚔️ LEGEND Rank (>=80% KPI) ရရှိသူအတွက် လစဉ် ဆုကြေး (MMK)"],
+    ["WORKING_DAYS_DEFAULT", val("WORKING_DAYS_DEFAULT", "26"), "📅 Default Scheduled Working Days per Month"],
+    ["WORKING_DAYS_2026_10", val("WORKING_DAYS_2026_10", "27"), "📅 2026-10 အောက်တိုဘာလ အလုပ်လုပ်ရက် စုစုပေါင်း (Mon–Sat)"],
+    ["WORKING_DAYS_2026_11", val("WORKING_DAYS_2026_11", "25"), "📅 2026-11 နိုဝင်ဘာလ အလုပ်လုပ်ရက် စုစုပေါင်း (Mon–Sat)"],
+    ["WORKING_DAYS_2026_12", val("WORKING_DAYS_2026_12", "27"), "📅 2026-12 ဒီဇင်ဘာလ အလုပ်လုပ်ရက် စုစုပေါင်း (Mon–Sat)"],
+    ["MONTH_WORKING_DAYS_OVERRIDES", val("MONTH_WORKING_DAYS_OVERRIDES", ""), "📅 Custom Month Working Days Overrides (2027-01:26,2027-02:24)"],
     ["TELEGRAM_GROUP_THREAD_ID", canonical.TELEGRAM_GROUP_THREAD_ID !== undefined ? String(canonical.TELEGRAM_GROUP_THREAD_ID) : "", "Optional Telegram Forum Topic Thread ID (Blank = Main Group)"],
     ["GROUP_ATTENDANCE_BROADCAST", val("GROUP_ATTENDANCE_BROADCAST", "YES"), "YES ထားပါက Check-In / Check-Out ဝင်တိုင်း Telegram Group သို့ အစဉ်လိုက်စာရင်းနှင့် Map အကွာအဝေး ပို့မည်"],
     ["GROUP_ATTENDANCE_MODE", val("GROUP_ATTENDANCE_MODE", "LIVE_EDIT"), "LIVE_EDIT = ယနေ့ Group စာတစ်စောင်တည်းကို အချိန်နှင့်တစ်ပြေးညီ Update လုပ်မည် | NEW_MESSAGE = ဝင်တိုင်း စာအသစ်ပို့မည်"],
@@ -274,6 +285,9 @@ function initApproverSettings() {
   if (rowsToAppend.length > 0) {
     sheet.getRange(sheet.getLastRow() + 1, 1, rowsToAppend.length, 3).setValues(rowsToAppend);
     invalidateSettingsCache_();
+  }
+  if (!ss.getSheetByName("KPI_Formula_Registry") && typeof syncKpiFormulaRegistrySheet_ === "function") {
+    syncKpiFormulaRegistrySheet_(ss, getSettings(true));
   }
 }
 
@@ -299,6 +313,11 @@ function updateRewardSettingsInSheet(data) {
     REWARD_MYTHIC_BONUS: Number(cfg.mythic_rank_bonus) || 30000,
     REWARD_LEGEND_BONUS: Number(cfg.legend_rank_bonus) || 15000
   };
+  const targetYm = String(cfg.working_days_month || data.selected_month || "").trim();
+  const parsedWorkDays = parseInt(cfg.working_days, 10);
+  if (/^\d{4}-\d{2}$/.test(targetYm) && !isNaN(parsedWorkDays) && parsedWorkDays >= 1 && parsedWorkDays <= 31) {
+    keyMap[`WORKING_DAYS_${targetYm.replace("-", "_")}`] = parsedWorkDays;
+  }
 
   const lock = LockService.getScriptLock();
   try {
@@ -314,7 +333,7 @@ function updateRewardSettingsInSheet(data) {
       if (rowByKey[k]) {
         sheet.getRange(rowByKey[k], 2).setValue(keyMap[k]);
       } else {
-        toAppend.push([k, keyMap[k], "Configured via GBF Mini App Reward Settings"]);
+        toAppend.push([k, keyMap[k], "Configured via GBF Mini App Reward & Schedule Settings"]);
       }
     });
     if (toAppend.length > 0) {
@@ -323,12 +342,15 @@ function updateRewardSettingsInSheet(data) {
 
     SpreadsheetApp.flush();
     invalidateSettingsCache_();
+    if (typeof syncKpiFormulaRegistrySheet_ === "function") {
+      syncKpiFormulaRegistrySheet_(ss, getSettings(true));
+    }
     logToAudit("REWARD_CONFIG_UPDATED", auth.empId, auth.empName, JSON.stringify(keyMap));
 
     return {
       success: true,
       message: "🎁 ဆုကြေးနှုန်းထားများကို System_Settings တွင် သိမ်းဆည်းပြီးပါပြီ!",
-      updated_data: getFullSystemState(auth.empId, auth.empName, data.chat_id, data.selected_month)
+      updated_data: getFullSystemState(auth.empId, auth.empName, data.chat_id, data.selected_month, true)
     };
   } catch (error) {
     console.error("saveRewardSettings Error:", error);
@@ -404,7 +426,7 @@ function getInitialData(chatId, selectedMonth) {
   return { success: true, employees: employees, sso_matched: ssoState !== null, sso_data: ssoState };
 }
 
-function getFullSystemState(empId, empName, chatId, selectedMonth) {
+function getFullSystemState(empId, empName, chatId, selectedMonth, skipBindLock) {
   const ss = getGBFSpreadsheet_();
   const empSheet = ss.getSheetByName("HR_Employees");
   if (!empSheet) return null;
@@ -414,7 +436,7 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
   const cleanChatId = sanitizeTelegramChatId_(chatId);
   const inputPinOrId = String(empId || "").trim();
   const isGroupViewer = inputPinOrId === "__GROUP_VIEWER__";
-  let userRowIndex = -1, userRole = isGroupViewer ? "Viewer" : null, baseSalary = isGroupViewer ? 0 : 400000, strikeCount = 0, matchedRowChatId = "", matchedExactEmpId = false;
+  let userRowIndex = -1, userRole = isGroupViewer ? "Viewer" : null, userDepartment = isGroupViewer ? "Viewer" : "", baseSalary = isGroupViewer ? 0 : 400000, strikeCount = 0, matchedRowChatId = "", matchedExactEmpId = false;
   if (isGroupViewer) {
     empId = "__GROUP_VIEWER__";
     empName = empName || "GroupViewer";
@@ -428,9 +450,10 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
     const rowRole = String(empData[i][3] || "Staff").trim();
     const rowStatus = String(empData[i][7] || "Active").trim();
     const rowPin = String(empData[i][8] || empData[i][1] || "").trim();
+    const rowDept = String(empData[i][10] || "").trim();
 
     if (rowEmpId && rowName && rowStatus.toLowerCase() !== "inactive") {
-      activeEmployees.push({ id: rowEmpId, name: rowName, role: rowRole });
+      activeEmployees.push({ id: rowEmpId, name: rowName, role: rowRole, department: rowDept });
     }
 
     if (isGroupViewer || rowStatus.toLowerCase() === "inactive") continue;
@@ -445,6 +468,7 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
       empId = rowEmpId;
       empName = rowName;
       userRole = rowRole;
+      userDepartment = rowDept;
       matchedRowChatId = rowChatId;
       baseSalary = parseFloat(String(empData[i][6] || "400000").replace(/,/g, "")) || 400000;
       strikeCount = parseInt(empData[i][9], 10) || 0;
@@ -453,23 +477,31 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
   if (!userRole) return null;
 
   let bindResult = { bound: false, reason: isGroupViewer ? "GROUP_VIEWER" : (matchedRowChatId ? "ALREADY_LINKED" : "NO_CHAT_ID") };
-  if (!isGroupViewer && cleanChatId && userRowIndex !== -1) {
-    const bindLock = LockService.getScriptLock();
-    const gotLock = bindLock.tryLock(2500);
-    try {
+  if (!isGroupViewer && cleanChatId && userRowIndex !== -1 && matchedRowChatId !== cleanChatId) {
+    if (skipBindLock) {
       bindResult = bindTelegramChatIdToRow_(empSheet, empData, userRowIndex, cleanChatId, "MINIAPP_PIN_LOGIN");
-    } finally {
+    } else {
+      const bindLock = LockService.getScriptLock();
+      const gotLock = bindLock.tryLock(2500);
       if (gotLock) {
-        try { bindLock.releaseLock(); } catch (e) {}
+        try {
+          bindResult = bindTelegramChatIdToRow_(empSheet, empData, userRowIndex, cleanChatId, "MINIAPP_PIN_LOGIN");
+        } finally {
+          try { bindLock.releaseLock(); } catch (e) {}
+        }
+      } else {
+        bindResult = { bound: false, reason: "LOCK_BUSY" };
       }
     }
   }
 
   const positionLayer = resolvePositionLayer(userRole, empId, settings);
+  const isOpDept = isOperationDepartment_(userDepartment, userRole);
   const now = new Date();
   const todayStr = Utilities.formatDate(now, GBF_CONFIG.GMT_OFFSET, "yyyy-MM-dd");
   const currentMonthStr = Utilities.formatDate(now, GBF_CONFIG.GMT_OFFSET, "yyyy-MM");
   const targetMonth = (selectedMonth && /^\d{4}-\d{2}$/.test(selectedMonth)) ? selectedMonth : currentMonthStr;
+  const monthWorkDays = resolveMonthWorkingDays_(targetMonth, settings);
 
   const configuredAttBonus = parseFloat(settings.REWARD_ATTENDANCE_BONUS) || 50000;
   const availableMonthsSet = new Set([currentMonthStr]);
@@ -481,6 +513,8 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
       id: empId,
       name: empName,
       role: userRole,
+      department: userDepartment || (isOpDept ? "Field Operations" : "HQ Operations"),
+      is_operation_dept: isOpDept,
       position_layer: positionLayer,
       is_leader: ["TM", "MM", "TL"].includes(positionLayer),
       base_salary: baseSalary,
@@ -503,7 +537,8 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
       weekly_mvp_bonus: parseFloat(settings.REWARD_WEEKLY_MVP_BONUS) || 10000,
       attendance_bonus: configuredAttBonus,
       mythic_rank_bonus: parseFloat(settings.REWARD_MYTHIC_BONUS) || 30000,
-      legend_rank_bonus: parseFloat(settings.REWARD_LEGEND_BONUS) || 15000
+      legend_rank_bonus: parseFloat(settings.REWARD_LEGEND_BONUS) || 15000,
+      working_days: monthWorkDays
     },
     weekly_streak: {
       achievedWeeks: 0,
@@ -525,15 +560,37 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
       today_teams: [],
       eligible_members: []
     },
-    totals: { present: 0, mvp: 0, ontime: 0, late: 0, leave: 0, unexcused_absent: 0, advance: 0 },
+    totals: {
+      present: 0,
+      mvp: 0,
+      ontime: 0,
+      late: 0,
+      leave: 0,
+      unexcused_absent: 0,
+      advance: 0,
+      working_days: monthWorkDays,
+      elapsed_work_days: monthWorkDays,
+      team_days: 0,
+      is_operation_dept: isOpDept
+    },
     today_state: { status: "NOT_CHECKED_IN", time_in: "", time_out: "" },
+    month_daily_snapshots: {},
     history: { attendance: [], leave: [], advance: [], teams: [], voice: [] }
+  };
+
+  const ensureDaySnapshot = (dateIso) => {
+    if (!dateIso || !/^\d{4}-\d{2}-\d{2}$/.test(dateIso)) return null;
+    if (!result.month_daily_snapshots[dateIso]) {
+      result.month_daily_snapshots[dateIso] = { checked_in: [], teams: [], leaves: [] };
+    }
+    return result.month_daily_snapshots[dateIso];
   };
 
   const teamSheet = ss.getSheetByName("Daily_Teams");
   const assignedNamesToday = [];
+  const empTeamDatesSet = new Set();
   if (teamSheet) {
-    const teamData = getLastNRows(teamSheet, 300, 5);
+    const teamData = getLastNRows(teamSheet, 400, 5);
     for (let i = teamData.length - 1; i >= 0; i--) {
       const tDate = normalizeDateStr(teamData[i][1]);
       const tName = teamData[i][2], tProj = teamData[i][3], tMembers = teamData[i][4];
@@ -541,14 +598,27 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
         result.system.today_teams.push({ name: tName, project: tProj, members: tMembers });
         assignedNamesToday.push(tMembers);
       }
-      if (String(tMembers).includes(empName) && tDate.startsWith(targetMonth) && result.history.teams.length < 15) {
-        result.history.teams.push({ date: tDate, name: tName, project: tProj });
+      if (tDate && tDate.startsWith(targetMonth)) {
+        const snap = ensureDaySnapshot(tDate);
+        if (snap) snap.teams.push({ name: tName, project: tProj, members: tMembers });
+      }
+      if (hasSquadMemberName_(tMembers, empName) && tDate && tDate.startsWith(targetMonth)) {
+        empTeamDatesSet.add(tDate);
+        if (result.history.teams.length < 31) {
+          result.history.teams.push({ date: tDate, name: tName, project: tProj });
+        }
       }
     }
   }
+  result.totals.team_days = empTeamDatesSet.size;
 
-  const findSquadForName = (personName) => {
-    const found = result.system.today_teams.find(t => String(t.members || "").includes(personName));
+  const findSquadForDateAndName = (dateIso, personName) => {
+    const snap = result.month_daily_snapshots[dateIso];
+    if (snap && snap.teams.length > 0) {
+      const f = snap.teams.find(t => hasSquadMemberName_(t.members, personName));
+      if (f) return f.name;
+    }
+    const found = dateIso === todayStr ? result.system.today_teams.find(t => hasSquadMemberName_(t.members, personName)) : null;
     return found ? found.name : "HQ / Standby";
   };
 
@@ -558,6 +628,7 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
 
   const checkedInNamesToday = [];
   const checkedInIdsToday = new Set();
+  const seenAttendanceIdsByDate = {};
   const empAttRecordsMonth = [];
   const attSheet = ss.getSheetByName("Daily_Attendance");
   if (attSheet) {
@@ -574,17 +645,43 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
       if (rowInTime.startsWith("1899-12-")) {
         rowInTime = formatTimeFromAttId_(attData[i][0]) || rowInTime;
       }
+      const empMeta = activeEmployees.find(e => e.id === rowId);
+      const rawGps = String(attData[i][4] || "").trim();
+      const distMeters = parseFloat(String(attData[i][7] || "0").replace(/,/g, "")) || 0;
+      const distLabel = formatDistanceText_(distMeters);
+      const locZone = distMeters <= maxRadius ? "HQ_Zone" : "Field_Site";
+      const mapMeasureUrl = buildGoogleMapsMeasureUrl_(officeLat, officeLng, rawGps);
+      const rowOutTime = attData[i][5] || "";
+      const rowKpi = (attData[i][9] === "Early" ? "MVP" : attData[i][9]) || "On-Time";
+
+      if (rDate && rDate.startsWith(targetMonth)) {
+        const snap = ensureDaySnapshot(rDate);
+        if (snap) {
+          if (!seenAttendanceIdsByDate[rDate]) seenAttendanceIdsByDate[rDate] = new Set();
+          if (!seenAttendanceIdsByDate[rDate].has(rowId)) {
+            seenAttendanceIdsByDate[rDate].add(rowId);
+            snap.checked_in.push({
+              order: snap.checked_in.length + 1,
+              id: rowId,
+              name: rowName || (empMeta ? empMeta.name : rowId),
+              role: empMeta ? empMeta.role : "Staff",
+              time: rowInTime,
+              out_time: rowOutTime,
+              kpi: rowKpi,
+              squad: findSquadForDateAndName(rDate, rowName),
+              distance_m: Math.round(distMeters),
+              distance_text: distLabel,
+              loc_status: locZone,
+              map_url: mapMeasureUrl
+            });
+          }
+        }
+      }
 
       if (rDate === todayStr && !checkedInIdsToday.has(rowId)) {
         arrivalOrder++;
         checkedInIdsToday.add(rowId);
         checkedInNamesToday.push(rowName);
-        const empMeta = activeEmployees.find(e => e.id === rowId);
-        const rawGps = String(attData[i][4] || "").trim();
-        const distMeters = parseFloat(String(attData[i][7] || "0").replace(/,/g, "")) || 0;
-        const distLabel = formatDistanceText_(distMeters);
-        const locZone = distMeters <= maxRadius ? "HQ_Zone" : "Field_Site";
-        const mapMeasureUrl = buildGoogleMapsMeasureUrl_(officeLat, officeLng, rawGps);
 
         result.system.today_checked_in_list.push({
           order: arrivalOrder,
@@ -592,9 +689,9 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
           name: rowName || (empMeta ? empMeta.name : rowId),
           role: empMeta ? empMeta.role : "Staff",
           time: rowInTime,
-          out_time: attData[i][5] || "",
-          kpi: attData[i][9] || "On-Time",
-          squad: findSquadForName(rowName),
+          out_time: rowOutTime,
+          kpi: rowKpi,
+          squad: findSquadForDateAndName(todayStr, rowName),
           gps: rawGps,
           distance_m: Math.round(distMeters),
           distance_text: distLabel,
@@ -620,10 +717,10 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
         }
         if (rDate.startsWith(targetMonth)) {
           result.totals.present++;
-          let kpi = attData[i][9];
+          let kpi = String(attData[i][9] || "").trim();
           if (kpi === "MVP" || kpi === "Early") { result.totals.mvp++; kpi = "MVP"; }
-          else if (kpi === "On-Time") result.totals.ontime++;
           else if (kpi === "Late") result.totals.late++;
+          else { result.totals.ontime++; kpi = "On-Time"; }
 
           empAttRecordsMonth.push({ date: rDate, kpi: kpi });
           if (result.history.attendance.length < 31) {
@@ -649,6 +746,28 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
       const lvDays = parseInt(lvData[i][6], 10) || 1;
       const lvReason = String(lvData[i][7] || "").trim();
       const lvStatus = String(lvData[i][9] || "Pending").trim();
+
+      if (lvStartIso && lvEndIso && lvStatus !== "Rejected") {
+        if (lvStartIso.startsWith(targetMonth) || lvEndIso.startsWith(targetMonth)) {
+          const [sy, sm, sd] = lvStartIso.split("-").map(Number);
+          const [ey, em, ed] = lvEndIso.split("-").map(Number);
+          if (sy && ey) {
+            const cur = new Date(Date.UTC(sy, sm - 1, sd));
+            const endDt = new Date(Date.UTC(ey, em - 1, ed));
+            let guard = 0;
+            while (cur <= endDt && guard++ < 31) {
+              const isoDay = cur.toISOString().slice(0, 10);
+              if (isoDay.startsWith(targetMonth)) {
+                const snap = ensureDaySnapshot(isoDay);
+                if (snap && !snap.leaves.some(x => x.id === lvEmpId)) {
+                  snap.leaves.push({ id: lvEmpId, name: lvEmpName, type: lvType, days: lvDays, reason: lvReason, status: lvStatus });
+                }
+              }
+              cur.setUTCDate(cur.getUTCDate() + 1);
+            }
+          }
+        }
+      }
 
       if (lvStartIso && lvEndIso && lvStartIso <= todayStr && todayStr <= lvEndIso && lvStatus !== "Rejected") {
         if (!onLeaveIdsToday.has(lvEmpId)) {
@@ -683,10 +802,10 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
         id: emp.id,
         name: emp.name,
         role: emp.role,
-        squad: findSquadForName(emp.name)
+        squad: findSquadForDateAndName(todayStr, emp.name)
       });
     }
-    if (emp.name !== empName && checkedInNamesToday.includes(emp.name) && !assignedNamesToday.some(t => String(t).includes(emp.name))) {
+    if (emp.name !== empName && checkedInNamesToday.includes(emp.name) && !assignedNamesToday.some(t => hasSquadMemberName_(t, emp.name))) {
       result.system.eligible_members.push({ id: emp.id, name: emp.name, role: emp.role });
     }
   });
@@ -713,8 +832,9 @@ function getFullSystemState(empId, empName, chatId, selectedMonth) {
 
   result.wallet.remaining_advance = Math.max(0, result.wallet.max_advance_limit - (result.wallet.used_advance + result.wallet.pending_advance));
 
-  const elapsedWorkDays = countElapsedWorkDays_(targetMonth, now);
+  const elapsedWorkDays = Math.min(monthWorkDays, countElapsedWorkDays_(targetMonth, now));
   const accountedDays = result.totals.present + result.totals.leave;
+  result.totals.elapsed_work_days = elapsedWorkDays;
   result.totals.unexcused_absent = result.totals.present > 0 ? Math.max(0, elapsedWorkDays - accountedDays) : 0;
   if (result.totals.unexcused_absent > 0) {
     result.wallet.attendance_bonus = 0;
@@ -764,7 +884,7 @@ function processWebAppAttendance(data) {
     const dup = checkIdempotency_(data.idempotencyKey);
     if (dup) {
       return Object.assign({}, dup, {
-        updated_data: getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month)
+        updated_data: getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month, true)
       });
     }
 
@@ -798,7 +918,7 @@ function processWebAppAttendance(data) {
     SpreadsheetApp.flush();
 
     logToAudit("ATTENDANCE_" + (data.type === "Check Out" ? "OUT" : "IN"), data.emp_id, data.emp_name, `${kpiStatus} ${distFormatted}`, data.idempotencyKey);
-    const updatedState = getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month);
+    const updatedState = getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month, true);
     broadcastAttendanceToTelegramGroup_(data, kpiStatus, distance, locStatus, displayTime, updatedState, settings);
     notifyPerformerAttendance_(data, kpiStatus, distance, locStatus, displayTime, updatedState, settings, data.chat_id);
 
@@ -833,11 +953,11 @@ function processWebAppLeave(data) {
     const dup = checkIdempotency_(data.idempotencyKey);
     if (dup) {
       return Object.assign({}, dup, {
-        updated_data: getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month)
+        updated_data: getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month, true)
       });
     }
 
-    const currentState = getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month);
+    const currentState = getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month, true);
     const empInfo = getEmployeeContactInfo(data.emp_id);
     const sheet = getGBFSpreadsheet_().getSheetByName("Leave_Management");
     const fStart = formatDate(data.start_date), fEnd = formatDate(data.end_date);
@@ -857,7 +977,7 @@ function processWebAppLeave(data) {
       `<blockquote>👤 <b>ဝန်ထမ်း:</b> ${escapeHtmlText_(data.emp_name)} (<code>${escapeHtmlText_(data.emp_id)}</code>)\n` +
       `🏷️ <b>ရာထူး:</b> ${escapeHtmlText_(empInfo.role || (currentState ? currentState.user.role : "Staff"))}\n` +
       `🔖 <b>အမျိုးအစား:</b> ${escapeHtmlText_(data.leave_type)} (${escapeHtmlText_(data.total_days)} ရက်)\n` +
-      `📆 <b>ရက်စွဲ:</b> ${fStart} မှ ${fEnd} ထိ\n` +
+      `📆 <b>ရက်စွဲ:</b> ${escapeHtmlText_(fStart)} မှ ${escapeHtmlText_(fEnd)} ထိ\n` +
       `🔍 <b>AI Pattern:</b> <code>${escapeHtmlText_(patternDay)}</code>\n` +
       `📝 <b>အကြောင်းရင်း:</b> ${escapeHtmlText_(data.reason)}\n` +
       `🤖 <b>AI Risk Advisor:</b> ${formatAiToTelegramHtml(aiRiskAdvice)}</blockquote>`;
@@ -867,7 +987,7 @@ function processWebAppLeave(data) {
     notifyPerformerLeaveSubmitted_(data, data.leave_type, fStart, fEnd, aiRiskAdvice, routing, data.chat_id);
     logToAudit("LEAVE_REQUEST", data.emp_id, data.emp_name, `${data.leave_type} ${data.total_days}d Row ${row}`, data.idempotencyKey);
 
-    const freshState = getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month);
+    const freshState = getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month, true);
     const res = {
       success: true,
       message: `📝 ခွင့်တိုင်ကြားလွှာကို ${routing.approverTierLabel} ထံ ပေးပို့ပြီးပါပြီ။`,
@@ -883,11 +1003,11 @@ function processWebAppAdvance(data) {
     const dup = checkIdempotency_(data.idempotencyKey);
     if (dup) {
       return Object.assign({}, dup, {
-        updated_data: getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month)
+        updated_data: getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month, true)
       });
     }
 
-    const currentState = getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month);
+    const currentState = getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month, true);
     const empInfo = getEmployeeContactInfo(data.emp_id);
     const reqAmt = parseFloat(data.requested_amount) || 0;
     if (reqAmt <= 0) {
@@ -920,7 +1040,7 @@ function processWebAppAdvance(data) {
     notifyPerformerAdvanceSubmitted_(data, reqAmt, remainingAfter, aiRiskAdvice, routing, data.chat_id);
     logToAudit("ADVANCE_REQUEST", data.emp_id, data.emp_name, `${reqAmt} MMK Row ${row}`, data.idempotencyKey);
 
-    const freshState = getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month);
+    const freshState = getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month, true);
     const res = {
       success: true,
       message: `💸 ကြိုတင်ငွေတောင်းခံလွှာကို ${routing.approverTierLabel} ထံ ပေးပို့ပြီးပါပြီ။`,
@@ -936,7 +1056,7 @@ function processWebAppTeam(data) {
     const dup = checkIdempotency_(data.idempotencyKey);
     if (dup) {
       return Object.assign({}, dup, {
-        updated_data: getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month)
+        updated_data: getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month, true)
       });
     }
 
@@ -949,7 +1069,7 @@ function processWebAppTeam(data) {
     sheet.appendRow(["TEAM-" + new Date().getTime(), fDate, data.team_name, data.project, membersStr, JSON.stringify(members)]);
     SpreadsheetApp.flush();
 
-    const freshState = getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month);
+    const freshState = getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month, true);
     const groupRosterMsg = buildConsolidatedTeamsGroupMessage_(sheet, fDate, data.team_name, data.project, members, freshState);
     if (settings.TELEGRAM_GROUP_CHAT_ID) {
       const grpChatId = String(settings.TELEGRAM_GROUP_CHAT_ID).trim();
@@ -974,7 +1094,7 @@ function processWebAppVoice(data) {
     const dup = checkIdempotency_(data.idempotencyKey);
     if (dup) {
       return Object.assign({}, dup, {
-        updated_data: getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month)
+        updated_data: getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month, true)
       });
     }
 
@@ -1024,7 +1144,7 @@ function processWebAppVoice(data) {
       success: true,
       ai_reply: aiAnalysis.reply,
       sentiment: aiAnalysis.sentiment,
-      updated_data: getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month)
+      updated_data: getFullSystemState(data.emp_id, data.emp_name, data.chat_id, data.selected_month, true)
     };
     recordIdempotency_(data.idempotencyKey, res);
     return res;

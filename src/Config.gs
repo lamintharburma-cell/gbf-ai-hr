@@ -4,7 +4,7 @@
  */
 
 const GBF_CONFIG = {
-  VERSION: "v9.3.0 Production LTS",
+  VERSION: "v9.4.0 Production LTS",
   TIMEZONE: "Asia/Rangoon",
   GMT_OFFSET: "GMT+6:30",
   DEFAULT_BOT_USERNAME: "GBF_HRMS_Bot",
@@ -13,7 +13,7 @@ const GBF_CONFIG = {
   DEFAULT_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbyRMUJDUbPJidoXDNrYycqS-WU_AS5Mech41ul7fO88VJYoqKg62SzNmPWkUg0G-kHx/exec",
   GEMINI_MODEL: "gemini-3.8-flash",
   GEMINI_INTERACTIONS_URL: "https://generativelanguage.googleapis.com/v1beta/interactions",
-  SETTINGS_CACHE_KEY: "GBF_SETTINGS_CACHE_V93",
+  SETTINGS_CACHE_KEY: "GBF_SETTINGS_CACHE_V94",
   SETTINGS_CACHE_TTL: 300
 };
 
@@ -55,6 +55,11 @@ const GBF_DB_SCHEMA = {
   ],
   System_Audit_Logs: [
     "Timestamp", "Action", "Official_Emp_ID", "Employee_Name", "Details"
+  ],
+  KPI_Formula_Registry: [
+    "Formula_ID", "Rule_Category", "Metric_Name_MM", "Formula_Expression",
+    "Inputs_And_Settings_Source", "Dept_Rule_Scope", "Worked_Example",
+    "Version_Status", "Last_Updated"
   ]
 };
 
@@ -186,6 +191,11 @@ function getSettings(forceRefresh) {
     REWARD_ATTENDANCE_BONUS: "50000",
     REWARD_MYTHIC_BONUS: "30000",
     REWARD_LEGEND_BONUS: "15000",
+    WORKING_DAYS_DEFAULT: "26",
+    WORKING_DAYS_2026_10: "27",
+    WORKING_DAYS_2026_11: "25",
+    WORKING_DAYS_2026_12: "27",
+    MONTH_WORKING_DAYS_OVERRIDES: "",
     GROUP_ATTENDANCE_BROADCAST: "YES",
     GROUP_ATTENDANCE_MODE: "LIVE_EDIT",
     TELEGRAM_GROUP_THREAD_ID: "",
@@ -247,6 +257,77 @@ function normalizeDateStr(val) {
 function normalizeMonthFromDate(val) {
   const norm = normalizeDateStr(val);
   return norm.length >= 7 ? norm.substring(0, 7) : "";
+}
+
+/**
+ * 📆 Counts full scheduled Mon–Sat working days inside `targetMonth` (`yyyy-MM`), excluding Sundays.
+ */
+function countMonthTotalWorkDays_(targetMonth) {
+  if (!targetMonth || !/^\d{4}-\d{2}$/.test(targetMonth)) return 26;
+  const parts = targetMonth.split("-");
+  const year = parseInt(parts[0], 10);
+  const monthIdx = parseInt(parts[1], 10) - 1;
+  const daysInMonth = new Date(Date.UTC(year, monthIdx + 1, 0)).getUTCDate();
+  let workDays = 0;
+  for (let d = 1; d <= daysInMonth; d++) {
+    if (new Date(Date.UTC(year, monthIdx, d)).getUTCDay() !== 0) workDays++;
+  }
+  return Math.max(1, workDays);
+}
+
+/**
+ * 🗂️ Resolves active scheduled working days for `targetMonth` from `System_Settings` first,
+ * supporting both `WORKING_DAYS_YYYY_MM` / `WORKING_DAYS_YYYY-MM` and `MONTH_WORKING_DAYS_OVERRIDES`,
+ * falling back to dynamic Mon–Sat count (or `WORKING_DAYS_DEFAULT` if month invalid).
+ */
+function resolveMonthWorkingDays_(targetMonth, settings) {
+  const cfg = settings || {};
+  const ym = /^\d{4}-\d{2}$/.test(String(targetMonth || "").trim()) ? String(targetMonth).trim() : "";
+  if (ym) {
+    const keyUnderscore = `WORKING_DAYS_${ym.replace("-", "_")}`;
+    const keyDash = `WORKING_DAYS_${ym}`;
+    const rawDirect = cfg[keyUnderscore] !== undefined && cfg[keyUnderscore] !== "" ? cfg[keyUnderscore] : cfg[keyDash];
+    const parsedDirect = parseInt(String(rawDirect || "").trim(), 10);
+    if (!isNaN(parsedDirect) && parsedDirect >= 1 && parsedDirect <= 31) return parsedDirect;
+
+    const overridesRaw = String(cfg.MONTH_WORKING_DAYS_OVERRIDES || "").trim();
+    if (overridesRaw) {
+      const pairs = overridesRaw.split(/[,;\n]+/);
+      for (let i = 0; i < pairs.length; i++) {
+        const m = pairs[i].trim().match(/^(\d{4}-\d{2})\s*[:=]\s*(\d{1,2})$/);
+        if (m && m[1] === ym) {
+          const v = parseInt(m[2], 10);
+          if (v >= 1 && v <= 31) return v;
+        }
+      }
+    }
+    return countMonthTotalWorkDays_(ym);
+  }
+  const defDays = parseInt(String(cfg.WORKING_DAYS_DEFAULT || "26"), 10);
+  return (!isNaN(defDays) && defDays >= 1 && defDays <= 31) ? defDays : 26;
+}
+
+/**
+ * 🏗️ Checks whether an employee belongs to Field Operations department vs HQ / Management / Support.
+ */
+function isOperationDepartment_(department, role) {
+  const dept = String(department || "").trim();
+  if (dept) return /operation/i.test(dept);
+  const roleStr = String(role || "").trim();
+  return /tech|fttx|field/i.test(roleStr) && !/manager|executive|admin|hr|support|relationship/i.test(roleStr);
+}
+
+/**
+ * 🏷️ Exact member-token matcher for comma-separated `Daily_Teams!Members` (`"Name (Role), ..."`).
+ * Prevents substring collisions (e.g., `"Ko Myo"` matching `"Ko Myo Thant Zaw"`).
+ */
+function hasSquadMemberName_(membersStr, targetName) {
+  const needle = String(targetName || "").trim().toLowerCase();
+  if (!needle || !membersStr) return false;
+  return String(membersStr).split(",").some(raw => {
+    const cleanToken = raw.replace(/\s*\([^)]*\)\s*$/, "").trim().toLowerCase();
+    return cleanToken !== "" && cleanToken === needle;
+  });
 }
 
 function formatDate(dateStr) {
