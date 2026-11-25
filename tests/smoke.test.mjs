@@ -152,6 +152,8 @@ test('Test 2: src/Index.html DOM, CSS, Accessibility & Offline/URI Hardening int
   assert.ok(declaredIds.has('gps-arena-card') && declaredIds.has('gps-arena-header-row') && declaredIds.has('gps-arena-collapsible') && declaredIds.has('btn-gps-collapse'), 'Missing collapsible GPS Arena DOM IDs');
   assert.ok(appScript.includes('toggleMonthMenu') && appScript.includes('selectMonthOption') && appScript.includes('renderMonthPickerUI'), 'Missing month picker JS helpers');
   assert.ok(appScript.includes('toggleGpsArenaDetails') && appScript.includes('renderGpsArenaCard') && appScript.includes('computeClientRewardsSummary'), 'Missing GPS collapse & reward summary helpers');
+  assert.ok(appScript.includes('getSquadEmblemLetter') && appScript.includes('buildCheckedInColumnHtml') && appScript.includes('buildLeaveColumnHtml') && appScript.includes('buildPendingColumnHtml'), 'Missing 3-column roster or A/B/C squad emblem helpers');
+  assert.ok(!declaredIds.has('today-teams-detail-panel') && !declaredIds.has('team-cards-wrapper'), 'Duplicate squad card wrapper must stay removed');
   assert.ok(!htmlMarkupOnly.includes('fa-broadcast-tower'), 'Broken FA6 fa-broadcast-tower icon must not be present');
   assert.ok(appScript.includes('endMs < startMs') && appScript.includes('a > rem'), 'Missing client-side inverted leave date & 50% advance guards');
 

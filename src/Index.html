@@ -1078,105 +1078,93 @@
             <!-- ================================================================== -->
             <!-- 🏠 TAB 1: HOME (GPS-FIRST CHECK-IN + SQUADS + MLBB HUD)            -->
             <!-- ================================================================== -->
-            <div id="tab-home" class="tab-content active space-y-3.5">
-
-                <!-- Role-Specific Executive/HR/Manager Command Strip -->
-                <div id="role-pulse-strip" class="hidden glass-card p-3 rounded-2xl border-l-4 border-l-sky-400"></div>
+            <div id="tab-home" class="tab-content active space-y-3">
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
-                    <!-- Left Column (Desktop 7 cols: Unified Mission Control + Scoreboard Roster + Battle Squads) -->
-                    <div class="lg:col-span-7 space-y-3.5">
+                    <!-- Left Column (Desktop 7 cols: Unified Command + GPS Mission + 3-Col Roster + 1-Row Squads) -->
+                    <div class="lg:col-span-7 space-y-3">
 
-                        <!-- Unified Operations & Live GPS Mission Card -->
-                        <div id="gps-arena-card" class="glass-card hud-hover-lift rounded-3xl p-3 space-y-2.5 border border-sky-400/30 transition-all">
-                            <div id="gps-arena-header-row" class="flex items-center justify-between gap-2 px-0.5">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span class="relative flex h-2.5 w-2.5 shrink-0">
-                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-65" style="background: var(--hue-jade);"></span>
-                                        <span class="relative inline-flex rounded-full h-2.5 w-2.5" style="background: var(--hue-jade);"></span>
-                                    </span>
-                                    <h2 class="text-[10.5px] font-ui-label font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-100 truncate">GPS Arena · 500m Ops</h2>
-                                </div>
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <button type="button" onclick="toggleTodayCheckinPanel()" title="ယနေ့တက်ရောက်သူ စာရင်းဖွင့်ကြည့်ရန်" class="tap-spring inline-flex items-center gap-1.5 text-[10px] font-extrabold tabular-nums whitespace-nowrap px-2.5 py-1 rounded-full border border-sky-400/35 bg-sky-500/10 text-sky-700 dark:text-sky-300" id="active-counter">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                                        <span>0 / 0</span>
-                                    </button>
-                                    <button type="button" id="btn-gps-collapse" onclick="toggleGpsArenaDetails()" title="အတိုချုံ့ပြရန်" aria-label="Collapse GPS Arena Details" class="hidden touch-target tap-spring w-7 h-7 rounded-full border border-slate-300/60 dark:border-sky-400/30 bg-white/75 dark:bg-slate-800/80 text-slate-700 dark:text-sky-300 items-center justify-center shrink-0">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>
-                                    </button>
+                        <!-- Unified Command Strip & Live GPS Mission Card -->
+                        <div id="gps-arena-card" class="glass-card hud-hover-lift rounded-3xl p-2.5 sm:p-3 space-y-2 border border-sky-400/30 transition-all">
+                            <div id="gps-arena-header-row" class="space-y-1.5">
+                                <!-- Integrated Executive/Leader Command Strip (collapses post-check-in with card) -->
+                                <div id="role-pulse-strip" class="hidden pb-1.5 border-b border-slate-200/70 dark:border-sky-400/20"></div>
+                                <div class="flex items-center justify-between gap-2 px-0.5">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="relative flex h-2.5 w-2.5 shrink-0">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-65" style="background: var(--hue-jade);"></span>
+                                            <span class="relative inline-flex rounded-full h-2.5 w-2.5" style="background: var(--hue-jade);"></span>
+                                        </span>
+                                        <h2 class="text-[10.5px] font-ui-label font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-100 truncate">GPS Arena · 500m Ops</h2>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        <button type="button" onclick="toggleTodayCheckinPanel()" title="ယနေ့တက်ရောက်သူ စာရင်းဖွင့်ကြည့်ရန်" class="tap-spring inline-flex items-center gap-1.5 text-[10px] font-extrabold tabular-nums whitespace-nowrap px-2.5 py-1 rounded-full border border-sky-400/35 bg-sky-500/10 text-sky-700 dark:text-sky-300" id="active-counter">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                            <span>0 / 0</span>
+                                        </button>
+                                        <button type="button" id="btn-gps-collapse" onclick="toggleGpsArenaDetails()" title="အတိုချုံ့ပြရန်" aria-label="Collapse GPS Arena Details" class="hidden touch-target tap-spring w-7 h-7 rounded-full border border-slate-300/60 dark:border-sky-400/30 bg-white/75 dark:bg-slate-800/80 text-slate-700 dark:text-sky-300 items-center justify-center shrink-0">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
                             <div id="smart-attendance-wrapper" class="w-full"></div>
 
-                            <div id="gps-arena-collapsible" class="space-y-2.5">
+                            <div id="gps-arena-collapsible" class="space-y-1.5">
                                 <!-- Slim 1-Line Today Status + Squad Pill (Routes Past Dates to History) -->
-                                <div id="home-today-squad-chip" class="px-2.5 py-2 rounded-2xl mlbb-std-row flex items-center justify-between gap-2">
+                                <div id="home-today-squad-chip" class="px-2.5 py-1.5 rounded-xl mlbb-std-row flex items-center justify-between gap-2">
                                     <div class="flex items-center gap-2 min-w-0">
-                                        <span id="home-chip-date-badge" class="px-2 py-0.5 rounded-lg bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-400/30 text-[10px] font-extrabold tabular-nums shrink-0">ယနေ့</span>
-                                        <span id="home-chip-squad-text" class="text-[11px] font-bold text-slate-900 dark:text-white truncate">Check-In နှင့် Squad အခြေအနေ</span>
+                                        <span id="home-chip-date-badge" class="px-2 py-0.5 rounded-lg bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-400/30 text-[9.5px] font-extrabold tabular-nums shrink-0">ယနေ့</span>
+                                        <span id="home-chip-squad-text" class="text-[10.5px] font-bold text-slate-900 dark:text-white truncate">Check-In နှင့် Squad အခြေအနေ</span>
                                     </div>
-                                    <button type="button" onclick="switchTab('logs')" class="touch-target tap-spring px-2 py-1 rounded-xl text-[10.5px] font-extrabold text-sky-700 dark:text-sky-300 whitespace-nowrap shrink-0 inline-flex items-center gap-1">
+                                    <button type="button" onclick="switchTab('logs')" class="touch-target tap-spring px-2 py-1 rounded-lg text-[10px] font-extrabold text-sky-700 dark:text-sky-300 whitespace-nowrap shrink-0 inline-flex items-center gap-1">
                                         <span>ပြက္ခဒိန် ▸</span>
                                     </button>
                                 </div>
 
-                                <!-- Integrated HQ Distance & Field Telemetry Bar -->
-                                <div class="pt-2.5 border-t border-slate-200/70 dark:border-sky-400/20 space-y-2">
+                                <!-- Compact Integrated HQ Distance & Field Telemetry Bar -->
+                                <div class="pt-1.5 border-t border-slate-200/70 dark:border-sky-400/20 space-y-1.5">
                                     <div class="flex items-center justify-between gap-2">
                                         <div class="flex items-center gap-2 min-w-0">
-                                            <span class="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-400/30 flex items-center justify-center shrink-0">
-                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.3-6.4 2.1 2-6.3z"/></svg>
+                                            <span class="w-7 h-7 rounded-xl bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-400/30 flex items-center justify-center shrink-0">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.3-6.4 2.1 2-6.3z"/></svg>
                                             </span>
                                             <div class="min-w-0">
                                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                                    <span class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate" id="live-distance-readout">ရုံးချုပ်နှင့် အကွာအဝေး တိုင်းတာရန်</span>
+                                                    <span class="text-[10px] font-extrabold text-slate-900 dark:text-white truncate" id="live-distance-readout">ရုံးချုပ်နှင့် အကွာအဝေး တိုင်းတာရန်</span>
                                                     <span id="live-zone-badge" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[8px] font-extrabold whitespace-nowrap border border-emerald-500/30">GPS Ready</span>
                                                 </div>
-                                                <p class="mm-text text-[9px] text-slate-600 dark:text-slate-300" id="live-distance-sub">ရုံးချုပ် (≤500m) သို့မဟုတ် Field Site အကွာအဝေးကို Map ဖြင့် ပြသပေးသည်</p>
+                                                <p class="mm-text text-[8.5px] text-slate-600 dark:text-slate-300 truncate" id="live-distance-sub">ရုံးချုပ် (≤500m) / Field GPS • Map နှိပ်စစ်နိုင်</p>
                                             </div>
                                         </div>
-                                        <div class="flex items-center gap-1.5 shrink-0">
-                                            <button type="button" onclick="measureLiveGpsDistance()" class="touch-target tap-spring px-2.5 py-1.5 rounded-xl bg-white/80 dark:bg-slate-800/80 border border-blue-500/25 text-slate-900 dark:text-white text-[9.5px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap" title="Refresh GPS Distance">
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="color: var(--hue-cyan);" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/></svg>
+                                        <div class="flex items-center gap-1 shrink-0">
+                                            <button type="button" onclick="measureLiveGpsDistance()" class="touch-target tap-spring px-2 py-1 rounded-xl bg-white/80 dark:bg-slate-800/80 border border-blue-500/25 text-slate-900 dark:text-white text-[9px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap" title="Refresh GPS Distance">
+                                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="color: var(--hue-cyan);" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/></svg>
                                                 <span>တိုင်းမည်</span>
                                             </button>
-                                            <a id="live-map-measure-link" href="https://www.google.com/maps/dir/16.804683,96.177149/16.804683,96.177149" onclick="return openSafeMapLink(event, this.href)" target="_top" rel="noopener noreferrer" class="touch-target mlbb-steel-btn tap-spring px-2.5 py-1.5 rounded-xl text-[9.5px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap">
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
+                                            <a id="live-map-measure-link" href="https://www.google.com/maps/dir/16.804683,96.177149/16.804683,96.177149" onclick="return openSafeMapLink(event, this.href)" target="_top" rel="noopener noreferrer" class="touch-target mlbb-steel-btn tap-spring px-2 py-1 rounded-xl text-[9px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap">
+                                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
                                                 <span>Map</span>
                                             </a>
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <div class="flex justify-between items-center text-[8px] font-bold text-slate-600 dark:text-slate-300 mb-1 tabular-nums">
-                                            <span class="inline-flex items-center gap-1">
-                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--hue-jade);" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
-                                                ရုံးချုပ် HQ (0m)
-                                            </span>
-                                            <span>500m Zone</span>
-                                            <span class="inline-flex items-center gap-1">
-                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--hue-cyan);" aria-hidden="true"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
-                                                Field Site (km)
-                                            </span>
-                                        </div>
-                                        <div class="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-900/80 overflow-hidden relative">
-                                            <div id="live-distance-bar" class="h-1.5 transition-all duration-500" style="width: 18%; background: linear-gradient(90deg, var(--hue-jade), var(--hue-cyan), var(--hue-gold), var(--hue-coral));"></div>
-                                        </div>
+                                    <div class="w-full h-1 rounded-full bg-slate-200 dark:bg-slate-900/80 overflow-hidden relative" title="HQ 0m — 500m Zone — Field km">
+                                        <div id="live-distance-bar" class="h-1 transition-all duration-500" style="width: 18%; background: linear-gradient(90deg, var(--hue-jade), var(--hue-cyan), var(--hue-gold), var(--hue-coral));"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Checked-In Scoreboard & Avatar Inspector -->
+                        <!-- Checked-In Scoreboard & 3-Column Roster Inspector (လာ | မလာ/ခွင့် | မဝင်သေး) -->
                         <div id="home-roster-section" class="glass-card hud-hover-lift rounded-2xl p-3 transition-all">
                             <button type="button" onclick="toggleTodayCheckinPanel()" class="tap-spring w-full flex items-center justify-between gap-2 text-left">
                                 <div class="flex items-center gap-2.5 min-w-0">
                                     <div id="today-checkin-avatars" class="flex items-center -space-x-2 shrink-0"></div>
                                     <div class="min-w-0">
                                         <p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate" id="today-checkin-summary">ယနေ့ ရုံးတက်ဝင်ရောက်ထားသူများ</p>
-                                        <p class="text-[9px] font-semibold text-slate-600 dark:text-slate-300 truncate" id="today-checkin-sub">အရင်ဆုံးဝင်ရောက်သူ အစဉ်လိုက်၊ Map အကွာအဝေးနှင့် ခွင့်စာရင်းကြည့်ရန်</p>
+                                        <p class="text-[9px] font-semibold text-slate-600 dark:text-slate-300 truncate" id="today-checkin-sub">လာ • ခွင့်/မလာ • မဝင်သေး ၃ ကော်လံကြည့်ရန် နှိပ်ပါ</p>
                                     </div>
                                 </div>
                                 <span class="w-8 h-8 rounded-xl bg-blue-500/10 dark:bg-slate-800/90 text-blue-700 dark:text-sky-300 border border-blue-500/20 flex items-center justify-center shrink-0">
@@ -1184,46 +1172,35 @@
                                 </span>
                             </button>
 
-                            <div id="today-checkin-detail-panel" class="hidden mt-2.5 pt-2.5 border-t border-slate-200/70 dark:border-sky-400/15 space-y-2">
-                                <div class="flex flex-wrap items-center justify-between gap-2">
-                                    <div class="flex items-center gap-1 flex-wrap">
-                                        <button type="button" onclick="filterCheckinList('in')" id="btn-chk-in" class="tap-spring inline-flex items-center gap-1 px-2 py-1 rounded-lg mlbb-steel-btn text-[8.5px] font-extrabold whitespace-nowrap">ဝင်ပြီး</button>
-                                        <button type="button" onclick="filterCheckinList('leave')" id="btn-chk-leave" class="tap-spring inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-white/10 text-[8.5px] font-extrabold whitespace-nowrap">ယနေ့ခွင့်</button>
-                                        <button type="button" onclick="filterCheckinList('pending')" id="btn-chk-pending" class="tap-spring inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-white/10 text-[8.5px] font-extrabold whitespace-nowrap">မဝင်ရသေး</button>
-                                    </div>
-                                    <div class="flex items-center gap-2 text-[8px] font-bold text-slate-600 dark:text-slate-300 shrink-0">
-                                        <span class="inline-flex items-center gap-0.5 whitespace-nowrap"><span class="w-1.5 h-1.5 rounded-sm" style="background: var(--hue-coral);"></span>အချိန်</span>
-                                        <span class="inline-flex items-center gap-0.5 whitespace-nowrap"><span class="w-1.5 h-1.5 rounded-sm" style="background: var(--hue-gold);"></span>MVP</span>
-                                        <span class="inline-flex items-center gap-0.5 whitespace-nowrap"><span class="w-1.5 h-1.5 rounded-sm" style="background: var(--hue-cyan);"></span>ဇုန်</span>
-                                    </div>
+                            <div id="today-checkin-detail-panel" class="hidden mt-2.5 pt-2.5 border-t border-slate-200/70 dark:border-sky-400/15 space-y-1.5">
+                                <div class="grid grid-cols-3 gap-1.5">
+                                    <button type="button" onclick="filterCheckinList('in')" id="btn-chk-in" class="tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-emerald-500/35 bg-emerald-500/12 text-emerald-800 dark:text-emerald-300 text-[9px] font-extrabold whitespace-nowrap">လာ (0)</button>
+                                    <button type="button" onclick="filterCheckinList('leave')" id="btn-chk-leave" class="tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-amber-500/35 bg-amber-500/12 text-amber-800 dark:text-amber-300 text-[9px] font-extrabold whitespace-nowrap">ခွင့်/မလာ (0)</button>
+                                    <button type="button" onclick="filterCheckinList('pending')" id="btn-chk-pending" class="tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-slate-400/30 bg-slate-500/10 text-slate-700 dark:text-slate-200 text-[9px] font-extrabold whitespace-nowrap">မဝင်သေး (0)</button>
                                 </div>
-                                <div id="today-checkin-detail-list" class="ios-scroll space-y-1.5 max-h-64 overflow-y-auto"></div>
+                                <div id="today-checkin-detail-list" class="grid grid-cols-3 gap-1.5 items-start"></div>
                             </div>
                         </div>
 
-                        <!-- Active Battle Squads Lobby -->
-                        <div id="home-squads-section" class="mlbb-squad-shell rounded-3xl p-3.5 transition-all">
-                            <div class="flex items-center justify-between mb-2.5 pb-2 border-b border-blue-500/20 dark:border-sky-400/20">
+                        <!-- Active Battle Squads (Strict 1-Row per Team: A/B/C Logo Circle + Human Avatars) -->
+                        <div id="home-squads-section" class="mlbb-squad-shell rounded-3xl p-3 transition-all">
+                            <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-blue-500/20 dark:border-sky-400/20">
                                 <div class="flex items-center gap-2 min-w-0">
-                                    <span class="hud-chamfer w-7 h-7 bg-amber-500/15 border border-amber-500/40 flex items-center justify-center shrink-0" style="color: var(--hue-gold);">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+                                    <span class="hud-chamfer w-6 h-6 bg-amber-500/15 border border-amber-500/40 flex items-center justify-center shrink-0" style="color: var(--hue-gold);">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
                                     </span>
                                     <div class="min-w-0">
-                                        <h3 class="text-[10.5px] font-ui-label font-extrabold uppercase tracking-wider text-slate-900 dark:text-white truncate" id="today-teams-summary">ACTIVE BATTLE SQUADS (0)</h3>
-                                        <p class="text-[8.5px] text-slate-600 dark:text-slate-300 font-medium truncate" id="today-teams-sub">အဖွဲ့တစ်ခုချင်းစီကို နှိပ်၍ တာဝန်ကျစာရင်း အသေးစိတ်ကြည့်ပါ</p>
+                                        <h3 class="text-[10.5px] font-ui-label font-extrabold uppercase tracking-wider text-slate-900 dark:text-white truncate" id="today-teams-summary">BATTLE SQUADS (0)</h3>
+                                        <p class="text-[8.5px] text-slate-600 dark:text-slate-300 font-medium truncate" id="today-teams-sub">အဖွဲ့လိုဂို (A/B/C) နှင့် ပါဝင်သူစာရင်း</p>
                                     </div>
                                 </div>
-                                <button type="button" onclick="toggleTodayTeamsPanel()" class="tap-spring px-2.5 py-1.5 rounded-xl bg-blue-500/10 dark:bg-white/10 border border-blue-500/25 dark:border-sky-400/25 text-[8.5px] font-ui-label font-extrabold flex items-center gap-1 shrink-0" style="color: var(--hue-cyan);">
-                                    <span>အသေးစိတ်</span>
+                                <button type="button" onclick="toggleTodayTeamsPanel()" class="tap-spring px-2 py-1 rounded-xl bg-blue-500/10 dark:bg-white/10 border border-blue-500/25 dark:border-sky-400/25 text-[8.5px] font-ui-label font-extrabold flex items-center gap-1 shrink-0" style="color: var(--hue-cyan);">
+                                    <span>အမည်စာရင်း</span>
                                     <svg id="teams-panel-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                                 </button>
                             </div>
 
-                            <div id="today-teams-rows-list" class="space-y-2"></div>
-
-                            <div id="today-teams-detail-panel" class="hidden mt-3 pt-2.5 border-t border-blue-500/20 dark:border-sky-400/20 space-y-2">
-                                <div id="team-cards-wrapper" class="space-y-2"></div>
-                            </div>
+                            <div id="today-teams-rows-list" class="space-y-1.5"></div>
                         </div>
                     </div>
 
@@ -2611,7 +2588,8 @@
             return '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 19 7v5c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V7Z" fill="rgba(245,158,11,0.14)" stroke="#F59E0B" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 8v8M9 11h6" stroke="#FBBF24" stroke-width="1.8" stroke-linecap="round"/></svg>';
         }
 
-        let checkinFilterMode = 'in';
+        let checkinFilterMode = 'all';
+        let teamsInlineExpanded = false;
         let selectedSingleMetric = null;
         let kpiDetailFilter = 'all';
 
@@ -3384,21 +3362,18 @@
                     pulseStrip.classList.remove('hidden');
                     pulseStrip.innerHTML = `
             <div class="flex items-center justify-between gap-2">
-              <div class="min-w-0">
-                <div class="flex items-center gap-1.5">
-                  ${gbfIcon('shield', 'w-3 h-3 shrink-0', 12)}
-                  <span class="text-[8.5px] font-ui-label font-extrabold uppercase tracking-wider" style="color: var(--hue-cyan);">${escapeHtml(d.user.role)} Command</span>
-                </div>
-                <p class="text-[11px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(d.user.name)} <span class="font-mono-id">(#${escapeHtml(d.user.id)})</span></p>
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="w-5 h-5 rounded-lg bg-sky-500/15 border border-sky-400/35 flex items-center justify-center shrink-0" style="color: var(--hue-cyan);">${gbfIcon('shield', 'w-3 h-3', 12)}</span>
+                <p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(d.user.name)} <span class="text-[9px] font-bold text-slate-600 dark:text-sky-300">· ${escapeHtml(d.user.role)}</span></p>
               </div>
-              <div class="flex items-center gap-1.5 shrink-0">
-                <button type="button" onclick="launchQuickTab('team')" class="mlbb-steel-btn tap-spring px-2.5 py-1.5 rounded-xl text-[9px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap">
-                  ${gbfIcon('users', 'w-3 h-3 shrink-0', 12)}
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" onclick="launchQuickTab('team')" class="mlbb-steel-btn tap-spring px-2 py-1 rounded-lg text-[8.5px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap">
+                  ${gbfIcon('users', 'w-2.5 h-2.5 shrink-0', 10)}
                   <span>Squads</span>
                 </button>
-                <button type="button" onclick="switchTab('ai')" class="tap-spring px-2.5 py-1.5 rounded-xl text-[9px] font-black inline-flex items-center gap-1 whitespace-nowrap shadow-sm border border-cyan-300/50" style="background: linear-gradient(90deg, #22C55E 0%, #38BDF8 100%); color: #042F2E;">
-                  ${gbfIcon('ai', 'w-3 h-3 shrink-0', 12)}
-                  <span>AI Command</span>
+                <button type="button" onclick="switchTab('ai')" class="tap-spring px-2 py-1 rounded-lg text-[8.5px] font-black inline-flex items-center gap-1 whitespace-nowrap shadow-sm border border-cyan-300/50" style="background: linear-gradient(90deg, #22C55E 0%, #38BDF8 100%); color: #042F2E;">
+                  ${gbfIcon('ai', 'w-2.5 h-2.5 shrink-0', 10)}
+                  <span>AI</span>
                 </button>
               </div>
             </div>`;
@@ -3812,9 +3787,9 @@
             const isCollapsed = (st !== "NOT_CHECKED_IN") && !gpsArenaExpanded;
 
             if (cardEl) {
-                cardEl.classList.toggle('p-2.5', isCollapsed);
-                cardEl.classList.toggle('p-3', !isCollapsed);
-                cardEl.classList.toggle('space-y-2.5', !isCollapsed);
+                cardEl.classList.toggle('p-2.5', true);
+                cardEl.classList.toggle('sm:p-3', !isCollapsed);
+                cardEl.classList.toggle('space-y-2', !isCollapsed);
             }
             if (headerRow) headerRow.classList.toggle('hidden', isCollapsed);
             if (collapsibleEl) collapsibleEl.classList.toggle('hidden', isCollapsed);
@@ -3842,11 +3817,11 @@
             }
 
             if (st === "NOT_CHECKED_IN") {
-                wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check In')" class="cta-pulse-ring tap-spring w-full font-black p-3.5 rounded-2xl shadow-[0_10px_24px_-6px_rgba(56,189,248,0.42)] flex items-center justify-between border border-cyan-200/60" style="background: linear-gradient(90deg, #22C55E 0%, #4ADE80 54%, #38BDF8 100%); color: #042F2E;"><div class="flex items-center gap-3 text-left"><div class="hud-chamfer w-10 h-10 bg-white/30 border border-white/45 flex items-center justify-center shrink-0">${gbfIcon('radar', 'w-5 h-5 text-slate-950', 20)}</div><div><span class="block text-xs font-extrabold tracking-wide uppercase">ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)</span><span class="block text-[9.5px] font-bold opacity-85 mt-0.5">GPS 500m &amp; Field Site Verification</span></div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>`;
+                wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check In')" class="cta-pulse-ring tap-spring w-full font-black py-2.5 px-3 rounded-2xl shadow-[0_8px_20px_-6px_rgba(56,189,248,0.42)] flex items-center justify-between border border-cyan-200/60" style="background: linear-gradient(90deg, #22C55E 0%, #4ADE80 54%, #38BDF8 100%); color: #042F2E;"><div class="flex items-center gap-2.5 text-left"><div class="hud-chamfer w-9 h-9 bg-white/30 border border-white/45 flex items-center justify-center shrink-0">${gbfIcon('radar', 'w-4 h-4 text-slate-950', 18)}</div><div><span class="block text-[11.5px] font-extrabold tracking-wide uppercase">ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)</span><span class="block text-[9px] font-bold opacity-85">GPS 500m &amp; Field Verification</span></div></div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>`;
             } else if (st === "CHECKED_IN") {
-                wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check Out')" class="cta-pulse-ring tap-spring w-full bg-gradient-to-r from-rose-600 to-pink-600 text-white font-bold p-3.5 rounded-2xl shadow-[0_10px_24px_-6px_rgba(225,29,72,0.45)] flex items-center justify-between border border-rose-300/45"><div class="flex items-center gap-3 text-left"><div class="hud-chamfer w-10 h-10 bg-white/15 border border-white/20 flex items-center justify-center shrink-0">${gbfIcon('signout', 'w-5 h-5 text-rose-100', 20)}</div><div><span class="block text-xs font-extrabold tracking-wide uppercase">ရုံးဆင်းစာရင်းသွင်းမည် (CHECK OUT)</span><span class="block text-[9.5px] text-rose-100 mt-0.5 tabular-nums">Checked In at ${escapeHtml(d.today_state.time_in)}</span></div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="text-white/80 shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>`;
+                wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check Out')" class="cta-pulse-ring tap-spring w-full bg-gradient-to-r from-rose-600 to-pink-600 text-white font-bold py-2.5 px-3 rounded-2xl shadow-[0_8px_20px_-6px_rgba(225,29,72,0.45)] flex items-center justify-between border border-rose-300/45"><div class="flex items-center gap-2.5 text-left"><div class="hud-chamfer w-9 h-9 bg-white/15 border border-white/20 flex items-center justify-center shrink-0">${gbfIcon('signout', 'w-4 h-4 text-rose-100', 18)}</div><div><span class="block text-[11.5px] font-extrabold tracking-wide uppercase">ရုံးဆင်းစာရင်းသွင်းမည် (CHECK OUT)</span><span class="block text-[9px] text-rose-100 tabular-nums">Checked In at ${escapeHtml(d.today_state.time_in)}</span></div></div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="text-white/80 shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>`;
             } else {
-                wrapper.innerHTML = `<div class="w-full bg-emerald-500/15 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 font-bold p-3.5 rounded-2xl flex items-center justify-between border border-emerald-500/40"><div class="flex items-center gap-3 text-left"><div class="hud-chamfer w-10 h-10 bg-emerald-500 text-white flex items-center justify-center shrink-0">${gbfIcon('ontime', 'w-5 h-5', 20)}</div><div><span class="block text-xs font-extrabold uppercase">ယနေ့ တာဝန်ချိန် ပြီးဆုံးပါပြီ</span><span class="block text-[9.5px] mt-0.5 tabular-nums">IN: ${escapeHtml(d.today_state.time_in)} • OUT: ${escapeHtml(d.today_state.time_out)}</span></div></div></div>`;
+                wrapper.innerHTML = `<div class="w-full bg-emerald-500/15 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 font-bold py-2.5 px-3 rounded-2xl flex items-center justify-between border border-emerald-500/40"><div class="flex items-center gap-2.5 text-left"><div class="hud-chamfer w-9 h-9 bg-emerald-500 text-white flex items-center justify-center shrink-0">${gbfIcon('ontime', 'w-4 h-4', 18)}</div><div><span class="block text-[11.5px] font-extrabold uppercase">ယနေ့ တာဝန်ချိန် ပြီးဆုံးပါပြီ</span><span class="block text-[9px] tabular-nums">IN: ${escapeHtml(d.today_state.time_in)} • OUT: ${escapeHtml(d.today_state.time_out)}</span></div></div></div>`;
             }
         }
 
@@ -3872,9 +3847,9 @@
             const btnIn = document.getElementById('btn-chk-in');
             const btnLv = document.getElementById('btn-chk-leave');
             const btnPend = document.getElementById('btn-chk-pending');
-            if (btnIn) btnIn.innerHTML = `${gbfIcon('ontime', 'w-3 h-3 shrink-0', 12)}<span>ဝင်ပြီး (${checkedList.length})</span>`;
-            if (btnLv) btnLv.innerHTML = `${gbfIcon('leave', 'w-3 h-3 shrink-0', 12)}<span>ခွင့် (${leaveList.length})</span>`;
-            if (btnPend) btnPend.innerHTML = `${gbfIcon('pending', 'w-3 h-3 shrink-0', 12)}<span>မဝင်သေး (${pendingList.length})</span>`;
+            if (btnIn) btnIn.innerHTML = `${gbfIcon('ontime', 'w-3 h-3 shrink-0', 11)}<span>လာ (${checkedList.length})</span>`;
+            if (btnLv) btnLv.innerHTML = `${gbfIcon('leave', 'w-3 h-3 shrink-0', 11)}<span>ခွင့်/မလာ (${leaveList.length})</span>`;
+            if (btnPend) btnPend.innerHTML = `${gbfIcon('pending', 'w-3 h-3 shrink-0', 11)}<span>မဝင်သေး (${pendingList.length})</span>`;
 
             const colors = ['from-primary to-emerald-700', 'from-secondary to-cobalt-vivid', 'from-amber-600 to-orange-700', 'from-emerald-dark to-primary'];
             const maxVisible = 5;
@@ -3914,16 +3889,126 @@
 
         function filterCheckinList(mode) {
             playUiSound('tick');
-            checkinFilterMode = mode;
+            checkinFilterMode = (checkinFilterMode === mode || mode === 'all') ? 'all' : mode;
+            const colStyles = {
+                in: {
+                    active: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl mlbb-steel-btn text-[9px] font-extrabold whitespace-nowrap ring-1 ring-emerald-400/60",
+                    idle: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-emerald-500/35 bg-emerald-500/12 text-emerald-800 dark:text-emerald-300 text-[9px] font-extrabold whitespace-nowrap"
+                },
+                leave: {
+                    active: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl mlbb-steel-btn text-[9px] font-extrabold whitespace-nowrap ring-1 ring-amber-400/60",
+                    idle: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-amber-500/35 bg-amber-500/12 text-amber-800 dark:text-amber-300 text-[9px] font-extrabold whitespace-nowrap"
+                },
+                pending: {
+                    active: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl mlbb-steel-btn text-[9px] font-extrabold whitespace-nowrap ring-1 ring-sky-400/60",
+                    idle: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-slate-400/30 bg-slate-500/10 text-slate-700 dark:text-slate-200 text-[9px] font-extrabold whitespace-nowrap"
+                }
+            };
             ['in', 'leave', 'pending'].forEach(k => {
                 const btn = document.getElementById(`btn-chk-${k}`);
-                if (btn) {
-                    btn.className = (k === mode)
-                        ? "tap-spring inline-flex items-center gap-1 px-2 py-1 rounded-lg mlbb-steel-btn text-[8.5px] font-extrabold whitespace-nowrap"
-                        : "tap-spring inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-white/10 text-[8.5px] font-extrabold whitespace-nowrap";
-                }
+                if (btn) btn.className = (checkinFilterMode === k) ? colStyles[k].active : colStyles[k].idle;
             });
             renderCheckinDetailList();
+        }
+
+        function buildCheckedInColumnHtml(items, office, compact) {
+            if (!items || items.length === 0) {
+                return `<p class="text-[9.5px] text-slate-600 dark:text-slate-300 text-center py-2.5">မရှိသေးပါ</p>`;
+            }
+            return items.map((emp, i) => {
+                const isMe = Boolean(globalState.user && ((emp.id && String(emp.id) === String(globalState.user.id)) || (emp.name && emp.name === globalState.user.name)));
+                const rankClass = i === 0
+                    ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/45'
+                    : (i === 1 ? 'bg-sky-500/20 text-sky-800 dark:text-sky-200 border-sky-400/45' : (i === 2 ? 'bg-orange-500/20 text-orange-800 dark:text-orange-200 border-orange-400/45' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-white/15'));
+                const kpiBadge = emp.kpi === 'MVP'
+                    ? 'text-amber-800 dark:text-amber-300 bg-amber-500/15 border-amber-500/35'
+                    : (emp.kpi === 'On-Time' ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 border-emerald-500/35' : 'text-rose-700 dark:text-rose-300 bg-rose-500/15 border-rose-500/35');
+                const distLabel = emp.distance_text || (emp.distance_m != null ? formatClientDistance(emp.distance_m) : 'HQ');
+                const isHq = emp.loc_status !== 'Field_Site' && (emp.distance_m == null || emp.distance_m <= (office.max_radius || 500));
+                const zoneSvg = isHq ? gbfIcon('hq', 'w-2.5 h-2.5 shrink-0', 9) : gbfIcon('tower', 'w-2.5 h-2.5 shrink-0', 9);
+                const rawMapUrl = emp.map_url || (emp.gps ? (MAPS_DIR_BASE + `${office.lat},${office.lng}/${encodeURIComponent(emp.gps)}`) : '');
+                const mapHref = isSafeHttpUrl(rawMapUrl) ? rawMapUrl : '';
+                const distHtml = mapHref
+                    ? `<a href="${escapeHtml(mapHref)}" target="_top" rel="noopener noreferrer" onclick="return openSafeMapLink(event, this.href)" class="inline-flex items-center gap-0.5 text-[7.5px] font-bold text-sky-700 dark:text-sky-300 hover:underline whitespace-nowrap" title="Map ကြည့်ရန်">${zoneSvg}<span>${escapeHtml(distLabel)}</span></a>`
+                    : `<span class="inline-flex items-center gap-0.5 text-[7.5px] font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">${zoneSvg}<span>${escapeHtml(distLabel)}</span></span>`;
+
+                if (compact) {
+                    return `<div class="p-1.5 rounded-xl ${isMe ? 'mlbb-you-row' : 'mlbb-std-row'} space-y-0.5 min-w-0">
+                        <div class="flex items-center gap-1 min-w-0">
+                            <span class="px-1 py-0.2 rounded border text-[7.5px] font-black tabular-nums shrink-0 ${rankClass}">#${i + 1}</span>
+                            <p class="text-[9px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(emp.name)}</p>
+                        </div>
+                        <div class="flex items-center justify-between gap-1 text-[7.5px] tabular-nums">
+                            <span class="font-bold text-slate-700 dark:text-slate-200 truncate">${escapeHtml(emp.time || '')}</span>
+                            <span class="px-1 rounded border font-black shrink-0 ${kpiBadge}">${escapeHtml(emp.kpi === 'On-Time' ? 'OnT' : emp.kpi)}</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-1 min-w-0">
+                            <span class="text-[7.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(emp.squad || '')}</span>
+                            ${distHtml}
+                        </div>
+                    </div>`;
+                }
+                return `<div class="p-2.5 rounded-xl ${isMe ? 'mlbb-you-row' : 'mlbb-std-row'} flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="px-1.5 py-0.5 rounded-md border font-extrabold text-[8.5px] tabular-nums shrink-0 ${rankClass}">#${i + 1}</span>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5"><p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(emp.name)}</p>${isMe ? '<span class="px-1 rounded bg-sky-500/20 text-sky-800 dark:text-sky-200 text-[7px] font-black uppercase shrink-0 border border-sky-400/40">YOU</span>' : ''}</div>
+                            <div class="flex items-center gap-1.5 mt-0.5 flex-wrap"><span class="text-[8.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(emp.squad || emp.role)}</span>${distHtml}</div>
+                        </div>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <span class="block text-[9.5px] font-extrabold text-slate-900 dark:text-white tabular-nums whitespace-nowrap">${escapeHtml(emp.time)}</span>
+                        <span class="inline-block px-1.5 py-0.5 rounded border text-[8px] font-extrabold ${kpiBadge}">${escapeHtml(emp.kpi)}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function buildLeaveColumnHtml(leaves, compact) {
+            if (!leaves || leaves.length === 0) {
+                return `<p class="text-[9.5px] text-slate-600 dark:text-slate-300 text-center py-2.5">မရှိပါ</p>`;
+            }
+            return leaves.map(lv => {
+                const stClass = lv.status === 'Approved'
+                    ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/35'
+                    : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/35';
+                if (compact) {
+                    return `<div class="p-1.5 rounded-xl mlbb-std-row space-y-0.5 min-w-0">
+                        <p class="text-[9px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(lv.name)}</p>
+                        <p class="text-[7.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(lv.type)} (${escapeHtml(lv.days || 1)}d)</p>
+                        <span class="inline-block px-1 py-0.2 rounded border text-[7.5px] font-extrabold ${stClass}">${escapeHtml(lv.status)}</span>
+                    </div>`;
+                }
+                return `<div class="p-2.5 rounded-xl mlbb-std-row flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                        <p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate inline-flex items-center gap-1.5">${gbfIcon('leave', 'w-3 h-3 text-sky-500 dark:text-sky-300 shrink-0', 12)}<span>${escapeHtml(lv.name)}</span></p>
+                        <p class="text-[8.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(lv.type)} Leave (${escapeHtml(lv.days || 1)} ရက်) • ${escapeHtml(lv.reason || '')}</p>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full border text-[8.5px] font-extrabold shrink-0 ${stClass}">${escapeHtml(lv.status)}</span>
+                </div>`;
+            }).join('');
+        }
+
+        function buildPendingColumnHtml(pending, snap, compact) {
+            if (!pending || pending.length === 0) {
+                return `<p class="text-[9px] text-emerald-700 dark:text-emerald-300 text-center py-2.5 font-bold">${snap.isToday ? 'အားလုံးဝင်ပြီး ✓' : 'မရှိပါ'}</p>`;
+            }
+            return pending.map(emp => {
+                if (compact) {
+                    return `<div class="p-1.5 rounded-xl mlbb-std-row space-y-0.5 min-w-0">
+                        <p class="text-[9px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(emp.name)}</p>
+                        <p class="text-[7.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(emp.role || emp.squad || 'Staff')}</p>
+                        <span class="inline-block px-1 py-0.2 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/35 text-[7.5px] font-extrabold">မဝင်သေး</span>
+                    </div>`;
+                }
+                return `<div class="p-2.5 rounded-xl mlbb-std-row flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                        <p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(emp.name)}</p>
+                        <p class="text-[8.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(emp.role)} • ${escapeHtml(emp.squad || '')}</p>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/35 text-[8.5px] font-extrabold shrink-0">Pending</span>
+                </div>`;
+            }).join('');
         }
 
         function renderCheckinDetailList(targetDate) {
@@ -3932,81 +4017,26 @@
             const office = globalState.system.office_gps || { lat: 16.804683, lng: 96.177149, max_radius: 500 };
             const activeDate = targetDate || getYangonTodayIso();
             const snap = resolveSnapshotForDate(globalState, activeDate);
+            const items = snap.checked_in || [];
+            const leaves = snap.leaves || [];
+            const pending = snap.pending || [];
 
+            if (checkinFilterMode === 'all') {
+                listEl.className = 'grid grid-cols-3 gap-1.5 items-start';
+                listEl.innerHTML = `
+                    <div id="roster-col-in" class="ios-scroll max-h-56 overflow-y-auto space-y-1 rounded-xl p-1 bg-emerald-500/[0.05] border border-emerald-500/20">${buildCheckedInColumnHtml(items, office, true)}</div>
+                    <div id="roster-col-leave" class="ios-scroll max-h-56 overflow-y-auto space-y-1 rounded-xl p-1 bg-amber-500/[0.05] border border-amber-500/20">${buildLeaveColumnHtml(leaves, true)}</div>
+                    <div id="roster-col-pending" class="ios-scroll max-h-56 overflow-y-auto space-y-1 rounded-xl p-1 bg-slate-500/[0.05] border border-slate-400/20">${buildPendingColumnHtml(pending, snap, true)}</div>`;
+                return;
+            }
+
+            listEl.className = 'ios-scroll space-y-1.5 max-h-64 overflow-y-auto';
             if (checkinFilterMode === 'in') {
-                const items = snap.checked_in || [];
-                listEl.innerHTML = items.map((emp, i) => {
-                    const isMe = Boolean(globalState.user && ((emp.id && String(emp.id) === String(globalState.user.id)) || (emp.name && emp.name === globalState.user.name)));
-                    const rankClass = i === 0
-                        ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/45'
-                        : (i === 1 ? 'bg-sky-500/20 text-sky-800 dark:text-sky-200 border-sky-400/45' : (i === 2 ? 'bg-orange-500/20 text-orange-800 dark:text-orange-200 border-orange-400/45' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-white/15'));
-                    const medal = `#${i + 1}`;
-                    const badge = emp.kpi === 'MVP'
-                        ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/35'
-                        : (emp.kpi === 'On-Time' ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/35' : 'bg-rose-500/15 text-error dark:bg-rose-950/70 dark:text-rose-300 border border-rose-500/35');
-                    const distLabel = emp.distance_text || (emp.distance_m != null ? formatClientDistance(emp.distance_m) : 'HQ');
-                    const isHq = emp.loc_status !== 'Field_Site' && (emp.distance_m == null || emp.distance_m <= (office.max_radius || 500));
-                    const zoneSvg = isHq ? gbfIcon('hq', 'w-2.5 h-2.5 shrink-0', 10) : gbfIcon('tower', 'w-2.5 h-2.5 shrink-0', 10);
-                    const rawMapUrl = emp.map_url || (emp.gps ? (MAPS_DIR_BASE + `${office.lat},${office.lng}/${encodeURIComponent(emp.gps)}`) : '');
-                    const mapHref = isSafeHttpUrl(rawMapUrl) ? rawMapUrl : '';
-                    const mapBtnHtml = mapHref
-                        ? `<a href="${escapeHtml(mapHref)}" target="_top" rel="noopener noreferrer" onclick="return openSafeMapLink(event, this.href)" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-400/30 text-[8.5px] font-extrabold whitespace-nowrap" title="Map ပေါ်တွင် အကွာအဝေး တိုင်းတာချက်ကြည့်ရန်">${zoneSvg}<span>${escapeHtml(distLabel)}</span>${gbfIcon('map', 'w-2.5 h-2.5 opacity-80 shrink-0', 10)}</a>`
-                        : `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-white/10 text-slate-700 dark:text-slate-200 text-[8.5px] font-extrabold whitespace-nowrap">${zoneSvg}<span>${escapeHtml(distLabel)}</span></span>`;
-                    const timePct = emp.kpi === 'MVP' ? 92 : (emp.kpi === 'On-Time' ? 76 : 45);
-                    const mvpPct = emp.kpi === 'MVP' ? 95 : (emp.kpi === 'On-Time' ? 68 : 35);
-                    const zonePct = isHq ? 94 : 62;
-
-                    return `<div class="p-2.5 rounded-xl ${isMe ? 'mlbb-you-row' : 'mlbb-std-row'} flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <span class="px-1.5 py-0.5 rounded-md border font-extrabold text-[8.5px] tabular-nums shrink-0 ${rankClass}">${medal}</span>
-                            <div class="min-w-0">
-                                <div class="flex items-center gap-1.5">
-                                    <p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(emp.name)}</p>
-                                    ${isMe ? '<span class="px-1 py-0.2 rounded bg-sky-500/20 text-sky-800 dark:text-sky-200 text-[7px] font-black uppercase shrink-0 border border-sky-400/40">YOU</span>' : ''}
-                                </div>
-                                <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                                    <span class="text-[8.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(emp.squad || emp.role)}</span>
-                                    ${mapBtnHtml}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-end gap-1 shrink-0">
-                            <div class="text-right">
-                                <span class="block text-[9.5px] font-extrabold text-slate-900 dark:text-white tabular-nums whitespace-nowrap">${escapeHtml(emp.time)}</span>
-                                <span class="inline-block px-1.5 py-0.5 rounded text-[8px] font-extrabold ${badge}">${escapeHtml(emp.kpi)}</span>
-                            </div>
-                            <div class="grid grid-cols-3 gap-0.5 w-14 sm:w-16" aria-hidden="true">
-                                <span class="h-1 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden"><span class="block h-1 rounded-full" style="width:${timePct}%;background:var(--hue-coral)"></span></span>
-                                <span class="h-1 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden"><span class="block h-1 rounded-full" style="width:${mvpPct}%;background:var(--hue-gold)"></span></span>
-                                <span class="h-1 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden"><span class="block h-1 rounded-full" style="width:${zonePct}%;background:var(--hue-cyan)"></span></span>
-                            </div>
-                        </div>
-                    </div>`;
-                }).join('') || `<p class="text-[10px] text-slate-600 dark:text-slate-300 text-center py-2">ဝင်ရောက်ထားသူ မရှိသေးပါ</p>`;
+                listEl.innerHTML = buildCheckedInColumnHtml(items, office, false);
             } else if (checkinFilterMode === 'leave') {
-                const leaves = snap.leaves || [];
-                listEl.innerHTML = leaves.map(lv => {
-                    const stClass = lv.status === 'Approved'
-                        ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/35'
-                        : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/35';
-                    return `<div class="p-2.5 rounded-xl mlbb-std-row flex items-center justify-between gap-2">
-                        <div class="min-w-0">
-                            <p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate inline-flex items-center gap-1.5">${gbfIcon('leave', 'w-3 h-3 text-sky-500 dark:text-sky-300 shrink-0', 12)}<span>${escapeHtml(lv.name)}</span></p>
-                            <p class="text-[8.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(lv.type)} Leave (${escapeHtml(lv.days)} ရက်) • ${escapeHtml(lv.reason || '')}</p>
-                        </div>
-                        <span class="px-2 py-0.5 rounded-full text-[8.5px] font-extrabold shrink-0 ${stClass}">${escapeHtml(lv.status)}</span>
-                    </div>`;
-                }).join('') || `<p class="text-[10px] text-slate-600 dark:text-slate-300 text-center py-2">ရွေးထားသောနေ့တွင် ခွင့်တိုင်ကြားထားသူ မရှိပါ</p>`;
+                listEl.innerHTML = buildLeaveColumnHtml(leaves, false);
             } else {
-                const pending = snap.pending || [];
-                listEl.innerHTML = pending.map(emp => `
-                    <div class="p-2.5 rounded-xl mlbb-std-row flex items-center justify-between gap-2">
-                        <div class="min-w-0">
-                            <p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(emp.name)}</p>
-                            <p class="text-[8.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(emp.role)} • ${escapeHtml(emp.squad || '')}</p>
-                        </div>
-                        <span class="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/35 text-[8.5px] font-extrabold shrink-0">Pending</span>
-                    </div>`).join('') || `<p class="text-[10px] text-emerald-700 dark:text-emerald-300 text-center py-2 font-bold">${snap.isToday ? 'ဝန်ထမ်းအားလုံး ရုံးတက်/ခွင့် စာရင်းဝင်ပြီးပါပြီ' : 'Past date — Live Pending မရှိပါ'}</p>`;
+                listEl.innerHTML = buildPendingColumnHtml(pending, snap, false);
             }
         }
 
@@ -4029,6 +4059,14 @@
             }).filter(Boolean);
         }
 
+        function getSquadEmblemLetter(teamName, idx) {
+            const raw = String(teamName || '').toLowerCase();
+            if (raw.includes('alpha') || /\(\s*a\s*\)|\bteam\s*1\b/.test(raw)) return 'A';
+            if (raw.includes('beta') || raw.includes('bravo') || /\(\s*b\s*\)|\bteam\s*2\b/.test(raw)) return 'B';
+            if (raw.includes('charlie') || /\(\s*c\s*\)|\bteam\s*3\b/.test(raw)) return 'C';
+            return String.fromCharCode(65 + (idx % 26));
+        }
+
         function renderTodayTeamsSection(d, targetDate) {
             const activeDate = targetDate || getYangonTodayIso();
             const snap = resolveSnapshotForDate(d, activeDate);
@@ -4038,7 +4076,6 @@
             const rowsListEl = document.getElementById('today-teams-rows-list');
             const summaryEl = document.getElementById('today-teams-summary');
             const subEl = document.getElementById('today-teams-sub');
-            const wrapper = document.getElementById('team-cards-wrapper');
             if (!rowsListEl) return;
 
             const dateLabel = snap.isToday ? 'ယနေ့' : activeDate;
@@ -4046,83 +4083,66 @@
                 summaryEl.innerText = `BATTLE SQUADS (${dateLabel} • 0)`;
                 subEl.innerText = `${dateLabel} အတွက် တာဝန်ကျအဖွဲ့ မခွဲရသေးပါ`;
                 rowsListEl.innerHTML = `<div class="p-2.5 rounded-2xl mlbb-std-row flex items-center justify-between gap-2"><span class="text-[10px] text-slate-700 dark:text-slate-200 truncate">${escapeHtml(dateLabel)} အတွက် တာဝန်ကျအဖွဲ့ မရှိသေးပါ</span>${snap.isToday ? '<button type="button" onclick="launchQuickTab(\'team\')" class="mlbb-steel-btn tap-spring px-2.5 py-1.5 rounded-xl text-[9.5px] font-extrabold whitespace-nowrap shrink-0">+ Squad ဖွဲ့မည်</button>' : ''}</div>`;
-                wrapper.innerHTML = `<p class="text-[10px] text-slate-600 dark:text-slate-300 text-center py-2">${escapeHtml(dateLabel)} တာဝန်ကျအဖွဲ့ မရှိသေးပါ</p>`;
                 return;
             }
 
-            summaryEl.innerText = `BATTLE SQUADS (${dateLabel} • ${teams.length} ${teams.length === 1 ? 'SQUAD' : 'SQUADS'})`;
-            subEl.innerText = `${dateLabel} အဖွဲ့ ${teams.length} သင်း တာဝန်ချထားပြီး • အသေးစိတ်ကြည့်ရန် နှိပ်ပါ`;
+            summaryEl.innerText = `BATTLE SQUADS (${dateLabel} • ${teams.length})`;
+            subEl.innerText = `${dateLabel} အဖွဲ့ ${teams.length} သင်း • နှိပ်၍ အမည်စာရင်းကြည့်နိုင်သည်`;
 
-            const squadThemes = [
-                { icon: 'shield', badgeBg: 'from-emerald-500 to-teal-700', ring: 'border-emerald-400/55' },
-                { icon: 'bolt', badgeBg: 'from-sky-500 to-blue-700', ring: 'border-sky-400/55' },
-                { icon: 'flame', badgeBg: 'from-amber-500 to-orange-700', ring: 'border-amber-400/55' }
-            ];
+            const letterThemes = {
+                A: { badgeBg: 'from-emerald-500 to-teal-700', ring: 'border-emerald-300/60' },
+                B: { badgeBg: 'from-sky-500 to-blue-700', ring: 'border-sky-300/60' },
+                C: { badgeBg: 'from-amber-500 to-orange-700', ring: 'border-amber-300/60' }
+            };
+            const fallbackThemes = [letterThemes.A, letterThemes.B, letterThemes.C];
             const avatarGradients = [
                 'from-emerald-500 to-primary', 'from-sky-500 to-blue-700',
                 'from-amber-500 to-orange-600', 'from-cyan-500 to-teal-700', 'from-rose-500 to-red-700'
             ];
 
             rowsListEl.innerHTML = teams.map((team, idx) => {
-                const theme = squadThemes[idx % squadThemes.length];
+                const emblem = getSquadEmblemLetter(team.name, idx);
+                const theme = letterThemes[emblem] || fallbackThemes[idx % fallbackThemes.length];
                 const members = parseSquadMembersList(team.members);
                 const readyCount = members.filter(m => checkedInNames.has(m.name)).length;
-                const readyPct = members.length > 0 ? Math.round((readyCount / members.length) * 100) : 0;
                 const isMyTeam = hasSquadMemberName(team.members, d.user.name);
+                const shortProj = String(team.project || '').split(/\s+-\s+/)[0].trim() || team.project || '';
                 const facesHtml = members.slice(0, 5).map((m, mIdx) => {
                     const grad = avatarGradients[(idx + mIdx) % avatarGradients.length];
-                    const crown = m.isLeader ? `<span class="absolute -top-1.5 -right-1 w-4 h-4 rounded-full bg-slate-900 border border-amber-bright/60 text-amber-bright flex items-center justify-center shadow">${gbfIcon('crown', 'w-2.5 h-2.5', 10)}</span>` : '';
-                    return `<div class="relative w-8 h-8 rounded-full bg-gradient-to-br ${grad} text-white font-black text-[9.5px] flex items-center justify-center ring-2 ring-white dark:ring-slate-900 shadow-md" title="${escapeHtml(m.name)} (${escapeHtml(m.role)})">${escapeHtml(m.initials)}${crown}</div>`;
+                    const crown = m.isLeader ? `<span class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-slate-900 border border-amber-bright/65 text-amber-bright flex items-center justify-center shadow">${gbfIcon('crown', 'w-2 h-2', 8)}</span>` : '';
+                    return `<div class="relative w-7 h-7 rounded-full bg-gradient-to-br ${grad} text-white font-black text-[8.5px] flex items-center justify-center ring-2 ring-white dark:ring-slate-900 shadow-sm" title="${escapeHtml(m.name)} (${escapeHtml(m.role)})">${escapeHtml(m.initials)}${crown}</div>`;
                 }).join('');
-                const extraCount = members.length > 5 ? `<div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-sky-300 font-black text-[9px] flex items-center justify-center ring-2 ring-white dark:ring-slate-900">+${members.length - 5}</div>` : '';
+                const extraCount = members.length > 5 ? `<div class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-sky-300 font-black text-[8.5px] flex items-center justify-center ring-2 ring-white dark:ring-slate-900">+${members.length - 5}</div>` : '';
+                const memberPills = members.map(m => `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-white/75 dark:bg-white/10 border border-blue-500/20 dark:border-white/10 text-[8.5px] font-bold text-slate-800 dark:text-white">${m.isLeader ? gbfIcon('crown', 'w-2.5 h-2.5 shrink-0', 9) : gbfIcon('diamond', 'w-2.5 h-2.5 text-sky-500 dark:text-sky-300 shrink-0', 9)} ${escapeHtml(m.name)}</span>`).join('');
 
-                return `<div onclick="toggleTodayTeamsPanel()" class="mlbb-squad-row ${isMyTeam ? 'my-squad' : ''} rounded-2xl p-2.5 flex items-center justify-between gap-2 cursor-pointer">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <div class="hud-chamfer relative w-10 h-10 bg-gradient-to-br ${theme.badgeBg} border ${theme.ring} flex flex-col items-center justify-center text-white shadow-md shrink-0">
-                            ${gbfIcon(theme.icon, 'w-3.5 h-3.5', 14)}
-                            <span class="text-[7.5px] font-black leading-none mt-0.5">#${idx + 1}</span>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-[11px] font-black text-slate-900 dark:text-white truncate">${escapeHtml(team.name)}</span>
-                                ${isMyTeam ? '<span class="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-800 dark:text-sky-200 border border-sky-400/40 text-[7.5px] font-black uppercase shrink-0">YOU</span>' : ''}
-                            </div>
-                            <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                                <span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-[8px] font-extrabold uppercase">${escapeHtml(team.project)}</span>
-                                <span class="inline-flex items-center gap-1 text-[8.5px] font-extrabold tabular-nums" style="color: var(--hue-jade);">${gbfIcon('users', 'w-3 h-3 shrink-0', 11)}<span>${readyCount}/${members.length} Ready</span></span>
-                            </div>
-                            <div class="w-28 max-w-full h-1 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden mt-1" aria-hidden="true">
-                                <div class="h-1 rounded-full transition-all duration-500" style="width:${readyPct}%; background: linear-gradient(90deg, var(--hue-jade), var(--hue-cyan));"></div>
+                return `<div onclick="toggleTodayTeamsPanel()" class="mlbb-squad-row ${isMyTeam ? 'my-squad' : ''} rounded-2xl px-2.5 py-2 cursor-pointer">
+                    <div class="flex items-center justify-between gap-2 min-w-0">
+                        <div class="flex items-center gap-2 min-w-0 flex-1">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br ${theme.badgeBg} border ${theme.ring} flex items-center justify-center text-white font-black text-xs shadow-sm shrink-0">${escapeHtml(emblem)}</div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    <span class="text-[11px] font-black text-slate-900 dark:text-white truncate">${escapeHtml(team.name)}</span>
+                                    ${isMyTeam ? '<span class="px-1 py-0.2 rounded bg-sky-500/20 text-sky-800 dark:text-sky-200 border border-sky-400/40 text-[7px] font-black uppercase shrink-0">YOU</span>' : ''}
+                                    <span class="px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25 text-[7.5px] font-extrabold uppercase shrink-0">${escapeHtml(shortProj)}</span>
+                                    <span class="text-[8.5px] font-extrabold tabular-nums shrink-0" style="color: var(--hue-jade);">${readyCount}/${members.length}</span>
+                                </div>
                             </div>
                         </div>
+                        <div class="flex items-center -space-x-1.5 shrink-0 pl-1">${facesHtml}${extraCount}</div>
                     </div>
-                    <div class="flex items-center -space-x-2 shrink-0 pl-1">${facesHtml}${extraCount}</div>
-                </div>`;
-            }).join('');
-
-            wrapper.innerHTML = teams.map((team, idx) => {
-                const members = parseSquadMembersList(team.members);
-                const isMyTeam = hasSquadMemberName(team.members, d.user.name);
-                const memberPills = members.map(m => `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/80 dark:bg-white/10 border border-blue-500/20 dark:border-white/10 text-[9px] font-bold text-slate-800 dark:text-white">${m.isLeader ? gbfIcon('crown', 'w-2.5 h-2.5 shrink-0', 10) : gbfIcon('diamond', 'w-2.5 h-2.5 text-sky-500 dark:text-sky-300 shrink-0', 10)} ${escapeHtml(m.name)} <span style="color: var(--hue-jade);">(${escapeHtml(m.role)})</span></span>`).join('');
-                return `<div class="p-3 rounded-2xl ${isMyTeam ? 'mlbb-you-row' : 'mlbb-std-row'}">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-1.5">
-                            <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[9px] font-black">#${idx + 1}</span>
-                            <strong class="text-[11px] font-extrabold text-slate-900 dark:text-white">${escapeHtml(team.name)}</strong>
-                        </div>
-                        <span class="px-2 py-0.5 rounded bg-sky-500/15 text-sky-800 dark:text-sky-200 border border-sky-400/30 text-[8.5px] font-extrabold">${escapeHtml(team.project)}</span>
-                    </div>
-                    <div class="flex flex-wrap gap-1.5">${memberPills}</div>
+                    <div class="team-inline-members ${teamsInlineExpanded ? '' : 'hidden'} mt-1.5 pt-1.5 border-t border-blue-500/15 dark:border-sky-400/15 flex flex-wrap gap-1">${memberPills}</div>
                 </div>`;
             }).join('');
         }
 
         function toggleTodayTeamsPanel() {
             playUiSound('tick');
-            const panel = document.getElementById('today-teams-detail-panel');
+            teamsInlineExpanded = !teamsInlineExpanded;
+            document.querySelectorAll('#today-teams-rows-list .team-inline-members').forEach(el => {
+                el.classList.toggle('hidden', !teamsInlineExpanded);
+            });
             const chev = document.getElementById('teams-panel-chevron');
-            panel.classList.toggle('hidden');
-            chev.style.transform = panel.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            if (chev) chev.style.transform = teamsInlineExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
         }
 
         function computeClientRewardsSummary(d, metrics) {
