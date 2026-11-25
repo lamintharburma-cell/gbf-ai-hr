@@ -1,7 +1,7 @@
-# 📘 G.B.F. Enterprise HR & AI Management System (`v9.4.2 Production LTS / @46`)
+# 📘 G.B.F. Enterprise HR & AI Management System (`v9.4.3 Production LTS / @47`)
 ## 🖥️ Visual Application Guide & Official User Manual (တကယ့် Application မျက်နှာပြင်များဖြင့် အသေးစိတ် အသုံးပြုသူ လက်စွဲ)
 
-**GBF Enterprise HR & AI Management System (`v9.4.2 Production LTS`)** သည် Google Sheets (`11` Master Tables — **`KPI_Formula_Registry`** တွက်ချက်မှု Audit Table အပါအဝင်), Google Apps Script Serverless Backend, Gemini 3.8 Flash AI (`gemini-3.8-flash` Interactions API), Telegram Native Mini App (`Index.html` — **MLBB Astral Steel-Navy & 5-Hue Color Harmony HUD** + GPS-First Home + Desktop Top Navigation + iOS Native Ergonomics) နှင့် Scoped Telegram Bot / Group Command Center (`@GBF_HRMS_Bot`) တို့ကို တစ်စုတစ်စည်းတည်း ချိတ်ဆက်ထားသော Enterprise HR ပလက်ဖောင်း ဖြစ်ပါသည်။
+**GBF Enterprise HR & AI Management System (`v9.4.3 Production LTS`)** သည် Google Sheets (`11` Master Tables — **`KPI_Formula_Registry`** တွက်ချက်မှု Audit Table အပါအဝင်), Google Apps Script Serverless Backend, Gemini 3.8 Flash AI (`gemini-3.8-flash` Interactions API), Telegram Native Mini App (`Index.html` — **MLBB Astral Steel-Navy & 5-Hue Color Harmony HUD** + Unified Command/GPS + 3-Column Roster + 1-Row Squads + Desktop Top Nav) နှင့် Scoped Telegram Bot / Group Command Center (`@GBF_HRMS_Bot`) တို့ကို တစ်စုတစ်စည်းတည်း ချိတ်ဆက်ထားသော Enterprise HR ပလက်ဖောင်း ဖြစ်ပါသည်။
 
 ---
 
@@ -54,22 +54,20 @@
 
 ### မျက်နှာပြင် အစိတ်အပိုင်းတစ်ခုချင်းစီ ရှင်းလင်းချက် (`Option A Streamlined GPS-First HUD + Desktop Top Nav`)
 1. **Header Brand, Desktop Navigation (`>=1024px`) & Portrait Bar:** ဘယ်ဘက်ထိပ်တွင် **GBF Logo Button** (`<button>` home link), Desktop (`>=1024px`) မျက်နှာပြင်တွင် **Sticky Top Navigation Bar (`#desktop-top-nav`)** နှင့် Mobile (`<1024px`) တွင် Safe-Area Bottom Navigation Bar ကို ခွဲခြားထားသဖြင့် Desktop ပေါ်တွင် Overlay မဖုံးပါ။ ညာဘက်ထိပ်တွင် **Human Portrait SVG Avatar** ပါရှိပါသည်။
-2. **Top Leader Command Strip (`TM / MM / TL` Only):** `CEO / TM Command` ကဲ့သို့ ရာထူးအမည်၊ **`Squads`** နှင့် **`AI Command`** shortcut ခလုတ်များကို ပြသပေးပါသည်။
-3. **GPS-First Above-the-Fold Mission Card & Slim `Today Squad` Pill (`#home-today-squad-chip`):**
-   * ပင်မစာမျက်နှာ ဖွင့်လိုက်သည်နှင့် အဓိက **`CHECK IN / CHECK OUT`** ခလုတ်ကို ထိပ်ဆုံးတွင် တိုက်ရိုက်မြင်ရပြီး ၎င်းအောက်တွင် **`[2026-11-25] 08:44 AM MVP • Team 1 (Alpha)`** နှင့် **`ပြက္ခဒိန် ▸`** button ၁ ကြောင်းတည်း ကျစ်လျစ်စွာ ပါရှိပါသည်။
-   * ရက်ဟောင်းများအတွက် မိမိ Check-In နှင့် တာဝန်ကျ Battle Squad များကို **`History` Tab** ရှိ Calendar တွင် ရက်ရွေးချယ်၍ အသေးစိတ် (`#logs-day-snapshot`) ကြည့်ရှုနိုင်ပါသည်။
-4. **Unified `GPS ARENA · 500M OPS` & Live HQ Telemetry Card (`CHECK IN` / `CHECK OUT` + Single `#active-counter`):**
-   * **Single Live Active Counter:** ညာဘက်ထောင့်ရှိ Users SVG badge (`6 / 16`) ကို နှိပ်၍ ယနေ့ Check-In Roster ကို တိုက်ရိုက် ဖွင့်/ပိတ်နိုင်ပါသည်။
-   * **မနက်ပိုင်း (`NOT_CHECKED_IN`):** အစိမ်းရောင် **`ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)`** ခလုတ်နှင့် Live HQ Distance Bar အပြည့်အစုံ ပေါ်နေပါမည်။ နှိပ်လိုက်သည်နှင့် Browser/Telegram မှ GPS Coordinate ကို ရယူပြီး စာရင်းသွင်းပါသည်။
-   * **ရုံးဆင်းချိန် (`CHECKED_IN` — Auto Compact 1-Row):** Check-In ပြီးသည်နှင့် ကတ်တစ်ခုလုံးကို **၁ ကြောင်းစာ Compact Pill (`IN 08:44 AM · Squad` + `Check Out` + `N/Total` + `▾`)** အဖြစ် အလိုအလျောက် ချုံ့ပေးသဖြင့် Live Roster နှင့် Squads များကို တိုက်ရိုက်မြင်ရပါသည်။ (`▾` နှိပ်၍ GPS Distance & Map အသေးစိတ်ကို အချိန်မရွေး ပြန်ဖွင့်/ပိတ်နိုင်သည်)
-   * **နှစ်ခုလုံးပြီးစီးချိန် (`CHECKED_OUT` — Auto Compact 1-Row):** **`08:44 AM → 05:15 PM · Squad`** ၁ ကြောင်းစာ Summary အဖြစ် ပြသပေးပါသည်။ (`▾` နှိပ်၍ အသေးစိတ် ပြန်ဖွင့်ကြည့်နိုင်သည်)
+2. **Unified Command + `GPS ARENA` Card (`TM / MM / TL` Integrated Strip + Post-Check-In 1-Row Collapse):** Leader များအတွက် ရာထူး/အမည်နှင့် **`Squads`**, **`AI`** shortcut များကို သီးခြားကတ်မထပ်ဘဲ **`GPS ARENA`** ကတ်ထိပ်တစ်ခုတည်းတွင် ပေါင်းစည်းပေးထားပြီး Check-In ပြီးသည်နှင့် ၁ ကြောင်းစာ Compact Bar (`~66px`) အဖြစ် အလိုအလျောက် ချုံ့ပေးပါသည်။
+3. **Slim `Today Squad` Pill & Compact HQ Telemetry:** Check-In ခလုတ်အောက်တွင် **`[2026-11-25] 08:42 AM MVP • Team 1 (Alpha)`** နှင့် **`ပြက္ခဒိန် ▸`** ၁ ကြောင်းတည်း ပါဝင်ပြီး (`History` Tab `#logs-day-snapshot` တွင် ရက်ဟောင်းများ ကြည့်နိုင်) HQ/Field GPS အကွာအဝေး Bar နှင့် `တိုင်းမည်` / `Map` ခလုတ်များကို ကျစ်လျစ်စွာ ပေါင်းစည်းထားပါသည်။
+4. **Live Status Bar (`CHECK IN` / `CHECK OUT` + Single `#active-counter`):**
+   * **Single Live Active Counter:** ညာဘက်ထောင့်ရှိ Users SVG badge (`6 / 16`) ကို နှိပ်၍ ယနေ့ 3-Column Roster Board ကို တိုက်ရိုက် ဖွင့်/ပိတ်နိုင်ပါသည်။
+   * **မနက်ပိုင်း (`NOT_CHECKED_IN`):** အစိမ်းရောင် **`ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)`** ခလုတ်နှင့် Live HQ Distance Bar အပြည့်အစုံ ပေါ်နေပါမည်။
+   * **ရုံးဆင်းချိန် (`CHECKED_IN` — Auto Compact 1-Row):** Check-In ပြီးသည်နှင့် ကတ်တစ်ခုလုံးကို **၁ ကြောင်းစာ Compact Pill (`IN 08:44 AM · Squad` + `Check Out` + `N/Total` + `▾`)** အဖြစ် အလိုအလျောက် ချုံ့ပေးသဖြင့် 3-Column Roster နှင့် Squads များကို တိုက်ရိုက်မြင်ရပါသည်။ (`▾` နှိပ်၍ အသေးစိတ် ပြန်ဖွင့်/ပိတ်နိုင်သည်)
+   * **နှစ်ခုလုံးပြီးစီးချိန် (`CHECKED_OUT` — Auto Compact 1-Row):** **`08:44 AM → 05:15 PM · Squad`** ၁ ကြောင်းစာ Summary အဖြစ် ပြသပေးပါသည်။
    * **Integrated Live HQ Distance & Map Bar:** GBF HQ (`16.804683, 96.177149`) မှ **≤ 500 m** အတွင်းဖြစ်ပါက `HQ Zone (≤500m)` SVG badge၊ **> 500 m** ဖြစ်ပါက `Field Site` Pylon SVG badge ပြသပြီး **`တိုင်းမည်`** နှင့် **`Map`** ခလုတ်များ တစ်ကတ်တည်းတွင် ပါဝင်ပါသည်။
-5. **Today Checked-In Avatar Stack Inspector:**
-   * Avatar အဝိုင်းများကို နှိပ်၍ ဖွင့်လိုက်ပါက Telegram Semantic SVG Icon Tabs ၃ မျိုး ခွဲကြည့်နိုင်ပါသည်-
-     * **`ဝင်ပြီး (N)`:** Arrival rank (`#1`, `#2`, ...), Team အမည်, HQ Building / Field Pylon SVG `42 m / 1.9 km` (နှိပ်၍ Map ဖွင့်နိုင်), Check-In အချိန်နှင့် `MVP` / `On-Time` Badge။
-     * **`ယနေ့ခွင့် (N)`:** Approved / Pending ခွင့်ယူထားသူများ။
-     * **`မဝင်ရသေး (N)`:** ယနေ့ Check-In မဝင်ရသေးသူ ဝန်ထမ်းများ။
-6. **ACTIVE BATTLE SQUADS:** `Daily_Teams` တွင် ဖွဲ့စည်းထားသော ယနေ့ (သို့မဟုတ် Top Calendar မှ ရွေးချယ်ထားသောနေ့) **Team 1 (Alpha)**, **Team 2 (Beta)**, **Team 3 (Charlie)** စာရင်း (`Crown` SVG Leader badge နှင့် exact member token check ပါဝင်) နှင့် **`Details ▾`** နှိပ်၍ Member စာရင်းအပြည့် ကြည့်နိုင်ပါသည်။ (`0` Squad ဖြစ်နေချိန်တွင် **`+ Squad ဖွဲ့မည်`** Actionable Banner ပြသပေးသည်)။
+5. **3-Column Today Attendance Roster (`လာ` | `ခွင့်/မလာ` | `မဝင်သေး`):**
+   * Avatar အဝိုင်းများကို နှိပ်၍ ဖွင့်လိုက်ပါက အခြေအနေ ၃ မျိုးလုံးကို **ကော်လံ ၃ ခု ယှဉ်တွဲလျက်** တစ်ပြိုင်နက်တည်း မြင်ရပါသည် (Column ခေါင်းစဉ်တစ်ခုခုကို ထပ်နှိပ်ပါက ထို Column တစ်ခုတည်းကို Focus ချဲ့ကြည့်နိုင်ပြီး ပြန်နှိပ်လျှင် ၃ ကော်လံသို့ ပြန်ရောက်မည်)-
+     * **ကော်လံ (၁) `လာ (N)`:** Arrival rank (`#1`, `#2`, ...), အမည်, Check-In အချိန်, `MVP`/`OnT` Badge, Team နှင့် HQ/Field distance Map link။
+     * **ကော်လံ (၂) `ခွင့်/မလာ (N)`:** Approved / Pending ခွင့်ယူထားသူများနှင့် ခွင့်ရက်/အမျိုးအစား။
+     * **ကော်လံ (၃) `မဝင်သေး (N)`:** ယနေ့ Check-In မဝင်ရသေးသူ ဝန်ထမ်းများနှင့် ရာထူး/အဖွဲ့။
+6. **ACTIVE BATTLE SQUADS (Strict 1-Row `A / B / C` Logo + Avatar Circles):** `Daily_Teams` တွင် ဖွဲ့စည်းထားသော အဖွဲ့တစ်ခုချင်းစီကို **၁ တန်းတည်း (`50px`)** ကျစ်လျစ်စွာ ပြသထားပြီး ဘယ်ဘက်တွင် **အဝိုင်းပုံ `A` / `B` / `C` Team Logo** + Project (`YTP`/`MPT`/`PSTN`) + Ready ratio၊ ညာဘက်တွင် **လူအဝိုင်း Avatar Stack** (`Crown` SVG Leader ပါဝင်) ကို ပြသပေးပါသည်။ (**`အမည်စာရင်း ▾`** သို့မဟုတ် အဖွဲ့တန်းပေါ် နှိပ်ပါက အမည်စာရင်း pill များကို ကတ်ထဲတွင်ပင် ဖွင့်ကြည့်နိုင်ပြီး duplicate ကတ်မထပ်ပါ)။
 
 > **⏰ အချိန်အလိုက် Check-In KPI စည်းမျဉ်း (`Asia/Rangoon GMT+6:30`)**
 > * **≤ `09:00 AM`:** `👑 MVP` (Daily MVP Bonus **+1,000 MMK** ရရှိ)
@@ -243,4 +241,4 @@ Bottom Navigation အလယ်ရှိ **အစိမ်းရောင် `+` 
   4. **"Group ထဲသို့ 09:20 / 06:15 Digest မပို့သေးလျှင်":** Apps Script Editor တွင် **`installGroupDigestTriggers()`** ကို တစ်ကြိမ် `Run` လုပ်ထားကြောင်းနှင့် `System_Settings` တွင် `GROUP_DIGEST_ENABLED = YES` ရှိကြောင်း စစ်ဆေးပါ။
 
 ---
-*GBF Enterprise HR & AI Management System `v9.4.2 Production LTS (@46)` — Verified Visual User Manual (Post-Check-In 1-Line Collapsible GPS Bar, Screen Hardening & Path B Governance).*
+*GBF Enterprise HR & AI Management System `v9.4.3 Production LTS (@47)` — Verified Visual User Manual (Unified Command+GPS, 3-Column Roster, 1-Row A/B/C Squads & Path B Governance).*
