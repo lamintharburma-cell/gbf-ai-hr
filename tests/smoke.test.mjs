@@ -152,7 +152,9 @@ test('Test 2: src/Index.html DOM, CSS, Accessibility & Offline/URI Hardening int
   assert.ok(declaredIds.has('gps-arena-card') && declaredIds.has('gps-arena-header-row') && declaredIds.has('gps-arena-collapsible') && declaredIds.has('btn-gps-collapse'), 'Missing collapsible GPS Arena DOM IDs');
   assert.ok(appScript.includes('toggleMonthMenu') && appScript.includes('selectMonthOption') && appScript.includes('renderMonthPickerUI'), 'Missing month picker JS helpers');
   assert.ok(appScript.includes('toggleGpsArenaDetails') && appScript.includes('renderGpsArenaCard') && appScript.includes('computeClientRewardsSummary'), 'Missing GPS collapse & reward summary helpers');
-  assert.ok(appScript.includes('getSquadEmblemLetter') && appScript.includes('gbfBrandRankSvg') && appScript.includes('gbfSquadShieldSvg') && appScript.includes('renderStreakSlotsHtml') && appScript.includes('buildAssignedTeamMemberSet') && appScript.includes('selectHomeTeamTab') && appScript.includes('selectHomeHistoryFilter'), 'Missing v9.5 unified Reward/Squad SVG, streak, deduplication, or history helpers');
+  assert.ok(appScript.includes('getSquadEmblemLetter') && appScript.includes('gbfBrandRankSvg') && appScript.includes('gbfSquadShieldSvg') && appScript.includes('gbfSquadCountSvg') && appScript.includes('sortTeamsChronologically') && appScript.includes('resolveTeamSortAndTimeClient') && appScript.includes('renderStreakSlotsHtml') && appScript.includes('buildAssignedTeamMemberSet') && appScript.includes('selectHomeTeamTab') && appScript.includes('selectHomeHistoryFilter'), 'Missing v9.5/v9.5.2 unified Reward/Squad SVG, chronological team sort, streak, deduplication, or history helpers');
+  assert.ok(html.includes('gbfOnTimeStarGrad') && html.includes('.ring-cyan') && html.includes('.ring-coral') && declaredIds.has('home-ring-absent') && declaredIds.has('home-today-reward-badge') && declaredIds.has('home-det-kpi'), 'Missing v9.5.2 unified On-Time emerald star gradient, 4th Absent Hero ring, today reward banner, or Astral detail card IDs');
+  assert.ok(!appScript.includes('အဖွဲ့ (Team A/B/C) အတွင်း ပါဝင်ပြီး') && !appScript.includes('အဖွဲ့ (Team A/B/C) စာရင်းအတွင်း ပါဝင်ပြီး'), 'Removed Company Attendance filler note must stay absent');
   assert.ok(appScript.includes('gbfPrefersReducedMotion') && appScript.includes('openOverlayAnimated') && appScript.includes('closeOverlayAnimated') && appScript.includes('setScaleXBarProgress') && appScript.includes('initQuickSheetSwipeGesture') && appScript.includes('rubberband') && appScript.includes('getElementTranslateY') && appScript.includes('gbfOverlayRafs') && appScript.includes('gbfCounterRafs') && appScript.includes('lostpointercapture'), 'Missing v9.5.1 compositor, overlay rAF/DOMMatrix hardening, counter cancellation, or swipe capture leak guards');
   assert.ok(html.includes('--ease-in-out') && html.includes('prefers-reduced-transparency') && html.includes('prefers-contrast') && html.includes('gbf-scale-bar') && html.includes('gbf-check-draw') && htmlMarkupOnly.includes('aria-modal="true"'), 'Missing v9.5.1 motion tokens, accessibility media queries, ARIA modal attributes, scaleX bars, or SVG draw animation');
   assert.ok(!/transition\s*:\s*all\b/i.test(html) && !/\btransition-all\b/.test(html) && !/@keyframes\s+toast(?:In|Out)\b/.test(html), 'Forbidden transition:all, Tailwind transition-all, or legacy toast keyframe animations found');
@@ -795,7 +797,18 @@ test('Test 9: Telegram Group Live Board, Topic Thread, Scoped Menus, In-Place Pr
     console, Date, Math, Number, String, Array, Object, Set, JSON, encodeURIComponent, parseInt, parseFloat, isNaN,
     Utilities: {
       getUuid: () => 'uuid-9',
-      formatDate: (d, tz, fmt) => (fmt === 'u' ? '2' : '2026-11-24'),
+      formatDate: (d, tz, fmt) => {
+        if (fmt === 'u') return '2';
+        if (fmt === 'hh:mm a') {
+          const dt = new Date(new Date(d).getTime() + (6 * 60 + 30) * 60000);
+          const h24 = dt.getUTCHours();
+          const min = String(dt.getUTCMinutes()).padStart(2, '0');
+          const ampm = h24 >= 12 ? 'PM' : 'AM';
+          const h12 = String(h24 % 12 || 12).padStart(2, '0');
+          return `${h12}:${min} ${ampm}`;
+        }
+        return '2026-11-24';
+      },
       computeHmacSha256Signature: (m, s) => [...crypto.createHmac('sha256', s).update(m).digest()],
       base64EncodeWebSafe: b => Buffer.from(b).toString('base64').replace(/\+/g, '-').replace(/\//g, '_')
     },
@@ -961,4 +974,19 @@ test('Test 9: Telegram Group Live Board, Topic Thread, Scoped Menus, In-Place Pr
   context.handleCallbackQuery({ id: 'cb-lv10-stale', data: 'LV_REJ_3_3013', from: { first_name: 'SecondApprover' }, message: { chat: { id: 888000222, type: 'private' }, message_id: secondMsgLv10 } });
   assert.equal(editedMessages.length - editsBeforeStale, 1, 'Stale second click must edit ONLY the clicked stale message without clobbering sibling copy');
   assert.equal(editedMessages.at(-1).chat_id, '888000222');
+
+  // 9. v9.5.2 Chronological creation-time Team sorting & created_time formatting from TEAM-<epoch_ms>
+  const lateEpoch = Date.UTC(2026, 10, 24, 2, 20, 0);   // 08:50 AM Yangon
+  const earlyEpoch = Date.UTC(2026, 10, 24, 1, 55, 0);  // 08:25 AM Yangon
+  teamRows.push([`TEAM-${lateEpoch}`, '2026-11-24', 'Alpha Late Squad', 'Proj-L', 'Staff Five (JT), Staff Six (JT)']);
+  teamRows.push([`TEAM-${earlyEpoch}`, '2026-11-24', 'Zulu Early Squad', 'Proj-E', 'Staff Seven (JT), Staff Eight (JT), Staff Nine (JT)']);
+  teamRows.push([`TEAM-1`, '2026-11-24', 'Legacy Undated Squad', 'Proj-X', 'Staff Ten (JT)']);
+  const sortedState = context.getFullSystemState('1001', 'Ko La Min Thar', null, '2026-11', true);
+  const nov24Teams = sortedState.month_daily_snapshots['2026-11-24'].teams;
+  const earlyIdx = nov24Teams.findIndex(t => t.name === 'Zulu Early Squad');
+  const lateIdx = nov24Teams.findIndex(t => t.name === 'Alpha Late Squad');
+  const legacyIdx = nov24Teams.findIndex(t => t.name === 'Legacy Undated Squad');
+  assert.ok(earlyIdx >= 0 && lateIdx > earlyIdx && legacyIdx > lateIdx, 'Teams must sort chronologically by TEAM-<epoch_ms> with legacy IDs after timestamped squads');
+  assert.equal(nov24Teams[earlyIdx].created_time, '08:25 AM');
+  assert.equal(nov24Teams[lateIdx].created_time, '08:50 AM');
 });

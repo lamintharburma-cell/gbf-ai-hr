@@ -589,26 +589,54 @@ function getFullSystemState(empId, empName, chatId, selectedMonth, skipBindLock)
   const teamSheet = ss.getSheetByName("Daily_Teams");
   const assignedNamesToday = [];
   const empTeamDatesSet = new Set();
+  const LEGACY_TEAM_SORT_BASE = 9007199254740000;
+  const parseTeamMeta_ = (rawId, fallbackIdx) => {
+    const idStr = String(rawId || "").trim();
+    const m13 = idStr.match(/TEAM-(\d{13,})/);
+    const m10 = !m13 ? idStr.match(/TEAM-(1[5-9]\d{8})(?:\b|\D)/) : null;
+    const ms = m13 ? parseInt(m13[1], 10) : (m10 ? parseInt(m10[1], 10) * 1000 : NaN);
+    if (Number.isFinite(ms) && ms > 1000000000000) {
+      return {
+        id: idStr,
+        created_ms: ms,
+        created_time: Utilities.formatDate(new Date(ms), GBF_CONFIG.GMT_OFFSET, "hh:mm a")
+      };
+    }
+    return { id: idStr, created_ms: LEGACY_TEAM_SORT_BASE + fallbackIdx, created_time: "" };
+  };
   if (teamSheet) {
     const teamData = getLastNRows(teamSheet, 400, 5);
-    for (let i = teamData.length - 1; i >= 0; i--) {
+    const myTeamHistory = [];
+    for (let i = 0; i < teamData.length; i++) {
+      const tMeta = parseTeamMeta_(teamData[i][0], i);
       const tDate = normalizeDateStr(teamData[i][1]);
       const tName = teamData[i][2], tProj = teamData[i][3], tMembers = teamData[i][4];
+      const teamRec = { id: tMeta.id, name: tName, project: tProj, members: tMembers, created_ms: tMeta.created_ms, created_time: tMeta.created_time };
       if (tDate === todayStr) {
-        result.system.today_teams.push({ name: tName, project: tProj, members: tMembers });
+        result.system.today_teams.push(teamRec);
         assignedNamesToday.push(tMembers);
       }
       if (tDate && tDate.startsWith(targetMonth)) {
         const snap = ensureDaySnapshot(tDate);
-        if (snap) snap.teams.push({ name: tName, project: tProj, members: tMembers });
+        if (snap) snap.teams.push(teamRec);
       }
       if (hasSquadMemberName_(tMembers, empName) && tDate && tDate.startsWith(targetMonth)) {
         empTeamDatesSet.add(tDate);
-        if (result.history.teams.length < 31) {
-          result.history.teams.push({ date: tDate, name: tName, project: tProj });
-        }
+        myTeamHistory.push({ date: tDate, name: tName, project: tProj, created_time: tMeta.created_time, created_ms: tMeta.created_ms });
       }
     }
+    const sortTeamsAsc_ = (a, b) => (Number(a.created_ms) || 0) - (Number(b.created_ms) || 0);
+    result.system.today_teams.sort(sortTeamsAsc_);
+    Object.keys(result.month_daily_snapshots).forEach(k => {
+      if (result.month_daily_snapshots[k].teams && result.month_daily_snapshots[k].teams.length > 1) {
+        result.month_daily_snapshots[k].teams.sort(sortTeamsAsc_);
+      }
+    });
+    myTeamHistory.sort((a, b) => {
+      if (b.date !== a.date) return b.date > a.date ? 1 : -1;
+      return (Number(b.created_ms) || 0) - (Number(a.created_ms) || 0);
+    });
+    result.history.teams = myTeamHistory.slice(0, 31);
   }
   result.totals.team_days = empTeamDatesSet.size;
 
@@ -668,7 +696,7 @@ function getFullSystemState(empId, empName, chatId, selectedMonth, skipBindLock)
               time: rowInTime,
               out_time: rowOutTime,
               kpi: rowKpi,
-              squad: findSquadForDateAndName(rDate, rowName),
+              squad: findSquadForDateAndName(rDate, rowName || (empMeta ? empMeta.name : "")),
               distance_m: Math.round(distMeters),
               distance_text: distLabel,
               loc_status: locZone,
@@ -691,7 +719,7 @@ function getFullSystemState(empId, empName, chatId, selectedMonth, skipBindLock)
           time: rowInTime,
           out_time: rowOutTime,
           kpi: rowKpi,
-          squad: findSquadForDateAndName(todayStr, rowName),
+          squad: findSquadForDateAndName(todayStr, rowName || (empMeta ? empMeta.name : "")),
           gps: rawGps,
           distance_m: Math.round(distMeters),
           distance_text: distLabel,

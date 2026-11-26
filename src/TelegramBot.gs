@@ -1704,15 +1704,20 @@ function buildConsolidatedTeamsGroupMessage_(teamSheet, fDate, fallbackTeamName,
   const teamOrder = [];
   const rows = teamSheet ? getLastNRows(teamSheet, 60, 5) : [];
 
-  rows.forEach(r => {
+  rows.forEach((r, idx) => {
     if (normalizeDateStr(r[1]) !== fDate) return;
+    const tId = String(r[0] || "").trim();
     const tName = String(r[2] || "").trim();
     const proj = String(r[3] || "").trim();
     const mStr = String(r[4] || "").trim();
     if (!tName) return;
+    const m13 = tId.match(/TEAM-(\d{13,})/);
+    const createdMs = m13 ? parseInt(m13[1], 10) : (9007199254740000 + idx);
     if (!byTeam[tName]) teamOrder.push(tName);
-    byTeam[tName] = { project: proj, membersStr: mStr };
+    const prevMs = byTeam[tName] ? byTeam[tName].createdMs : createdMs;
+    byTeam[tName] = { project: proj, membersStr: mStr, createdMs: Math.min(prevMs, createdMs) };
   });
+  teamOrder.sort((a, b) => (byTeam[a].createdMs - byTeam[b].createdMs));
 
   if (teamOrder.length === 0 && fallbackTeamName) {
     byTeam[fallbackTeamName] = {
