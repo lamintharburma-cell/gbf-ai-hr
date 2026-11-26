@@ -129,6 +129,7 @@
             --touch-target-min: 44px;
 
             --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+            --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
             --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
             --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 
@@ -299,6 +300,7 @@
             border: 1px solid var(--astral-border);
             color: var(--astral-text);
             box-shadow: 0 10px 26px -10px rgba(30, 58, 138, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.92);
+            transition: border-color 180ms ease;
         }
 
         body.dark-mode .glass-card {
@@ -320,7 +322,7 @@
         }
 
         .tap-spring {
-            transition: transform 120ms var(--ease-out), background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+            transition: transform 110ms var(--ease-out), background-color 150ms ease, border-color 150ms ease, opacity 150ms ease;
         }
 
         .tap-spring:active:not(:disabled) {
@@ -341,10 +343,9 @@
         @media (hover: hover) and (pointer: fine) {
             .hud-hover-lift:hover {
                 border-color: rgba(16, 185, 129, 0.55) !important;
-                box-shadow: 0 10px 26px -8px rgba(16, 185, 129, 0.24);
             }
             .tap-spring:hover:not(:disabled) {
-                filter: brightness(1.04);
+                opacity: 0.94;
             }
         }
 
@@ -435,7 +436,7 @@
             outline-offset: 2px;
         }
 
-        /* Ambient Living Background Orbs */
+        /* Static Ambient Background Glow (zero continuous blur repaint behind frosted layers) */
         .ambient-orb-1 {
             position: fixed;
             top: -80px;
@@ -444,10 +445,8 @@
             height: 240px;
             border-radius: 9999px;
             background: radial-gradient(circle, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0) 70%);
-            filter: blur(25px);
             pointer-events: none;
             z-index: 0;
-            animation: floatOrb 9s ease-in-out infinite alternate;
         }
 
         .ambient-orb-2 {
@@ -458,56 +457,36 @@
             height: 220px;
             border-radius: 9999px;
             background: radial-gradient(circle, rgba(64, 89, 170, 0.14) 0%, rgba(64, 89, 170, 0) 70%);
-            filter: blur(25px);
             pointer-events: none;
             z-index: 0;
-            animation: floatOrb 11s ease-in-out infinite alternate-reverse;
         }
 
-        @keyframes floatOrb {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(14px, 18px) scale(1.08); }
-        }
-
-        /* Staggered Entry State for Tabs & Cards */
+        /* Single-Container Tab Entry (<= 180ms --ease-out, zero child stagger blocking clicks) */
         .tab-content {
             display: none;
         }
 
         .tab-content.active {
             display: block;
-            animation: tabEntrySpring 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation: tabEntryClean 180ms var(--ease-out) forwards;
         }
 
         .tab-content.active > * {
-            opacity: 0;
-            animation: cardCascadeIn 0.46s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            opacity: 1;
         }
 
-        .tab-content.active > *:nth-child(1) { animation-delay: 0.03s; }
-        .tab-content.active > *:nth-child(2) { animation-delay: 0.08s; }
-        .tab-content.active > *:nth-child(3) { animation-delay: 0.13s; }
-        .tab-content.active > *:nth-child(4) { animation-delay: 0.18s; }
-        .tab-content.active > *:nth-child(5) { animation-delay: 0.23s; }
-        .tab-content.active > *:nth-child(6) { animation-delay: 0.28s; }
-
-        @keyframes tabEntrySpring {
-            from { opacity: 0; transform: translateY(10px) scale(0.985); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        @keyframes cardCascadeIn {
-            from { opacity: 0; transform: translateY(14px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes tabEntryClean {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .portal-unlock-enter {
-            animation: portalReveal 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation: portalReveal 260ms var(--ease-out) forwards;
         }
 
         @keyframes portalReveal {
-            0% { opacity: 0; transform: scale(0.96) translateY(14px); filter: blur(6px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+            0% { opacity: 0; transform: scale(0.97) translateY(8px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         /* PIN Pad & Dots */
@@ -517,7 +496,7 @@
             border-radius: 9999px;
             border: 2px solid rgba(0, 93, 66, 0.4);
             background: transparent;
-            transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 180ms var(--ease-spring), background-color 150ms ease, border-color 150ms ease;
         }
 
         body.dark-mode .pin-dot {
@@ -527,18 +506,16 @@
         .pin-dot.filled {
             background: #10B981;
             border-color: #10B981;
-            transform: scale(1.22);
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.65);
+            transform: scale(1.2);
         }
 
         .pin-dot.error {
             background: #EF4444;
             border-color: #EF4444;
-            box-shadow: 0 0 12px rgba(239, 68, 68, 0.65);
         }
 
         .pin-shake {
-            animation: shakeError 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+            animation: shakeError 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
         }
 
         @keyframes shakeError {
@@ -551,13 +528,12 @@
         .keypad-btn {
             position: relative;
             overflow: hidden;
-            transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 100ms var(--ease-out), background-color 150ms ease;
         }
 
         .keypad-btn:active {
-            transform: scale(0.91);
+            transform: scale(0.92);
             background-color: rgba(16, 185, 129, 0.2) !important;
-            box-shadow: 0 0 16px rgba(16, 185, 129, 0.28);
         }
 
         /* Radar Loader Rings & Shimmer */
@@ -579,14 +555,22 @@
         }
 
         .loader-bar-shimmer {
-            background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.95) 50%, rgba(16, 185, 129, 0.15) 100%);
-            background-size: 200% 100%;
+            position: relative;
+            overflow: hidden;
+            background: rgba(16, 185, 129, 0.16);
+        }
+        .loader-bar-shimmer::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(16, 185, 129, 0.95) 50%, transparent 100%);
+            transform: translateX(-100%);
             animation: shimmerSlide 1.4s linear infinite;
         }
 
         @keyframes shimmerSlide {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .cta-pulse-ring {
@@ -598,20 +582,21 @@
             content: "";
             position: absolute;
             top: 0;
-            left: -120%;
-            width: 70%;
+            left: 0;
+            width: 48%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
-            transform: skewX(-20deg);
+            transform: translateX(-260%) skewX(-20deg);
             animation: ctaShine 3.6s ease-in-out infinite;
+            pointer-events: none;
         }
 
         @keyframes ctaShine {
-            0%, 70% { left: -120%; }
-            100% { left: 160%; }
+            0%, 70% { transform: translateX(-260%) skewX(-20deg); }
+            100% { transform: translateX(340%) skewX(-20deg); }
         }
 
-        /* Bottom Navigation Bar Full Active Fill */
+        /* Bottom Navigation Bar Crisp Retarget Fill */
         .nav-tab-btn {
             flex: 1 1 0%;
             max-width: 76px;
@@ -622,7 +607,7 @@
             align-items: center;
             justify-content: center;
             color: #64748B;
-            transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+            transition: transform 140ms var(--ease-out), background-color 160ms var(--ease-out), color 160ms ease, border-color 160ms ease;
             position: relative;
             overflow: hidden;
         }
@@ -636,7 +621,6 @@
             color: #FFFFFF !important;
             box-shadow: 0 6px 18px -3px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.28);
             border: 1px solid var(--bevel-border);
-            animation: navBounce 0.28s var(--ease-spring) forwards;
         }
 
         .nav-tab-btn.active svg,
@@ -645,25 +629,20 @@
             color: #FFFFFF !important;
         }
 
-        @keyframes navBounce {
-            0% { transform: scale(0.93); }
-            60% { transform: scale(1.04) translateY(-1px); }
-            100% { transform: scale(1) translateY(0); }
-        }
-
         /* MLBB Astral Multi-Hue Components (Dual Light Ice & Dark Steel-Navy) */
         .mlbb-squad-shell {
             background: var(--astral-panel);
             border: 1px solid var(--astral-border);
             box-shadow: 0 14px 32px -12px rgba(5, 12, 26, 0.35), inset 0 1px 0 rgba(191, 219, 254, 0.16);
             color: var(--astral-text);
+            transition: border-color 180ms ease;
         }
 
         .mlbb-squad-row {
             background: var(--astral-row);
             border: 1px solid rgba(96, 165, 250, 0.18);
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-            transition: transform 0.16s var(--ease-out), border-color 0.16s ease, box-shadow 0.16s ease;
+            transition: transform 140ms var(--ease-out), border-color 150ms ease;
         }
 
         .mlbb-squad-row:active { transform: scale(0.97); }
@@ -762,6 +741,7 @@
         .ring-jade { border: 3.5px solid var(--hue-jade); box-shadow: 0 0 16px rgba(74, 222, 128, 0.2); }
 
         .victory-gold {
+            letter-spacing: -0.02em;
             background: linear-gradient(180deg, #FEF9C3 0%, #FACC15 52%, #D97706 100%);
             -webkit-background-clip: text;
             background-clip: text;
@@ -831,6 +811,7 @@
         }
 
         .rank-badge {
+            letter-spacing: -0.02em;
             background: linear-gradient(180deg, #FEF9C3 0%, #FACC15 52%, #D97706 100%);
             -webkit-background-clip: text;
             background-clip: text;
@@ -877,35 +858,105 @@
             font-weight: 700;
             font-size: 12px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.28);
-            animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             color: #ffffff;
             pointer-events: auto;
+            opacity: 0;
+            transform: translateY(-100%) scale(0.97);
+            transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out);
+        }
+
+        .toast[data-state="open"] {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .toast[data-state="closing"] {
+            opacity: 0;
+            transform: translateY(-100%) scale(0.97);
+            transition-duration: 210ms;
         }
 
         .toast.success { background: linear-gradient(135deg, #005d42, #047857); }
         .toast.error { background: linear-gradient(135deg, #991b1b, #ba1a1a); }
         .toast.warning { background: linear-gradient(135deg, #92400e, #b45309); }
 
-        @keyframes toastIn {
-            from { opacity: 0; transform: translateY(-16px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+        /* GPU scaleX progress bar driver (zero layout reflow) */
+        .gbf-scale-bar {
+            width: 100%;
+            transform-origin: left center;
+            transition: transform 360ms var(--ease-out);
         }
 
-        @keyframes toastOut {
-            from { opacity: 1; transform: translateY(0) scale(1); }
-            to { opacity: 0; transform: translateY(-16px) scale(0.95); }
+        /* Carousel dot pill GPU transform */
+        .gbf-dot-pill {
+            width: 14px;
+            height: 6px;
+            border-radius: 9999px;
+            transform-origin: center;
+            transition: transform 220ms var(--ease-out), opacity 180ms ease, background-color 180ms ease;
+        }
+
+        /* Trigger-anchored popover + centered modal + gesture sheet overlays */
+        .gbf-popover-panel {
+            transform-origin: top right;
+            opacity: 0;
+            transform: scale(0.95) translateY(-4px);
+            transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out);
+        }
+        .gbf-popover-panel[data-state="open"] {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .gbf-modal-backdrop,
+        .gbf-sheet-backdrop {
+            opacity: 0;
+            transition: opacity 240ms var(--ease-out);
+        }
+        .gbf-modal-backdrop[data-state="open"],
+        .gbf-sheet-backdrop[data-state="open"] {
+            opacity: 1;
+        }
+
+        .gbf-modal-dialog {
+            transform-origin: center;
+            opacity: 0;
+            transform: scale(0.96);
+            transition: opacity 220ms var(--ease-out), transform 220ms var(--ease-out);
+        }
+        .gbf-modal-backdrop[data-state="open"] .gbf-modal-dialog {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .gbf-sheet-panel {
+            transform: translateY(100%);
+            transition: transform 320ms var(--ease-drawer);
+        }
+        .gbf-sheet-panel[data-state="open"] {
+            transform: translateY(0);
+        }
+        .gbf-sheet-panel[data-dragging="true"] {
+            transition: none;
+            will-change: transform;
+        }
+
+        /* Check-In / Out completion checkmark stroke draw */
+        @keyframes gbfCheckDraw {
+            from { stroke-dashoffset: 28; }
+            to { stroke-dashoffset: 0; }
+        }
+        .gbf-check-draw path,
+        .gbf-check-draw polyline {
+            stroke-dasharray: 28;
+            stroke-dashoffset: 28;
+            animation: gbfCheckDraw 260ms var(--ease-out) forwards;
         }
 
         @media (prefers-reduced-motion: no-preference) {
             @keyframes mvpCrownPulse {
-                0%, 100% {
-                    transform: translateY(0) scale(1);
-                    filter: drop-shadow(0 0 3px rgba(250, 204, 21, 0.55));
-                }
-                50% {
-                    transform: translateY(-1px) scale(1.07);
-                    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.85));
-                }
+                0%, 100% { transform: translateY(0) scale(1); }
+                50% { transform: translateY(-1px) scale(1.06); }
             }
             @keyframes mvpSparkleTwinkle {
                 0%, 100% { opacity: 0.35; transform: scale(0.8); }
@@ -925,7 +976,7 @@
         .team-pill-btn {
             background: var(--astral-row);
             border: 1px solid var(--astral-border);
-            transition: transform 0.16s var(--ease-out), border-color 0.16s ease, box-shadow 0.16s ease;
+            transition: transform 140ms var(--ease-out), border-color 150ms ease, background-color 150ms ease;
         }
         .team-pill-btn:active { transform: scale(0.97); }
         .team-pill-btn.is-active {
@@ -935,29 +986,133 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
+            html, body, * {
+                scroll-behavior: auto !important;
+            }
             .mvp-crown-anim,
             .mvp-spark-anim,
             .ambient-orb-1,
             .ambient-orb-2,
             .loader-sonar,
             .loader-sonar-delay,
-            .loader-bar-shimmer,
+            .loader-bar-shimmer::after,
             .cta-pulse-ring::after,
             .animate-pulse,
+            .animate-ping,
+            .animate-spin,
             .pin-shake,
             .tab-content.active,
             .tab-content.active > *,
-            .toast,
             .portal-unlock-enter,
+            .gbf-check-draw path,
+            .gbf-check-draw polyline,
             .nav-tab-btn.active {
                 animation: none !important;
                 opacity: 1 !important;
                 transform: none !important;
+                stroke-dashoffset: 0 !important;
                 transition: opacity 150ms ease !important;
             }
+            .toast,
+            .gbf-popover-panel,
+            .gbf-modal-backdrop,
+            .gbf-modal-dialog,
+            .gbf-sheet-backdrop,
+            .gbf-sheet-panel,
+            .gbf-scale-bar,
+            .gbf-dot-pill,
             .hud-seg-indicator {
                 animation: none !important;
-                transition-duration: 0.01ms !important;
+                transition: opacity 150ms ease !important;
+            }
+            .toast,
+            .gbf-popover-panel,
+            .gbf-modal-dialog,
+            .gbf-sheet-panel {
+                transform: none !important;
+            }
+            .tap-spring:active,
+            .keypad-btn:active,
+            .team-pill-btn:active {
+                transform: none !important;
+            }
+        }
+
+        @media (prefers-reduced-transparency: reduce) {
+            .glass-header,
+            .glass-card,
+            #bottom-nav,
+            #global-loader,
+            .mlbb-card,
+            .mlbb-squad-shell,
+            .mlbb-squad-row,
+            .gbf-modal-backdrop,
+            .gbf-sheet-backdrop {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+            .glass-header,
+            .glass-card,
+            #bottom-nav,
+            .mlbb-card,
+            .mlbb-squad-shell,
+            .mlbb-squad-row {
+                background: #FFFFFF !important;
+            }
+            body.dark-mode .glass-header,
+            body.dark-mode .glass-card,
+            body.dark-mode #bottom-nav,
+            body.dark-mode .mlbb-card,
+            body.dark-mode .mlbb-squad-shell,
+            body.dark-mode .mlbb-squad-row {
+                background: #142442 !important;
+            }
+            #global-loader,
+            .gbf-modal-backdrop,
+            .gbf-sheet-backdrop {
+                background: #0D192E !important;
+            }
+        }
+
+        @media (prefers-contrast: more) {
+            .glass-header,
+            .glass-card,
+            #bottom-nav,
+            .mlbb-squad-shell,
+            .mlbb-squad-row,
+            .mlbb-std-row,
+            .mlbb-card,
+            .reward-pass-card,
+            .team-pill-btn,
+            .toast {
+                border-width: 1.5px !important;
+                border-color: rgba(15, 23, 42, 0.72) !important;
+            }
+            body.dark-mode .glass-header,
+            body.dark-mode .glass-card,
+            body.dark-mode #bottom-nav,
+            body.dark-mode .mlbb-squad-shell,
+            body.dark-mode .mlbb-squad-row,
+            body.dark-mode .mlbb-std-row,
+            body.dark-mode .mlbb-card,
+            body.dark-mode .reward-pass-card,
+            body.dark-mode .team-pill-btn,
+            body.dark-mode .toast {
+                border-color: rgba(147, 197, 253, 0.85) !important;
+            }
+            input, select, textarea {
+                border-color: rgba(15, 23, 42, 0.65) !important;
+            }
+            body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
+                border-color: rgba(186, 230, 253, 0.78) !important;
+            }
+            .victory-gold, .rank-badge {
+                -webkit-text-fill-color: #78350F !important;
+                color: #78350F !important;
+            }
+            body.dark-mode .victory-gold, body.dark-mode .rank-badge {
+                -webkit-text-fill-color: #FEF08A !important;
+                color: #FEF08A !important;
             }
         }
     </style>
@@ -1079,7 +1234,7 @@
                     </button>
                 </div>
 
-                <button type="submit" id="pin-submit-btn" class="cta-pulse-ring w-full bg-gradient-to-r from-primary to-primary-container hover:brightness-105 text-white font-ui-label font-extrabold py-3.5 rounded-2xl active:scale-95 transition-all shadow-lg flex justify-center items-center gap-2 text-xs uppercase tracking-wider">
+                <button type="submit" id="pin-submit-btn" class="cta-pulse-ring tap-spring w-full bg-gradient-to-r from-primary to-primary-container hover:brightness-105 text-white font-ui-label font-extrabold py-3.5 rounded-2xl shadow-lg flex justify-center items-center gap-2 text-xs uppercase tracking-wider">
                     <i class="fas fa-unlock-alt"></i> <span>Unlock Portal</span>
                 </button>
             </form>
@@ -1126,7 +1281,7 @@
                             <span id="month-picker-label" class="tabular-nums">Nov '26</span>
                             <svg id="month-picker-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400 transition-transform duration-150 shrink-0" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                         </button>
-                        <div id="month-picker-menu" role="listbox" aria-label="Available Months" class="hidden ios-scroll absolute right-0 top-full mt-2 w-48 max-h-64 overflow-y-auto rounded-2xl glass-card bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-sky-400/25 shadow-2xl p-1.5 z-50 space-y-1">
+                        <div id="month-picker-menu" data-state="closed" role="listbox" aria-label="Available Months" class="gbf-popover-panel hidden ios-scroll absolute right-0 top-full mt-2 w-48 max-h-64 overflow-y-auto rounded-2xl glass-card bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-sky-400/25 shadow-2xl p-1.5 z-50 space-y-1">
                             <div class="px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Select Period</div>
                             <div id="month-picker-options" class="space-y-1"></div>
                         </div>
@@ -1164,7 +1319,7 @@
                     <div class="lg:col-span-7 space-y-3">
 
                         <!-- Unified Command Strip & Live GPS Mission Card (Check-In/Out + GPS Telemetry always together) -->
-                        <div id="gps-arena-card" class="glass-card hud-hover-lift rounded-3xl p-2.5 sm:p-3 space-y-2 border border-sky-400/30 transition-all">
+                        <div id="gps-arena-card" class="glass-card hud-hover-lift rounded-3xl p-2.5 sm:p-3 space-y-2 border border-sky-400/30">
                             <div id="gps-arena-header-row" class="space-y-1.5">
                                 <!-- Integrated Non-Duplicate Leader Command Strip -->
                                 <div id="role-pulse-strip" class="hidden pb-1.5 border-b border-slate-200/70 dark:border-sky-400/20"></div>
@@ -1219,14 +1374,14 @@
                                     </div>
 
                                     <div class="w-full h-1 rounded-full bg-slate-200 dark:bg-slate-900/80 overflow-hidden relative" title="HQ 0m — 500m Zone — Field km">
-                                        <div id="live-distance-bar" class="h-1 transition-all duration-500" style="width: 18%; background: linear-gradient(90deg, var(--hue-jade), var(--hue-cyan), var(--hue-gold), var(--hue-coral));"></div>
+                                        <div id="live-distance-bar" class="h-1 gbf-scale-bar" style="transform: scaleX(0.18); background: linear-gradient(90deg, var(--hue-jade), var(--hue-cyan), var(--hue-gold), var(--hue-coral));"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Unified Company Attendance Table + Team A/B/C Shield Crests Card -->
-                        <div id="home-roster-section" class="mlbb-squad-shell hud-hover-lift rounded-3xl p-2.5 sm:p-3 space-y-2 transition-all">
+                        <div id="home-roster-section" class="mlbb-squad-shell hud-hover-lift rounded-3xl p-2.5 sm:p-3 space-y-2">
                             <button type="button" onclick="toggleTodayCheckinPanel()" class="tap-spring w-full flex items-center justify-between gap-2 text-left">
                                 <div class="flex items-center gap-2 min-w-0">
                                     <span class="w-6 h-6 rounded-lg bg-sky-500/15 border border-sky-400/35 flex items-center justify-center shrink-0" style="color: var(--hue-cyan);">
@@ -1379,9 +1534,9 @@
                                         </div>
 
                                         <div class="flex h-2 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-800 mb-3">
-                                            <div id="home-progress-early" class="h-2 transition-all duration-500" style="width: 68%; background: linear-gradient(90deg, #FFFBEB, #FACC15);"></div>
-                                            <div id="home-progress-ontime" class="h-2 transition-all duration-500" style="width: 27%; background: var(--hue-gold);"></div>
-                                            <div id="home-progress-late" class="h-2 transition-all duration-500" style="width: 5%; background: var(--hue-silver);"></div>
+                                            <div id="home-progress-early" class="h-2 transition-opacity duration-200" style="width: 68%; background: linear-gradient(90deg, #FFFBEB, #FACC15);"></div>
+                                            <div id="home-progress-ontime" class="h-2 transition-opacity duration-200" style="width: 27%; background: var(--hue-gold);"></div>
+                                            <div id="home-progress-late" class="h-2 transition-opacity duration-200" style="width: 5%; background: var(--hue-silver);"></div>
                                         </div>
 
                                         <div class="grid grid-cols-4 gap-1.5 text-center">
@@ -1426,7 +1581,7 @@
                                                 <span class="font-black tabular-nums whitespace-nowrap" style="color: var(--hue-gold);" id="home-wallet-rem">0 Ks</span>
                                             </div>
                                             <div class="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-                                                <div id="home-wallet-bar" class="h-1.5" style="width: 30%; background: linear-gradient(90deg, var(--hue-cyan), var(--hue-jade), var(--hue-gold));"></div>
+                                                <div id="home-wallet-bar" class="h-1.5 gbf-scale-bar" style="transform: scaleX(0.30); background: linear-gradient(90deg, var(--hue-cyan), var(--hue-jade), var(--hue-gold));"></div>
                                             </div>
                                         </div>
 
@@ -1453,9 +1608,9 @@
 
                             <div class="flex items-center justify-between mt-2 pt-1.5 border-t border-blue-500/20 dark:border-sky-400/20">
                                 <div class="flex items-center gap-1.5">
-                                    <button type="button" onclick="scrollToHomeSlide(0)" id="home-dot-0" class="w-4 h-1.5 rounded-full bg-sky-400 transition-all cursor-pointer" aria-label="Slide 1"></button>
-                                    <button type="button" onclick="scrollToHomeSlide(1)" id="home-dot-1" class="w-1.5 h-1.5 rounded-full bg-slate-400/40 transition-all cursor-pointer" aria-label="Slide 2"></button>
-                                    <button type="button" onclick="scrollToHomeSlide(2)" id="home-dot-2" class="w-1.5 h-1.5 rounded-full bg-slate-400/40 transition-all cursor-pointer" aria-label="Slide 3"></button>
+                                    <button type="button" onclick="scrollToHomeSlide(0)" id="home-dot-0" class="gbf-dot-pill bg-sky-500 dark:bg-sky-400 cursor-pointer" style="transform: scaleX(1);" aria-label="Slide 1"></button>
+                                    <button type="button" onclick="scrollToHomeSlide(1)" id="home-dot-1" class="gbf-dot-pill bg-slate-400/40 dark:bg-white/25 cursor-pointer" style="transform: scaleX(0.45); opacity: 0.65;" aria-label="Slide 2"></button>
+                                    <button type="button" onclick="scrollToHomeSlide(2)" id="home-dot-2" class="gbf-dot-pill bg-slate-400/40 dark:bg-white/25 cursor-pointer" style="transform: scaleX(0.45); opacity: 0.65;" aria-label="Slide 3"></button>
                                     <span class="text-[8.5px] font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider ml-1" id="home-slide-label">1/3 • History &amp; Radar</span>
                                 </div>
                                 <div class="flex items-center gap-1">
@@ -1619,9 +1774,9 @@
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
                     <div class="lg:col-span-6 glass-card p-3.5 rounded-3xl space-y-3">
                         <div class="grid grid-cols-3 gap-1 p-1 rounded-xl bg-surface-container-low dark:bg-slate-800">
-                            <button type="button" onclick="setCalendarMode('weekly')" id="cal-mode-weekly" class="py-1.5 rounded-lg bg-primary text-white text-[10px] font-extrabold transition-all">Weekly (အပတ်စဉ်)</button>
-                            <button type="button" onclick="setCalendarMode('daily')" id="cal-mode-daily" class="py-1.5 rounded-lg text-on-surface-variant dark:text-slate-200 text-[10px] font-extrabold transition-all">Daily (နေ့စဉ်)</button>
-                            <button type="button" onclick="setCalendarMode('monthly')" id="cal-mode-monthly" class="py-1.5 rounded-lg text-on-surface-variant dark:text-slate-200 text-[10px] font-extrabold transition-all">Monthly (လစဉ်)</button>
+                            <button type="button" onclick="setCalendarMode('weekly')" id="cal-mode-weekly" class="py-1.5 rounded-lg bg-primary text-white text-[10px] font-extrabold transition-colors duration-150">Weekly (အပတ်စဉ်)</button>
+                            <button type="button" onclick="setCalendarMode('daily')" id="cal-mode-daily" class="py-1.5 rounded-lg text-on-surface-variant dark:text-slate-200 text-[10px] font-extrabold transition-colors duration-150">Daily (နေ့စဉ်)</button>
+                            <button type="button" onclick="setCalendarMode('monthly')" id="cal-mode-monthly" class="py-1.5 rounded-lg text-on-surface-variant dark:text-slate-200 text-[10px] font-extrabold transition-colors duration-150">Monthly (လစဉ်)</button>
                         </div>
 
                         <div class="flex items-center justify-between">
@@ -1682,12 +1837,12 @@
                                     <p class="text-[9px] text-emerald-200 font-ui-label font-bold uppercase tracking-wider">50% Base Salary Advance Limit</p>
                                     <h3 class="text-base font-black text-white mt-0.5 tabular-nums whitespace-nowrap">လက်ကျန်: <span id="wallet-remaining" class="text-emerald-bright">0</span> <span class="text-[10px]">MMK</span></h3>
                                 </div>
-                                <button type="button" onclick="switchTab('advance')" class="touch-target bg-emerald-bright hover:brightness-105 text-dark-surface font-ui-label font-extrabold text-[9.5px] px-3 py-2 rounded-xl shadow-md active:scale-95 transition-all uppercase shrink-0">
+                                <button type="button" onclick="switchTab('advance')" class="touch-target tap-spring bg-emerald-bright hover:brightness-105 text-dark-surface font-ui-label font-extrabold text-[9.5px] px-3 py-2 rounded-xl shadow-md uppercase shrink-0">
                                     <i class="fas fa-hand-holding-usd mr-1"></i> ငွေထုတ်ရန်
                                 </button>
                             </div>
                             <div class="w-full bg-black/40 h-2 rounded-full overflow-hidden mb-2.5 border border-white/10">
-                                <div id="wallet-progress-bar" class="bg-gradient-to-r from-emerald-bright to-amber-bright h-2 transition-all duration-500" style="width: 0%"></div>
+                                <div id="wallet-progress-bar" class="bg-gradient-to-r from-emerald-bright to-amber-bright h-2 gbf-scale-bar" style="transform: scaleX(0)"></div>
                             </div>
                             <div class="grid grid-cols-3 gap-2 text-[9px] text-emerald-100/95 font-semibold pt-1.5 border-t border-white/10 tabular-nums">
                                 <div><span class="block text-[7.5px] uppercase text-emerald-300/80">Base Salary</span><span id="wallet-base" class="font-black text-white whitespace-nowrap">0</span></div>
@@ -1766,7 +1921,7 @@
                             <label for="lv-reason" class="text-[10px] font-extrabold text-on-surface-variant dark:text-slate-200 uppercase block mb-1">အကြောင်းရင်း</label>
                             <textarea id="lv-reason" rows="3" required oninput="saveDraft('leave')" enterkeyhint="done" class="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 font-medium text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:focus-visible:ring-emerald-400 resize-none" placeholder="ခွင့်ယူရသည့် အကြောင်းရင်း..."></textarea>
                         </div>
-                        <button type="submit" id="btn-submit-leave" class="w-full bg-primary hover:bg-primary-container text-white font-ui-label font-extrabold py-3.5 rounded-xl active:scale-95 transition-all shadow-md text-xs uppercase tracking-wider disabled:opacity-50">
+                        <button type="submit" id="btn-submit-leave" class="tap-spring w-full bg-primary hover:bg-primary-container text-white font-ui-label font-extrabold py-3.5 rounded-xl shadow-md text-xs uppercase tracking-wider disabled:opacity-50">
                             <i class="fas fa-paper-plane mr-1"></i> အတည်ပြုသူများထံ ပေးပို့မည်
                         </button>
                     </form>
@@ -1794,7 +1949,7 @@
                             <span class="text-xs font-black text-primary dark:text-emerald-bright tabular-nums whitespace-nowrap" id="adv-form-limit-badge">0 MMK</span>
                         </div>
                         <div class="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-                            <div id="adv-form-progress-bar" class="h-2 bg-gradient-to-r from-emerald-bright to-amber-bright transition-all duration-500" style="width: 0%"></div>
+                            <div id="adv-form-progress-bar" class="h-2 bg-gradient-to-r from-emerald-bright to-amber-bright gbf-scale-bar" style="transform: scaleX(0)"></div>
                         </div>
                         <div class="flex items-center justify-between text-[9.5px] font-bold tabular-nums text-on-surface-variant dark:text-slate-300">
                             <span>ထုတ်ယူပြီး: <span id="adv-form-used-label" class="text-amber-700 dark:text-amber-bright font-black">0 MMK</span></span>
@@ -1809,16 +1964,16 @@
                                 <span class="absolute right-3.5 text-xs font-extrabold text-slate-600 dark:text-slate-300 pointer-events-none">MMK</span>
                             </div>
                             <div class="grid grid-cols-3 gap-2 mt-2">
-                                <button type="button" onclick="selectAdvanceChip(50000)" class="quick-chip-btn py-2 px-2.5 rounded-xl bg-surface-container-low dark:bg-slate-900/90 border border-slate-300/70 dark:border-slate-600/80 hover:border-emerald-bright text-[11px] font-extrabold text-primary dark:text-emerald-bright active:scale-95 transition-all tabular-nums">50,000</button>
-                                <button type="button" onclick="selectAdvanceChip(100000)" class="quick-chip-btn py-2 px-2.5 rounded-xl bg-surface-container-low dark:bg-slate-900/90 border border-slate-300/70 dark:border-slate-600/80 hover:border-emerald-bright text-[11px] font-extrabold text-primary dark:text-emerald-bright active:scale-95 transition-all tabular-nums">100,000</button>
-                                <button type="button" onclick="selectAdvanceChip('MAX')" class="quick-chip-btn py-2 px-2.5 rounded-xl bg-emerald-bright/15 border border-emerald-bright/45 hover:bg-emerald-bright/25 text-[11px] font-extrabold text-primary dark:text-emerald-bright active:scale-95 transition-all">Max</button>
+                                <button type="button" onclick="selectAdvanceChip(50000)" class="quick-chip-btn tap-spring py-2 px-2.5 rounded-xl bg-surface-container-low dark:bg-slate-900/90 border border-slate-300/70 dark:border-slate-600/80 hover:border-emerald-bright text-[11px] font-extrabold text-primary dark:text-emerald-bright tabular-nums">50,000</button>
+                                <button type="button" onclick="selectAdvanceChip(100000)" class="quick-chip-btn tap-spring py-2 px-2.5 rounded-xl bg-surface-container-low dark:bg-slate-900/90 border border-slate-300/70 dark:border-slate-600/80 hover:border-emerald-bright text-[11px] font-extrabold text-primary dark:text-emerald-bright tabular-nums">100,000</button>
+                                <button type="button" onclick="selectAdvanceChip('MAX')" class="quick-chip-btn tap-spring py-2 px-2.5 rounded-xl bg-emerald-bright/15 border border-emerald-bright/45 hover:bg-emerald-bright/25 text-[11px] font-extrabold text-primary dark:text-emerald-bright">Max</button>
                             </div>
                         </div>
                         <div>
                             <label for="adv-reason" class="text-[10px] font-extrabold text-on-surface-variant dark:text-slate-200 uppercase block mb-1">အကြောင်းရင်း (Reason)</label>
                             <textarea id="adv-reason" rows="2" required oninput="saveDraft('advance')" enterkeyhint="done" class="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 font-medium text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:focus-visible:ring-emerald-400 resize-none" placeholder="အရေးပေါ် သုံးစွဲရသည့် အကြောင်းရင်း..."></textarea>
                         </div>
-                        <button type="submit" id="btn-submit-advance" class="w-full bg-emerald-bright hover:brightness-105 text-dark-surface font-ui-label font-extrabold py-3.5 rounded-xl active:scale-95 transition-all shadow-md text-xs uppercase tracking-wider disabled:opacity-50">
+                        <button type="submit" id="btn-submit-advance" class="tap-spring w-full bg-emerald-bright hover:brightness-105 text-dark-surface font-ui-label font-extrabold py-3.5 rounded-xl shadow-md text-xs uppercase tracking-wider disabled:opacity-50">
                             <i class="fas fa-check-circle mr-1"></i> <span id="adv-submit-label">အတည်ပြုချက် တောင်းခံမည်</span>
                         </button>
                     </form>
@@ -1858,7 +2013,7 @@
                             <input type="checkbox" id="voc-anon" onchange="saveDraft('voice')" class="w-4 h-4 accent-primary">
                             <span class="text-[10px] font-bold">အမည်ဝှက်ဖြင့် ပေးပို့မည် (Anonymous Mode)</span>
                         </label>
-                        <button type="submit" id="btn-submit-voice" class="w-full bg-secondary hover:brightness-105 text-white font-ui-label font-extrabold py-3.5 rounded-xl active:scale-95 transition-all shadow-md text-xs uppercase tracking-wider disabled:opacity-50">
+                        <button type="submit" id="btn-submit-voice" class="tap-spring w-full bg-secondary hover:brightness-105 text-white font-ui-label font-extrabold py-3.5 rounded-xl shadow-md text-xs uppercase tracking-wider disabled:opacity-50">
                             <i class="fas fa-comment-dots mr-1"></i> HR-AI သို့ ပေးပို့မည်
                         </button>
                     </form>
@@ -1901,7 +2056,7 @@
                             <span class="text-[10px] font-extrabold text-on-surface-variant dark:text-slate-200 uppercase block mb-1.5">အဖွဲ့ဝင်များ ရွေးချယ်ပါ</span>
                             <div id="team-members-list" class="border border-slate-200 dark:border-slate-700 p-2 rounded-xl space-y-1 bg-surface-container-low dark:bg-slate-800 max-h-48 overflow-y-auto"></div>
                         </div>
-                        <button type="submit" id="btn-submit-team" class="touch-target w-full bg-slate-900 dark:bg-sky-700 hover:brightness-110 text-white font-ui-label font-extrabold py-3.5 rounded-xl active:scale-95 transition-all shadow-md text-xs uppercase tracking-wider disabled:opacity-50 inline-flex items-center justify-center gap-2">
+                        <button type="submit" id="btn-submit-team" class="touch-target tap-spring w-full bg-slate-900 dark:bg-sky-700 hover:brightness-110 text-white font-ui-label font-extrabold py-3.5 rounded-xl shadow-md text-xs uppercase tracking-wider disabled:opacity-50 inline-flex items-center justify-center gap-2">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
                             <span>အဖွဲ့ဖွဲ့စည်းပြီး Telegram ပို့မည်</span>
                         </button>
@@ -1927,10 +2082,10 @@
                     <h3 class="text-sm font-black uppercase tracking-wider inline-flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-sky-300 shrink-0" aria-hidden="true"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg><span>HR-AI &amp; Payroll Command</span></h3>
                     <p class="text-[9.5px] text-sky-200 mt-0.5">Burnout Risk Watchlist &amp; Automated Monthly Payroll</p>
                     <div class="mt-4 grid grid-cols-2 gap-2.5">
-                        <button type="button" onclick="runAIPredictions()" class="touch-target bg-white/15 hover:bg-white/25 border border-white/20 text-white font-ui-label font-extrabold py-2.5 rounded-xl text-[9.5px] uppercase tracking-wider active:scale-95 transition-all">
+                        <button type="button" onclick="runAIPredictions()" class="touch-target tap-spring bg-white/15 hover:bg-white/25 border border-white/20 text-white font-ui-label font-extrabold py-2.5 rounded-xl text-[9.5px] uppercase tracking-wider">
                             <i class="fas fa-sync-alt mr-1"></i> Run AI Analysis
                         </button>
-                        <button type="button" onclick="generatePayrollAll()" class="touch-target bg-emerald-bright hover:brightness-105 text-dark-surface font-ui-label font-extrabold py-2.5 rounded-xl text-[9.5px] uppercase tracking-wider active:scale-95 transition-all">
+                        <button type="button" onclick="generatePayrollAll()" class="touch-target tap-spring bg-emerald-bright hover:brightness-105 text-dark-surface font-ui-label font-extrabold py-2.5 rounded-xl text-[9.5px] uppercase tracking-wider">
                             <i class="fas fa-file-invoice-dollar mr-1"></i> Generate Payroll
                         </button>
                     </div>
@@ -1953,10 +2108,13 @@
     <!-- ====================================================================== -->
     <!-- ⚡ QUICK ACTION FLOATING SHEET                                         -->
     <!-- ====================================================================== -->
-    <div id="quick-action-sheet" onclick="closeQuickActionSheet(event)" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden items-end justify-center p-3">
-        <div onclick="event.stopPropagation()" class="ios-scroll w-full max-w-lg glass-card rounded-3xl p-4 space-y-3 shadow-2xl border-t-4 border-t-emerald-bright">
+    <div id="quick-action-sheet" role="dialog" aria-modal="true" aria-labelledby="quick-action-sheet-title" data-state="closed" onclick="closeQuickActionSheet(event)" class="gbf-sheet-backdrop fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden items-end justify-center p-3">
+        <div id="quick-action-sheet-panel" data-state="closed" onclick="event.stopPropagation()" class="gbf-sheet-panel ios-scroll w-full max-w-lg glass-card rounded-3xl p-4 pt-2 space-y-3 shadow-2xl border-t-4 border-t-emerald-bright">
+            <div id="quick-sheet-drag-handle" class="w-full py-1.5 flex justify-center cursor-grab active:cursor-grabbing touch-none" aria-hidden="true">
+                <span class="w-10 h-1 rounded-full bg-slate-400/55 dark:bg-white/25"></span>
+            </div>
             <div class="flex items-center justify-between pb-2 border-b border-slate-200/70 dark:border-slate-700/70">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-on-surface dark:text-white">Quick Actions</span>
+                <span id="quick-action-sheet-title" class="text-xs font-extrabold uppercase tracking-wider text-on-surface dark:text-white">Quick Actions</span>
                 <button type="button" onclick="closeQuickActionSheet()" aria-label="Close Quick Actions" class="touch-target tap-spring w-8 h-8 rounded-full bg-surface-container-low dark:bg-slate-800 flex items-center justify-center text-xs">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
@@ -1997,12 +2155,12 @@
     <!-- ====================================================================== -->
     <!-- 🏆 CONFIGURABLE REWARD & BONUS SETTINGS MODAL (LEADER RBAC)            -->
     <!-- ====================================================================== -->
-    <div id="reward-settings-modal" onclick="closeRewardSettingsModal(event)" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
-        <div onclick="event.stopPropagation()" class="ios-scroll w-full max-w-md glass-card rounded-3xl p-5 space-y-3.5 shadow-2xl border-t-4 border-t-amber-bright max-h-[90dvh] overflow-y-auto">
+    <div id="reward-settings-modal" role="dialog" aria-modal="true" aria-labelledby="reward-settings-title" data-state="closed" onclick="closeRewardSettingsModal(event)" class="gbf-modal-backdrop fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
+        <div id="reward-settings-dialog" onclick="event.stopPropagation()" class="gbf-modal-dialog ios-scroll w-full max-w-md glass-card rounded-3xl p-5 space-y-3.5 shadow-2xl border-t-4 border-t-amber-bright max-h-[90dvh] overflow-y-auto">
             <div class="flex items-center justify-between pb-2 border-b border-slate-200/70 dark:border-slate-700/70">
                 <div>
                     <span class="text-[9px] font-ui-label font-extrabold uppercase tracking-wider text-primary dark:text-emerald-bright">Google Sheets System_Settings Sync</span>
-                    <h3 class="text-xs font-extrabold text-on-surface dark:text-white mt-0.5 inline-flex items-center gap-1.5">
+                    <h3 id="reward-settings-title" class="text-xs font-extrabold text-on-surface dark:text-white mt-0.5 inline-flex items-center gap-1.5">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" class="text-amber-700 dark:text-amber-bright shrink-0" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
                         <span>Reward &amp; Bonus နှုန်းထား သတ်မှတ်ရန်</span>
                     </h3>
@@ -2079,7 +2237,7 @@
                 </p>
 
                 <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-gradient-to-r from-primary to-primary-container hover:brightness-105 text-white font-ui-label font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider shadow-md active:scale-95 transition-all">
+                    <button type="submit" class="tap-spring flex-1 bg-gradient-to-r from-primary to-primary-container hover:brightness-105 text-white font-ui-label font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider shadow-md">
                         <i class="fas fa-floppy-disk mr-1"></i> Save Settings
                     </button>
                     <button type="button" onclick="syncFormulaRegistrySheet()" class="tap-spring px-3 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-sky-300 border border-slate-300 dark:border-sky-400/30 font-extrabold text-[10px] whitespace-nowrap">
@@ -2785,19 +2943,163 @@
             return (parts[0] || 'GB').substring(0, 2).toUpperCase();
         }
 
+        function gbfPrefersReducedMotion() {
+            return Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        }
+
+        const gbfOverlayTimers = new WeakMap();
+        const gbfOverlayRafs = new WeakMap();
+        const gbfCounterRafs = new WeakMap();
+
+        function clearOverlayTimer(el) {
+            if (!el) return;
+            const tid = gbfOverlayTimers.get(el);
+            if (tid) {
+                clearTimeout(tid);
+                gbfOverlayTimers.delete(el);
+            }
+            const rafId = gbfOverlayRafs.get(el);
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                gbfOverlayRafs.delete(el);
+            }
+        }
+
+        function getElementTranslateY(el) {
+            if (!el || !window.getComputedStyle) return 0;
+            const tf = getComputedStyle(el).transform;
+            if (!tf || tf === 'none') return 0;
+            if (typeof DOMMatrix === 'function') {
+                try {
+                    const m = new DOMMatrix(tf).m42;
+                    if (Number.isFinite(m)) return m;
+                } catch (e) {}
+            }
+            const m3d = tf.match(/^matrix3d\(([^)]+)\)$/);
+            if (m3d) {
+                const parts = m3d[1].split(',');
+                const ty = parseFloat(parts[13]);
+                return Number.isFinite(ty) ? ty : 0;
+            }
+            const m2d = tf.match(/^matrix\(([^)]+)\)$/);
+            if (m2d) {
+                const parts = m2d[1].split(',');
+                const ty = parseFloat(parts[5]);
+                return Number.isFinite(ty) ? ty : 0;
+            }
+            return 0;
+        }
+
+        function openOverlayAnimated(backdropEl, panelEl = null, displayCls = 'flex') {
+            if (!backdropEl) return;
+            clearOverlayTimer(backdropEl);
+            const target = panelEl || backdropEl;
+            const liveY = (panelEl && !backdropEl.classList.contains('hidden'))
+                ? getElementTranslateY(panelEl)
+                : null;
+            if (panelEl) {
+                panelEl.removeAttribute('data-dragging');
+                panelEl.style.transitionDuration = '';
+                if (liveY != null && Math.abs(liveY) > 0.5) {
+                    panelEl.style.transform = `translateY(${liveY}px)`;
+                }
+            }
+            const wasHidden = backdropEl.classList.contains('hidden');
+            if (wasHidden) {
+                backdropEl.classList.remove('hidden');
+                if (displayCls) backdropEl.classList.add(displayCls);
+                backdropEl.setAttribute('data-state', 'closed');
+                if (target) target.setAttribute('data-state', 'closed');
+            }
+            const applyOpen = () => {
+                gbfOverlayRafs.delete(backdropEl);
+                if (panelEl && panelEl.hasAttribute('data-dragging')) return;
+                if (panelEl) panelEl.style.transform = '';
+                backdropEl.setAttribute('data-state', 'open');
+                if (target) target.setAttribute('data-state', 'open');
+            };
+            if (wasHidden) {
+                const r1 = requestAnimationFrame(() => {
+                    const r2 = requestAnimationFrame(applyOpen);
+                    gbfOverlayRafs.set(backdropEl, r2);
+                });
+                gbfOverlayRafs.set(backdropEl, r1);
+            } else {
+                const r1 = requestAnimationFrame(applyOpen);
+                gbfOverlayRafs.set(backdropEl, r1);
+            }
+        }
+
+        function closeOverlayAnimated(backdropEl, panelEl = null, displayCls = 'flex', durationMs = 240) {
+            if (!backdropEl || backdropEl.classList.contains('hidden')) return;
+            clearOverlayTimer(backdropEl);
+            const waitMs = gbfPrefersReducedMotion() ? 160 : durationMs;
+            backdropEl.setAttribute('data-state', 'closed');
+            if (panelEl) {
+                panelEl.removeAttribute('data-dragging');
+                panelEl.setAttribute('data-state', 'closed');
+            }
+            const tid = setTimeout(() => {
+                backdropEl.classList.add('hidden');
+                if (displayCls) backdropEl.classList.remove(displayCls);
+                if (panelEl) {
+                    panelEl.style.transform = '';
+                    panelEl.style.transitionDuration = '';
+                    panelEl.removeAttribute('data-dragging');
+                }
+                gbfOverlayTimers.delete(backdropEl);
+            }, waitMs);
+            gbfOverlayTimers.set(backdropEl, tid);
+        }
+
+        function animateRevealContainer(el, dy = -5) {
+            if (!el || gbfPrefersReducedMotion() || typeof el.animate !== 'function') return;
+            if (typeof el.getAnimations === 'function') {
+                el.getAnimations().forEach(a => a.cancel());
+            }
+            el.animate(
+                [
+                    { opacity: 0, transform: `translateY(${dy}px)` },
+                    { opacity: 1, transform: 'translateY(0)' }
+                ],
+                { duration: 180, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' }
+            );
+        }
+
+        function setScaleXBarProgress(el, pct) {
+            if (!el) return;
+            const ratio = Math.max(0, Math.min(1, (Number(pct) || 0) / 100));
+            el.style.transform = `scaleX(${ratio.toFixed(4)})`;
+        }
+
         function animateCounterValue(elId, endVal, suffix = "", duration = 500) {
             const el = document.getElementById(elId);
             if (!el) return;
-            const startTime = performance.now();
+            const prevRaf = gbfCounterRafs.get(el);
+            if (prevRaf) {
+                cancelAnimationFrame(prevRaf);
+                gbfCounterRafs.delete(el);
+            }
             const target = Number(endVal) || 0;
+            if (gbfPrefersReducedMotion() || duration <= 0) {
+                el.innerText = target.toLocaleString() + suffix;
+                return;
+            }
+            const startTime = performance.now();
             function step(now) {
                 const progress = Math.min(1, (now - startTime) / duration);
                 const eased = 1 - Math.pow(1 - progress, 3);
                 const current = Math.round(target * eased);
                 el.innerText = current.toLocaleString() + suffix;
-                if (progress < 1) requestAnimationFrame(step);
+                if (progress < 1) {
+                    const rid = requestAnimationFrame(step);
+                    gbfCounterRafs.set(el, rid);
+                } else {
+                    gbfCounterRafs.delete(el);
+                }
             }
-            requestAnimationFrame(step);
+            const rid = requestAnimationFrame(step);
+            gbfCounterRafs.set(el, rid);
         }
 
         let gbfSharedAudioCtx = null;
@@ -2967,6 +3269,7 @@
             const savedTheme = localStorage.getItem('gbf_theme');
             applyThemeVisuals(savedTheme !== 'light');
             renderMonthPickerUI();
+            initQuickSheetSwipeGesture();
 
             const identity = resolveSignedTelegramIdentity();
             const badgeEl = document.getElementById('tg-sso-badge');
@@ -2988,30 +3291,44 @@
 
         function showToast(msg, type = "success") {
             const container = document.getElementById('toast-container');
+            if (!container) return;
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
+            toast.setAttribute('data-state', 'closed');
             const icon = type === 'success'
                 ? gbfIcon('check', 'w-4 h-4 mr-2 shrink-0', 16)
                 : gbfIcon('late', 'w-4 h-4 mr-2 shrink-0', 16);
             toast.innerHTML = icon + `<span>${escapeHtml(msg)}</span>`;
             container.appendChild(toast);
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (toast.isConnected) toast.setAttribute('data-state', 'open');
+                });
+            });
             setTimeout(() => {
-                toast.style.animation = 'toastOut 0.3s forwards';
-                setTimeout(() => toast.remove(), 300);
+                toast.setAttribute('data-state', 'closing');
+                setTimeout(() => toast.remove(), gbfPrefersReducedMotion() ? 180 : 220);
             }, 3400);
         }
 
         function blockUI(t, sub = "Syncing Encrypted HR Telemetry") {
-            document.getElementById('loader-text').innerText = t || "Processing...";
+            const txtEl = document.getElementById('loader-text');
+            if (txtEl) txtEl.innerText = t || "Processing...";
             const subEl = document.getElementById('loader-subtext');
             if (subEl) subEl.innerText = sub;
-            document.getElementById('global-loader').classList.remove('hidden');
-            document.getElementById('global-loader').classList.add('flex');
+            const loaderEl = document.getElementById('global-loader');
+            if (loaderEl) {
+                loaderEl.classList.remove('hidden');
+                loaderEl.classList.add('flex');
+            }
         }
 
         function unblockUI() {
-            document.getElementById('global-loader').classList.add('hidden');
-            document.getElementById('global-loader').classList.remove('flex');
+            const loaderEl = document.getElementById('global-loader');
+            if (loaderEl) {
+                loaderEl.classList.add('hidden');
+                loaderEl.classList.remove('flex');
+            }
         }
 
         function resetForms() {
@@ -3025,15 +3342,20 @@
             const appEl = document.getElementById('app-view');
             const navEl = document.getElementById('bottom-nav');
 
-            loginEl.classList.add('hidden');
-            loginEl.classList.remove('flex');
-            appEl.classList.remove('hidden');
-            appEl.classList.remove('portal-unlock-enter');
-            void appEl.offsetWidth;
-            appEl.classList.add('portal-unlock-enter');
-
-            navEl.classList.remove('hidden');
-            navEl.classList.add('flex');
+            if (loginEl) {
+                loginEl.classList.add('hidden');
+                loginEl.classList.remove('flex');
+            }
+            if (appEl) {
+                appEl.classList.remove('hidden');
+                appEl.classList.remove('portal-unlock-enter');
+                void appEl.offsetWidth;
+                appEl.classList.add('portal-unlock-enter');
+            }
+            if (navEl) {
+                navEl.classList.remove('hidden');
+                navEl.classList.add('flex');
+            }
             renderFullUI(stateData);
         }
 
@@ -3181,7 +3503,7 @@
             const menu = document.getElementById('month-picker-menu');
             const btn = document.getElementById('month-picker-btn');
             const chev = document.getElementById('month-picker-chevron');
-            if (menu) menu.classList.add('hidden');
+            if (menu) closeOverlayAnimated(menu, null, '', 180);
             if (btn) btn.setAttribute('aria-expanded', 'false');
             if (chev) chev.classList.remove('rotate-180');
         }
@@ -3192,10 +3514,10 @@
             const btn = document.getElementById('month-picker-btn');
             const chev = document.getElementById('month-picker-chevron');
             if (!menu) return;
-            const willOpen = menu.classList.contains('hidden');
+            const willOpen = menu.classList.contains('hidden') || menu.getAttribute('data-state') === 'closed';
             if (willOpen) {
                 playUiSound('tick');
-                menu.classList.remove('hidden');
+                openOverlayAnimated(menu, null, '');
                 if (btn) btn.setAttribute('aria-expanded', 'true');
                 if (chev) chev.classList.add('rotate-180');
             } else {
@@ -3391,6 +3713,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: gbfPrefersReducedMotion() ? false : { duration: 400 },
                     layout: { padding: isCompactHome ? { left: 4, right: 4, top: 4, bottom: 4 } : { left: 10, right: 10, top: 10, bottom: 10 } },
                     plugins: { legend: { display: false } },
                     scales: {
@@ -3523,11 +3846,12 @@
             document.querySelectorAll('.payslip-month').forEach(el => el.innerText = selectedMonth);
 
             const st = (d.today_state && d.today_state.status) ? d.today_state.status : "NOT_CHECKED_IN";
+            const didCheckStatusAdvance = Boolean(lastTodayAttendanceStatus !== null && st !== lastTodayAttendanceStatus && (st === 'CHECKED_IN' || st === 'CHECKED_OUT'));
             if (st !== lastTodayAttendanceStatus) {
                 lastTodayAttendanceStatus = st;
             }
             applyUnifiedBrandIcons();
-            renderGpsArenaCard(d);
+            renderGpsArenaCard(d, didCheckStatusAdvance);
 
             syncProfilePhotoUI(d.user.id, d.user.name);
             const profName = document.getElementById('prof-user-name');
@@ -3633,13 +3957,13 @@
                 if (wMax) wMax.innerText = Number(w.max_advance_limit).toLocaleString();
                 if (wUsed) wUsed.innerText = usedTotal.toLocaleString();
                 if (wRem) wRem.innerText = Number(w.remaining_advance).toLocaleString();
-                if (wBar) wBar.style.width = `${pct}%`;
+                setScaleXBarProgress(wBar, pct);
                 if (advBadge) advBadge.innerText = `${Number(w.remaining_advance).toLocaleString()} MMK`;
-                if (advFormBar) advFormBar.style.width = `${pct}%`;
+                setScaleXBarProgress(advFormBar, pct);
                 if (advUsedLbl) advUsedLbl.innerText = `${usedTotal.toLocaleString()} MMK`;
                 if (advMaxLbl) advMaxLbl.innerText = `${Number(w.max_advance_limit).toLocaleString()} MMK`;
                 if (hWalRem) hWalRem.innerText = `${Number(w.remaining_advance).toLocaleString()} Ks Left`;
-                if (hWalBar) hWalBar.style.width = `${100 - pct}%`;
+                setScaleXBarProgress(hWalBar, 100 - pct);
                 syncAdvanceSubmitLabel();
             }
 
@@ -3806,7 +4130,7 @@
                 const pct = isHq
                     ? Math.max(8, Math.min(50, Math.round((distM / (office.max_radius || 500)) * 50)))
                     : Math.min(100, 50 + Math.round(Math.min(5000, distM - 500) / 100));
-                barEl.style.width = `${pct}%`;
+                setScaleXBarProgress(barEl, pct);
             }
         }
 
@@ -3907,7 +4231,7 @@
             if (globalState) renderGpsArenaCard(globalState);
         }
 
-        function renderGpsArenaCard(d) {
+        function renderGpsArenaCard(d, celebrateTransition = false) {
             if (!d) return;
             const cardEl = document.getElementById('gps-arena-card');
             const headerRow = document.getElementById('gps-arena-header-row');
@@ -3958,9 +4282,11 @@
             if (st === "NOT_CHECKED_IN") {
                 wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check In')" class="cta-pulse-ring tap-spring w-full font-black py-2.5 px-3 rounded-2xl shadow-[0_8px_20px_-6px_rgba(56,189,248,0.42)] flex items-center justify-between border border-cyan-200/60" style="background: linear-gradient(90deg, #22C55E 0%, #4ADE80 54%, #38BDF8 100%); color: #042F2E;"><div class="flex items-center gap-2.5 text-left"><div class="hud-chamfer w-9 h-9 bg-white/30 border border-white/45 flex items-center justify-center shrink-0">${gbfIcon('radar', 'w-4 h-4 text-slate-950', 18)}</div><div><span class="block text-[11.5px] font-extrabold tracking-wide uppercase">ရုံးတက်စာရင်းသွင်းမည် (CHECK IN)</span><span class="block text-[9px] font-bold opacity-85">GPS 500m &amp; Field Verification</span></div></div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>`;
             } else if (st === "CHECKED_IN") {
-                wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check Out')" class="cta-pulse-ring tap-spring w-full bg-gradient-to-r from-rose-600 to-pink-600 text-white font-bold py-2.5 px-3 rounded-2xl shadow-[0_8px_20px_-6px_rgba(225,29,72,0.45)] flex items-center justify-between border border-rose-300/45"><div class="flex items-center gap-2.5 text-left"><div class="hud-chamfer w-9 h-9 bg-white/15 border border-white/20 flex items-center justify-center shrink-0">${gbfIcon('signout', 'w-4 h-4 text-rose-100', 18)}</div><div><span class="block text-[11.5px] font-extrabold tracking-wide uppercase">ရုံးဆင်းစာရင်းသွင်းမည် (CHECK OUT)</span><span class="block text-[9px] text-rose-100 tabular-nums">Checked In at ${escapeHtml(d.today_state.time_in)}</span></div></div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="text-white/80 shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>`;
+                const drawCls = celebrateTransition ? 'w-3.5 h-3.5 text-emerald-200 gbf-check-draw shrink-0' : 'w-3.5 h-3.5 text-emerald-200 shrink-0';
+                wrapper.innerHTML = `<button type="button" onclick="handleSmartAttendance('Check Out')" class="cta-pulse-ring tap-spring w-full bg-gradient-to-r from-rose-600 to-pink-600 text-white font-bold py-2.5 px-3 rounded-2xl shadow-[0_8px_20px_-6px_rgba(225,29,72,0.45)] flex items-center justify-between border border-rose-300/45"><div class="flex items-center gap-2.5 text-left"><div class="hud-chamfer w-9 h-9 bg-white/15 border border-white/20 flex items-center justify-center shrink-0">${gbfIcon('signout', 'w-4 h-4 text-rose-100', 18)}</div><div><span class="block text-[11.5px] font-extrabold tracking-wide uppercase">ရုံးဆင်းစာရင်းသွင်းမည် (CHECK OUT)</span><span class="inline-flex items-center gap-1 text-[9px] text-rose-100 tabular-nums">${gbfIcon('check', drawCls, 12)}<span>Checked In at ${escapeHtml(d.today_state.time_in)}</span></span></div></div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="text-white/80 shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>`;
             } else {
-                wrapper.innerHTML = `<div class="w-full bg-emerald-500/15 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 font-bold py-2.5 px-3 rounded-2xl flex items-center justify-between border border-emerald-500/40"><div class="flex items-center gap-2.5 text-left"><div class="hud-chamfer w-9 h-9 bg-emerald-500 text-white flex items-center justify-center shrink-0">${gbfIcon('ontime', 'w-4 h-4', 18)}</div><div><span class="block text-[11.5px] font-extrabold uppercase">ယနေ့ တာဝန်ချိန် ပြီးဆုံးပါပြီ</span><span class="block text-[9px] tabular-nums">IN: ${escapeHtml(d.today_state.time_in)} • OUT: ${escapeHtml(d.today_state.time_out)}</span></div></div></div>`;
+                const doneCls = celebrateTransition ? 'w-4 h-4 gbf-check-draw' : 'w-4 h-4';
+                wrapper.innerHTML = `<div class="w-full bg-emerald-500/15 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 font-bold py-2.5 px-3 rounded-2xl flex items-center justify-between border border-emerald-500/40"><div class="flex items-center gap-2.5 text-left"><div class="hud-chamfer w-9 h-9 bg-emerald-500 text-white flex items-center justify-center shrink-0">${gbfIcon('ontime', doneCls, 18)}</div><div><span class="block text-[11.5px] font-extrabold uppercase">ယနေ့ တာဝန်ချိန် ပြီးဆုံးပါပြီ</span><span class="block text-[9px] tabular-nums">IN: ${escapeHtml(d.today_state.time_in)} • OUT: ${escapeHtml(d.today_state.time_out)}</span></div></div></div>`;
             }
         }
 
@@ -4208,9 +4534,13 @@
 
         function selectHomeTeamTab(idx) {
             playUiSound('tick');
+            const prevIdx = selectedHomeTeamIndex;
             selectedHomeTeamIndex = (selectedHomeTeamIndex === idx) ? null : idx;
             teamsInlineExpanded = (selectedHomeTeamIndex !== null);
             if (globalState) renderTodayTeamsSection(globalState);
+            if (selectedHomeTeamIndex !== null && prevIdx !== selectedHomeTeamIndex) {
+                animateRevealContainer(document.getElementById('team-inline-member-drawer'), -5);
+            }
         }
 
         function renderTodayTeamsSection(d, targetDate) {
@@ -4441,15 +4771,14 @@
             if (wdLbl) wdLbl.innerText = selectedMonth;
 
             const modal = document.getElementById('reward-settings-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            const dialog = document.getElementById('reward-settings-dialog');
+            openOverlayAnimated(modal, dialog, 'flex');
         }
 
         function closeRewardSettingsModal(e) {
-            if (e && e.target !== document.getElementById('reward-settings-modal')) return;
             const modal = document.getElementById('reward-settings-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+            if (e && e.target !== modal) return;
+            closeOverlayAnimated(modal, document.getElementById('reward-settings-dialog'), 'flex', 220);
         }
 
         function saveRewardSettings() {
@@ -4512,7 +4841,7 @@
             if (!track) return;
             const w = track.clientWidth || 1;
             homeCarouselIndex = Math.max(0, Math.min(2, index));
-            track.scrollTo({ left: homeCarouselIndex * w, behavior: 'smooth' });
+            track.scrollTo({ left: homeCarouselIndex * w, behavior: gbfPrefersReducedMotion() ? 'auto' : 'smooth' });
             updateHomeCarouselDots(homeCarouselIndex);
         }
 
@@ -4542,9 +4871,12 @@
                 }
                 const dot = document.getElementById(`home-dot-${i}`);
                 if (dot) {
-                    dot.className = (i === activeIndex)
-                        ? "w-4 h-1.5 rounded-full bg-sky-500 dark:bg-sky-400 transition-all cursor-pointer"
-                        : "w-1.5 h-1.5 rounded-full bg-slate-400/40 dark:bg-white/25 transition-all cursor-pointer";
+                    const isAct = (i === activeIndex);
+                    dot.className = isAct
+                        ? "gbf-dot-pill bg-sky-500 dark:bg-sky-400 cursor-pointer"
+                        : "gbf-dot-pill bg-slate-400/40 dark:bg-white/25 cursor-pointer";
+                    dot.style.transform = isAct ? 'scaleX(1)' : 'scaleX(0.45)';
+                    dot.style.opacity = isAct ? '1' : '0.65';
                 }
             });
             const lbl = document.getElementById('home-slide-label');
@@ -4642,6 +4974,7 @@
                 : `<span class="text-[9px] text-slate-600 dark:text-slate-300">မှတ်တမ်းအသေးစိတ် မရှိပါ</span>`;
 
             box.classList.remove('hidden');
+            animateRevealContainer(box, -5);
             box.innerHTML = `
                 <div class="flex items-center justify-between mb-1">
                     <strong class="text-xs font-extrabold text-on-surface dark:text-white inline-flex items-center gap-1.5">${cfg.icon}<span>${cfg.title}</span></strong>
@@ -4790,8 +5123,8 @@
                 const btn = document.getElementById(`cal-mode-${m}`);
                 if (btn) {
                     btn.className = (m === mode)
-                        ? "py-1.5 rounded-lg bg-primary text-white text-[10px] font-extrabold transition-all"
-                        : "py-1.5 rounded-lg text-on-surface-variant dark:text-slate-200 text-[10px] font-extrabold transition-all";
+                        ? "py-1.5 rounded-lg bg-primary text-white text-[10px] font-extrabold transition-colors duration-150"
+                        : "py-1.5 rounded-lg text-on-surface-variant dark:text-slate-200 text-[10px] font-extrabold transition-colors duration-150";
                 }
             });
             if (globalState) renderCalendarAndLogs(globalState.history);
@@ -4900,7 +5233,7 @@
                 const stripHtml = `<div class="grid grid-cols-7 gap-1 mb-3">${weekDays.map(w => {
                     const isSel = selectedHistoryDate === w.iso;
                     const dot = w.events.length > 0 ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-bright mt-1"></span>' : '<span class="w-1.5 h-1.5 rounded-full bg-transparent mt-1"></span>';
-                    return `<button type="button" onclick="selectCalendarDate('${w.iso}')" class="p-1.5 rounded-xl flex flex-col items-center border transition-all ${isSel ? 'bg-primary text-white border-primary shadow-sm' : 'bg-surface-container-low dark:bg-slate-800 border-transparent'}"><span class="text-[8px] font-bold opacity-85">${w.label}</span><span class="text-xs font-black tabular-nums mt-0.5">${w.dayNum}</span>${dot}</button>`;
+                    return `<button type="button" onclick="selectCalendarDate('${w.iso}')" class="tap-spring p-1.5 rounded-xl flex flex-col items-center border ${isSel ? 'bg-primary text-white border-primary shadow-sm' : 'bg-surface-container-low dark:bg-slate-800 border-transparent'}"><span class="text-[8px] font-bold opacity-85">${w.label}</span><span class="text-xs font-black tabular-nums mt-0.5">${w.dayNum}</span>${dot}</button>`;
                 }).join('')}</div>`;
 
                 const glanceHtml = `<div class="space-y-1.5"><p class="text-[9px] font-ui-label font-extrabold uppercase text-primary dark:text-emerald-bright">Weekly Glance (အပတ်စဉ် နေ့အလိုက် အနှစ်ချုပ်)</p>${weekDays.map(w => {
@@ -5286,19 +5619,109 @@
             );
         }
 
+        function initQuickSheetSwipeGesture() {
+            const handle = document.getElementById('quick-sheet-drag-handle');
+            const sheet = document.getElementById('quick-action-sheet');
+            const panel = document.getElementById('quick-action-sheet-panel');
+            if (!handle || !sheet || !panel || handle.dataset.swipeBound === '1') return;
+            handle.dataset.swipeBound = '1';
+
+            let activePointerId = null;
+            let startY = 0;
+            let currentDispY = 0;
+            let samples = [];
+
+            function rubberband(overshoot, dim = 120, k = 0.55) {
+                const safeDim = Math.max(40, Number(dim) || 120);
+                return (overshoot * safeDim * k) / (safeDim + k * Math.abs(overshoot));
+            }
+
+            handle.addEventListener('pointerdown', (e) => {
+                if (e.pointerType === 'mouse' && e.button !== 0) return;
+                if (activePointerId !== null) return;
+                activePointerId = e.pointerId;
+                try { handle.setPointerCapture(e.pointerId); } catch (err) {}
+                clearOverlayTimer(sheet);
+                panel.style.transitionDuration = '';
+                const liveY = getElementTranslateY(panel);
+                startY = e.clientY - (Number.isFinite(liveY) ? liveY : 0);
+                currentDispY = Number.isFinite(liveY) ? liveY : 0;
+                if (Math.abs(currentDispY) > 0.5) {
+                    panel.style.transform = `translateY(${currentDispY}px)`;
+                }
+                samples = [{ y: e.clientY, t: performance.now() }];
+                panel.setAttribute('data-dragging', 'true');
+            });
+
+            handle.addEventListener('pointermove', (e) => {
+                if (e.pointerId !== activePointerId) return;
+                const rawDy = e.clientY - startY;
+                const upDim = Math.min(120, Math.max(48, panel.offsetHeight || 120));
+                currentDispY = rawDy < 0 ? -rubberband(-rawDy, upDim, 0.55) : rawDy;
+                panel.style.transform = `translateY(${currentDispY}px)`;
+                const now = performance.now();
+                samples.push({ y: e.clientY, t: now });
+                if (samples.length > 6) samples.shift();
+            });
+
+            function finishDrag(e) {
+                if (e.pointerId !== activePointerId) return;
+                activePointerId = null;
+                try { handle.releasePointerCapture(e.pointerId); } catch (err) {}
+                panel.removeAttribute('data-dragging');
+
+                const now = performance.now();
+                const recent = samples.filter(s => (now - s.t) <= 95);
+                let vy = 0;
+                if (recent.length >= 2) {
+                    const first = recent[0];
+                    const last = recent[recent.length - 1];
+                    const dt = Math.max(0.016, (last.t - first.t) / 1000);
+                    vy = (last.y - first.y) / dt;
+                }
+                const decel = 0.996;
+                const projected = currentDispY + ((vy / 1000) * decel) / (1 - decel);
+                if (currentDispY >= 64 || (vy > 120 && projected >= 64)) {
+                    triggerHaptic('light');
+                    playUiSound('tick');
+                    const panelH = panel.offsetHeight || 320;
+                    const rem = Math.max(40, panelH - currentDispY);
+                    const exitMs = vy > 200 ? Math.max(150, Math.min(260, Math.round((rem / vy) * 1000))) : 230;
+                    panel.style.transitionDuration = `${exitMs}ms`;
+                    panel.style.transform = '';
+                    closeQuickActionSheet(null, Math.max(240, exitMs));
+                } else {
+                    openOverlayAnimated(sheet, panel, 'flex');
+                }
+            }
+
+            handle.addEventListener('pointerup', finishDrag);
+            handle.addEventListener('pointercancel', finishDrag);
+            handle.addEventListener('lostpointercapture', () => {
+                if (activePointerId === null) return;
+                activePointerId = null;
+                panel.removeAttribute('data-dragging');
+                if (!sheet.classList.contains('hidden')) {
+                    openOverlayAnimated(sheet, panel, 'flex');
+                } else {
+                    panel.style.transform = '';
+                }
+            });
+        }
+
         function openQuickActionSheet() {
             playUiSound('pop');
             triggerHaptic('light');
+            initQuickSheetSwipeGesture();
             const sheet = document.getElementById('quick-action-sheet');
-            sheet.classList.remove('hidden');
-            sheet.classList.add('flex');
+            const panel = document.getElementById('quick-action-sheet-panel');
+            openOverlayAnimated(sheet, panel, 'flex');
         }
 
-        function closeQuickActionSheet(e) {
-            if (e && e.target !== document.getElementById('quick-action-sheet')) return;
+        function closeQuickActionSheet(e, durationMs = 240) {
             const sheet = document.getElementById('quick-action-sheet');
-            sheet.classList.add('hidden');
-            sheet.classList.remove('flex');
+            if (e && e.target !== sheet) return;
+            closeOverlayAnimated(sheet, document.getElementById('quick-action-sheet-panel'), 'flex', durationMs);
         }
 
         function launchQuickTab(tabId) {
@@ -5349,7 +5772,7 @@
 
             if (t === 'home' && homeRadarChartInstance) setTimeout(() => homeRadarChartInstance.resize(), 50);
             if (t === 'kpi-detail' && profileRadarChartInstance) setTimeout(() => profileRadarChartInstance.resize(), 50);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: gbfPrefersReducedMotion() ? 'auto' : 'smooth' });
         }
 
         function toggleDarkMode() {
