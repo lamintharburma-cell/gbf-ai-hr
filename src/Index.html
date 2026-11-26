@@ -12,7 +12,7 @@
     <meta id="gbf-web-app-url" name="gbf-web-app-url" content="<?= typeof webAppUrl !== 'undefined' ? webAppUrl : '' ?>">
     <meta id="gbf-tg-chat-id" name="gbf-tg-chat-id" content="<?= typeof initialChatId !== 'undefined' ? initialChatId : '' ?>">
     <meta id="gbf-tg-chat-sig" name="gbf-tg-chat-sig" content="<?= typeof initialChatSig !== 'undefined' ? initialChatSig : '' ?>">
-    <title>G.B.F. Enterprise HR &amp; AI Mini App (v9.5 LTS)</title>
+    <title>G.B.F. Enterprise HR &amp; AI Mini App (v9.6 LTS)</title>
 
     <!-- 1. Official Telegram Mini App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -1321,7 +1321,7 @@
             </div>
         </header>
 
-        <main id="main-content" class="p-3.5 max-w-lg lg:max-w-5xl mx-auto space-y-3.5">
+        <main id="main-content" class="p-3.5 pb-24 lg:pb-8 max-w-lg lg:max-w-5xl mx-auto space-y-3.5">
 
             <!-- ================================================================== -->
             <!-- 🏠 TAB 1: HOME (GPS-FIRST CHECK-IN + SQUADS + MLBB HUD)            -->
@@ -1576,16 +1576,17 @@
 
                                 <!-- Slide 2: Unified Brand Star Telemetry Matrix -->
                                 <div class="w-full shrink-0 snap-center pl-2">
-                                    <div class="bg-white/75 dark:bg-slate-950/55 rounded-2xl p-3 border border-blue-500/20 dark:border-sky-400/20 h-full flex flex-col justify-between">
-                                        <div class="flex items-center justify-between mb-2">
+                                    <div class="bg-white/75 dark:bg-slate-950/55 rounded-2xl p-3 border border-blue-500/20 dark:border-sky-400/20 h-full flex flex-col space-y-2.5">
+                                        <div class="flex items-center justify-between">
                                             <span class="text-[9px] font-ui-label font-extrabold uppercase tracking-wider" style="color: var(--hue-gold);">စာရင်းအချက်အလက်များ</span>
                                             <span class="text-[9px] font-bold text-slate-700 dark:text-slate-200 tabular-nums whitespace-nowrap" id="home-stat-present">22 / 26 Days</span>
                                         </div>
 
-                                        <div class="flex h-2 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-800 mb-3">
-                                            <div id="home-progress-early" class="h-2 transition-opacity duration-200" style="width: 68%; background: linear-gradient(90deg, #F59E0B, #FACC15);"></div>
-                                            <div id="home-progress-ontime" class="h-2 transition-opacity duration-200" style="width: 27%; background: var(--hue-jade);"></div>
-                                            <div id="home-progress-late" class="h-2 transition-opacity duration-200" style="width: 5%; background: var(--hue-silver);"></div>
+                                        <div class="flex h-2.5 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-800/90 border border-slate-300/40 dark:border-white/10">
+                                            <div id="home-progress-early" class="h-2.5 transition-opacity duration-200" style="width: 68%; background: linear-gradient(90deg, #F59E0B, #FACC15);"></div>
+                                            <div id="home-progress-ontime" class="h-2.5 transition-opacity duration-200" style="width: 27%; background: var(--hue-jade);"></div>
+                                            <div id="home-progress-late" class="h-2.5 transition-opacity duration-200" style="width: 5%; background: #94A3B8;"></div>
+                                            <div id="home-progress-absent" class="h-2.5 transition-opacity duration-200" style="width: 0%; background: var(--hue-coral);"></div>
                                         </div>
 
                                         <div class="grid grid-cols-4 gap-1.5 text-center">
@@ -1606,13 +1607,16 @@
                                                 <span class="block text-sm font-black tabular-nums mt-0.5" style="color: var(--hue-coral);" id="home-stat-absent">0</span>
                                             </button>
                                         </div>
-                                        <p class="mm-text text-[8.5px] text-center text-slate-600 dark:text-slate-300 mt-2">ကိန်းဂဏန်းတစ်ခုချင်းစီကို နှိပ်၍ အသေးစိတ်စစ်ဆေးနိုင်ပါသည်</p>
+
+                                        <div id="home-slide2-breakdown" class="rounded-xl bg-slate-100/80 dark:bg-white/5 border border-blue-500/15 dark:border-white/10 p-2.5 space-y-1.5 text-[8.5px] sm:text-[9px] tabular-nums"></div>
+
+                                        <p class="mm-text text-[8px] text-center text-slate-600 dark:text-slate-300 mt-auto">ကိန်းဂဏန်းတစ်ခုချင်းစီကို နှိပ်၍ အသေးစိတ်စစ်ဆေးနိုင်ပါသည်</p>
                                     </div>
                                 </div>
 
                                 <!-- Slide 3: Rewards & Wallet Snapshot -->
                                 <div class="w-full shrink-0 snap-center pl-2">
-                                    <div class="bg-white/75 dark:bg-slate-950/55 rounded-2xl p-3.5 border border-amber-500/25 h-full flex flex-col justify-between space-y-2.5">
+                                    <div class="bg-white/75 dark:bg-slate-950/55 rounded-2xl p-3 border border-amber-500/25 h-full flex flex-col space-y-2.5">
                                         <div class="flex items-center justify-between gap-2">
                                             <div>
                                                 <span class="inline-flex items-center gap-1.5 text-[8.5px] font-ui-label font-extrabold uppercase" style="color: var(--hue-gold);">
@@ -1624,6 +1628,8 @@
                                             <span class="mm-badge bg-emerald-500/15 border border-emerald-500/35 text-[9px] font-extrabold whitespace-nowrap text-emerald-800 dark:text-emerald-300" id="home-bonus-status">Rewards Active</span>
                                         </div>
 
+                                        <div id="home-slide3-breakdown" class="rounded-xl bg-slate-100/80 dark:bg-white/5 border border-blue-500/15 dark:border-white/10 p-2.5 space-y-1.5 text-[8.5px] sm:text-[9px] tabular-nums"></div>
+
                                         <div class="p-2.5 rounded-xl bg-slate-100/80 dark:bg-white/5 border border-blue-500/15 dark:border-white/10">
                                             <div class="flex items-center justify-between text-[9px] mb-1">
                                                 <span class="text-slate-700 dark:text-slate-200 font-bold">50% လစာကြိုထုတ်ခွင့်</span>
@@ -1634,7 +1640,7 @@
                                             </div>
                                         </div>
 
-                                        <button type="button" onclick="openProfileView()" class="mlbb-steel-btn tap-spring w-full py-2.5 rounded-xl font-ui-label font-extrabold text-[10px] tracking-wider inline-flex items-center justify-center gap-1.5">
+                                        <button type="button" onclick="openProfileView()" class="mlbb-steel-btn tap-spring w-full py-2.5 rounded-xl font-ui-label font-extrabold text-[10px] tracking-wider inline-flex items-center justify-center gap-1.5 mt-auto">
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
                                             <span>အချက်အလက်များ နှင့် ဆုကြေးစစ်ဆေးရန်</span>
                                         </button>
@@ -2396,6 +2402,31 @@
             return ExternalUriDispatcher.openExternal(url);
         }
 
+        const gbfMemoryStorage = {};
+
+        function safeLocalGet(key, fallback = null) {
+            if (Object.prototype.hasOwnProperty.call(gbfMemoryStorage, key)) {
+                return gbfMemoryStorage[key];
+            }
+            try {
+                const v = localStorage.getItem(key);
+                return v !== null ? v : fallback;
+            } catch (e) {
+                return fallback;
+            }
+        }
+
+        function safeLocalSet(key, val) {
+            const s = String(val);
+            gbfMemoryStorage[key] = s;
+            try { localStorage.setItem(key, s); } catch (e) {}
+        }
+
+        function safeLocalRemove(key) {
+            delete gbfMemoryStorage[key];
+            try { localStorage.removeItem(key); } catch (e) {}
+        }
+
         let currentSessionToken = (function () {
             try { return sessionStorage.getItem('gbf_sess_tok') || ''; } catch (e) { return ''; }
         })();
@@ -2554,24 +2585,32 @@
 
             open() {
                 if (this._dbPromise) return this._dbPromise;
-                if (typeof indexedDB === 'undefined') return Promise.resolve(null);
+                try {
+                    if (typeof indexedDB === 'undefined') return Promise.resolve(null);
+                } catch (e) {
+                    return Promise.resolve(null);
+                }
                 if (navigator.storage && navigator.storage.persist) {
-                    navigator.storage.persist().catch(() => {});
+                    try { navigator.storage.persist().catch(() => {}); } catch (e) {}
                 }
                 this._dbPromise = new Promise((resolve) => {
-                    const req = indexedDB.open(this.DB_NAME, this.DB_VERSION);
-                    req.onupgradeneeded = (e) => {
-                        const db = e.target.result;
-                        if (!db.objectStoreNames.contains(this.STORE_CACHE)) {
-                            db.createObjectStore(this.STORE_CACHE, { keyPath: 'empId' });
-                        }
-                        if (!db.objectStoreNames.contains(this.STORE_OUTBOX)) {
-                            const outbox = db.createObjectStore(this.STORE_OUTBOX, { keyPath: 'idempotencyKey' });
-                            outbox.createIndex('createdAt', 'createdAt', { unique: false });
-                        }
-                    };
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => resolve(null);
+                    try {
+                        const req = indexedDB.open(this.DB_NAME, this.DB_VERSION);
+                        req.onupgradeneeded = (e) => {
+                            const db = e.target.result;
+                            if (!db.objectStoreNames.contains(this.STORE_CACHE)) {
+                                db.createObjectStore(this.STORE_CACHE, { keyPath: 'empId' });
+                            }
+                            if (!db.objectStoreNames.contains(this.STORE_OUTBOX)) {
+                                const outbox = db.createObjectStore(this.STORE_OUTBOX, { keyPath: 'idempotencyKey' });
+                                outbox.createIndex('createdAt', 'createdAt', { unique: false });
+                            }
+                        };
+                        req.onsuccess = () => resolve(req.result);
+                        req.onerror = () => resolve(null);
+                    } catch (e) {
+                        resolve(null);
+                    }
                 });
                 return this._dbPromise;
             },
@@ -2721,19 +2760,19 @@
         function saveDraft(formType) {
             try {
                 if (formType === 'leave') {
-                    localStorage.setItem('gbf_draft_leave', JSON.stringify({
+                    safeLocalSet('gbf_draft_leave', JSON.stringify({
                         type: document.getElementById('lv-type').value,
                         start: document.getElementById('lv-start').value,
                         end: document.getElementById('lv-end').value,
                         reason: document.getElementById('lv-reason').value
                     }));
                 } else if (formType === 'advance') {
-                    localStorage.setItem('gbf_draft_advance', JSON.stringify({
+                    safeLocalSet('gbf_draft_advance', JSON.stringify({
                         amount: document.getElementById('adv-amount').value,
                         reason: document.getElementById('adv-reason').value
                     }));
                 } else if (formType === 'voice') {
-                    localStorage.setItem('gbf_draft_voice', JSON.stringify({
+                    safeLocalSet('gbf_draft_voice', JSON.stringify({
                         category: document.getElementById('voc-category').value,
                         message: document.getElementById('voc-message').value,
                         anon: document.getElementById('voc-anon').checked
@@ -2744,19 +2783,19 @@
 
         function restoreDrafts() {
             try {
-                const lv = JSON.parse(localStorage.getItem('gbf_draft_leave') || 'null');
+                const lv = JSON.parse(safeLocalGet('gbf_draft_leave', 'null') || 'null');
                 if (lv) {
                     if (lv.type) document.getElementById('lv-type').value = lv.type;
                     if (lv.start) document.getElementById('lv-start').value = lv.start;
                     if (lv.end) document.getElementById('lv-end').value = lv.end;
                     if (lv.reason) document.getElementById('lv-reason').value = lv.reason;
                 }
-                const adv = JSON.parse(localStorage.getItem('gbf_draft_advance') || 'null');
+                const adv = JSON.parse(safeLocalGet('gbf_draft_advance', 'null') || 'null');
                 if (adv) {
                     if (adv.amount) { document.getElementById('adv-amount').value = adv.amount; syncAdvanceSubmitLabel(); }
                     if (adv.reason) document.getElementById('adv-reason').value = adv.reason;
                 }
-                const voc = JSON.parse(localStorage.getItem('gbf_draft_voice') || 'null');
+                const voc = JSON.parse(safeLocalGet('gbf_draft_voice', 'null') || 'null');
                 if (voc) {
                     if (voc.category) document.getElementById('voc-category').value = voc.category;
                     if (voc.message) document.getElementById('voc-message').value = voc.message;
@@ -2766,10 +2805,14 @@
         }
 
         function clearDraft(formType) {
-            try { localStorage.removeItem(`gbf_draft_${formType}`); } catch (e) {}
+            safeLocalRemove(`gbf_draft_${formType}`);
         }
 
         const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+
+        function tgSupports(minVer) {
+            return Boolean(tg && typeof tg.isVersionAtLeast === 'function' && tg.isVersionAtLeast(minVer));
+        }
 
         let tgChatId = "";
         let tgChatSig = "";
@@ -2797,19 +2840,15 @@
             }
 
             if (id && sig) {
-                try {
-                    localStorage.setItem('gbf_tg_chat_id', id);
-                    localStorage.setItem('gbf_tg_chat_sig', sig);
-                } catch (e) {}
+                safeLocalSet('gbf_tg_chat_id', id);
+                safeLocalSet('gbf_tg_chat_sig', sig);
             } else {
-                try {
-                    const cachedId = String(localStorage.getItem('gbf_tg_chat_id') || '').trim();
-                    const cachedSig = String(localStorage.getItem('gbf_tg_chat_sig') || '').trim();
-                    if (/^\d{5,15}$/.test(cachedId) && cachedSig) {
-                        id = cachedId;
-                        sig = cachedSig;
-                    }
-                } catch (e) {}
+                const cachedId = String(safeLocalGet('gbf_tg_chat_id', '') || '').trim();
+                const cachedSig = String(safeLocalGet('gbf_tg_chat_sig', '') || '').trim();
+                if (/^\d{5,15}$/.test(cachedId) && cachedSig) {
+                    id = cachedId;
+                    sig = cachedSig;
+                }
             }
 
             tgChatId = id;
@@ -2930,7 +2969,8 @@
             if (t === 'afk' || t === 'absent') {
                 return `<span class="inline-flex items-center gap-1 shrink-0" title="Absent / AFK">${`<svg class="shrink-0" width="${size - 3}" height="${size - 3}" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" fill="rgba(251,113,133,0.18)" stroke="currentColor" stroke-width="1.9" style="color: var(--hue-coral);"/><line x1="4" x2="4" y1="22" y2="15" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="color: var(--hue-coral);"/></svg>`}${numHtml('var(--hue-coral)')}</span>`;
             }
-            return `<span class="inline-flex items-center gap-1 shrink-0" title="Pending">${`<svg class="shrink-0" width="${size - 4}" height="${size - 4}" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="rgba(148,163,184,0.16)" stroke="#64748B" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="#64748B" stroke-width="1.8" stroke-linecap="round"/></svg>`}${numHtml('var(--text-muted)')}</span>`;
+            const pendSize = Math.max(11, size - 1);
+            return `<span class="inline-flex items-center gap-1 shrink-0" title="Pending Check-In">${`<svg class="shrink-0" width="${pendSize}" height="${pendSize}" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="rgba(148,163,184,0.18)" stroke="#94A3B8" stroke-width="2"/><path d="M12 7v5.2l3.4 2" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`}${numHtml('var(--text-muted)')}</span>`;
         }
 
         function gbfSquadCountSvg(memberCount = 2, colorVar = 'var(--hue-cyan)', size = 16) {
@@ -3238,7 +3278,7 @@
         }
 
         function triggerHaptic(type = 'light') {
-            if (tg && tg.HapticFeedback) {
+            if (tgSupports('6.1') && tg.HapticFeedback) {
                 try { tg.HapticFeedback.impactOccurred(type); } catch (e) {}
             } else if (navigator.vibrate) {
                 navigator.vibrate(12);
@@ -3348,7 +3388,7 @@
             if (iconEl) iconEl.innerHTML = enableDark ? gbfIcon('sun', 'w-4 h-4 text-amber-bright', 16) : gbfIcon('moon', 'w-4 h-4 text-slate-700', 16);
             const metaTheme = document.getElementById('meta-theme-color');
             if (metaTheme) metaTheme.setAttribute('content', enableDark ? '#0D192E' : '#EEF4FC');
-            if (tg && tg.setHeaderColor) {
+            if (tgSupports('6.1') && tg.setHeaderColor) {
                 try { tg.setHeaderColor(enableDark ? '#0D192E' : '#EEF4FC'); } catch (e) {}
             }
             if (globalState && globalState.totals) {
@@ -3360,7 +3400,7 @@
         }
 
         function initTelegramMiniApp() {
-            const savedTheme = localStorage.getItem('gbf_theme');
+            const savedTheme = safeLocalGet('gbf_theme', null);
             applyThemeVisuals(savedTheme !== 'light');
             renderMonthPickerUI();
             initQuickSheetSwipeGesture();
@@ -3379,7 +3419,9 @@
             try {
                 tg.ready();
                 tg.expand();
-                tg.BackButton.onClick(() => goBackView());
+                if (tgSupports('6.1') && tg.BackButton) {
+                    tg.BackButton.onClick(() => goBackView());
+                }
             } catch (e) {}
         }
 
@@ -3458,7 +3500,7 @@
             restoreDrafts();
             GBFOfflineStore.refreshOutboxBadge();
 
-            const savedUser = localStorage.getItem('gbf_user');
+            const savedUser = safeLocalGet('gbf_user', null);
             const isStandaloneDemo = !GAS_URL && !(typeof google !== 'undefined' && google.script && google.script.run);
             if (savedUser && (currentSessionToken || isStandaloneDemo)) {
                 try {
@@ -3496,7 +3538,7 @@
                             name: data.sso_data.user.name,
                             role: data.sso_data.user.role
                         };
-                        localStorage.setItem('gbf_user', JSON.stringify(currentUser));
+                        safeLocalSet('gbf_user', JSON.stringify(currentUser));
                         GBFOfflineStore.saveLocalOnly(currentUser.id, data.sso_data);
                         unlockPortalEntryTransition(data.sso_data);
                         return;
@@ -3522,7 +3564,7 @@
                     triggerPinErrorShake("Demo Sandbox PIN (9901) သို့မဟုတ် Live Server ချိတ်ဆက်၍ ဝင်ပါ");
                     return;
                 }
-                localStorage.setItem('gbf_user', JSON.stringify(currentUser));
+                safeLocalSet('gbf_user', JSON.stringify(currentUser));
                 unlockPortalEntryTransition(localState);
                 return;
             }
@@ -3550,7 +3592,7 @@
                             name: data.data.user.name,
                             role: data.data.user.role
                         };
-                        localStorage.setItem('gbf_user', JSON.stringify(currentUser));
+                        safeLocalSet('gbf_user', JSON.stringify(currentUser));
                         await GBFOfflineStore.saveLocalOnly(currentUser.id, data.data);
                         unlockPortalEntryTransition(data.data);
                         if (data.data.user && data.data.user.chat_bound) {
@@ -3560,7 +3602,7 @@
                         const cached = (data && (data.offline || data.timeout)) ? await GBFOfflineStore.loadLocalState(pinVal) : null;
                         if (cached && (data.offline || data.timeout)) {
                             currentUser = { id: cached.user.id, name: cached.user.name, role: cached.user.role };
-                            localStorage.setItem('gbf_user', JSON.stringify(currentUser));
+                            safeLocalSet('gbf_user', JSON.stringify(currentUser));
                             unlockPortalEntryTransition(cached);
                             showToast("Offline Cache ဖြင့် ဝင်ရောက်ထားပါသည်", "warning");
                         } else {
@@ -3574,7 +3616,7 @@
                     const cached = await GBFOfflineStore.loadLocalState(pinVal);
                     if (cached && cached.user) {
                         currentUser = { id: cached.user.id, name: cached.user.name, role: cached.user.role };
-                        localStorage.setItem('gbf_user', JSON.stringify(currentUser));
+                        safeLocalSet('gbf_user', JSON.stringify(currentUser));
                         unlockPortalEntryTransition(cached);
                     } else {
                         triggerPinErrorShake("Server ချိတ်ဆက်မှု မအောင်မြင်ပါ");
@@ -3719,7 +3761,7 @@
                             name: data.data.user.name,
                             role: data.data.user.role
                         };
-                        localStorage.setItem('gbf_user', JSON.stringify(currentUser));
+                        safeLocalSet('gbf_user', JSON.stringify(currentUser));
                         await GBFOfflineStore.saveLocalOnly(currentUser.id, data.data);
                         if (isFirst) unlockPortalEntryTransition(data.data);
                         else renderFullUI(data.data);
@@ -3728,7 +3770,7 @@
                         }
                         GBFOfflineStore.flushOutbox(false);
                     } else if (data && data.auth_required) {
-                        localStorage.removeItem('gbf_user');
+                        safeLocalRemove('gbf_user');
                         handleSessionExpired(data.message);
                     } else {
                         const cached = await GBFOfflineStore.loadLocalState(currentUser.id);
@@ -3737,7 +3779,7 @@
                             else renderFullUI(cached);
                             showToast("Offline Cache မှ ဒေတာကို ပြသထားပါသည်", "warning");
                         } else if (isFirst) {
-                            localStorage.removeItem('gbf_user');
+                            safeLocalRemove('gbf_user');
                             showPinLoginView();
                         }
                     }
@@ -3900,7 +3942,7 @@
             selectedMonth = d.selected_month || selectedMonth;
 
             try {
-                const localReward = localStorage.getItem('gbf_reward_config');
+                const localReward = safeLocalGet('gbf_reward_config', null);
                 if (localReward) rewardConfig = { ...rewardConfig, ...JSON.parse(localReward) };
             } catch (e) {}
             if (d.reward_config) rewardConfig = { ...rewardConfig, ...d.reward_config };
@@ -4037,14 +4079,34 @@
             const barE = document.getElementById('home-progress-early');
             const barO = document.getElementById('home-progress-ontime');
             const barL = document.getElementById('home-progress-late');
-            if (m.totalAtt > 0) {
-                if (barE) barE.style.width = ((m.e / m.totalAtt) * 100) + "%";
-                if (barO) barO.style.width = ((m.o / m.totalAtt) * 100) + "%";
-                if (barL) barL.style.width = ((m.l / m.totalAtt) * 100) + "%";
+            const barA = document.getElementById('home-progress-absent');
+            const barDenom = m.e + m.o + m.l + m.a;
+            if (barDenom > 0) {
+                if (barE) barE.style.width = ((m.e / barDenom) * 100) + "%";
+                if (barO) barO.style.width = ((m.o / barDenom) * 100) + "%";
+                if (barL) barL.style.width = ((m.l / barDenom) * 100) + "%";
+                if (barA) barA.style.width = ((m.a / barDenom) * 100) + "%";
             } else {
                 if (barE) barE.style.width = "0%";
                 if (barO) barO.style.width = "0%";
                 if (barL) barL.style.width = "0%";
+                if (barA) barA.style.width = "0%";
+            }
+
+            const slide2BreakEl = document.getElementById('home-slide2-breakdown');
+            if (slide2BreakEl) {
+                const baseSal = Number((d.wallet && d.wallet.base_salary) || (d.user && d.user.base_salary) || 400000);
+                const dailyRate = Math.round(baseSal / Math.max(1, m.targetDays));
+                const latePen = m.l > 3 ? (m.l - 3) * 2000 : 0;
+                const absDed = m.a * dailyRate;
+                const lvDays = Number((d.totals && d.totals.leave) || 0);
+                const elapsedDays = Number((d.totals && d.totals.elapsed_work_days) || (m.p + m.a));
+                const remDays = Math.max(0, m.targetDays - elapsedDays);
+                slide2BreakEl.innerHTML =
+                    `<div class="flex items-center justify-between gap-2"><span class="text-slate-600 dark:text-slate-300">နောက်ကျ Grace (${Math.min(3, m.l)}/3)</span><b class="${latePen > 0 ? 'text-rose-600 dark:text-rose-300' : 'text-emerald-700 dark:text-emerald-300'}">${latePen > 0 ? `-${latePen.toLocaleString()} Ks` : '0 Ks'}</b></div>` +
+                    `<div class="flex items-center justify-between gap-2"><span class="text-slate-600 dark:text-slate-300">ခွင့်မဲ့ ဖြတ်ငွေ (${m.a}d)</span><b class="${absDed > 0 ? 'text-rose-600 dark:text-rose-300' : 'text-emerald-700 dark:text-emerald-300'}">${absDed > 0 ? `-${absDed.toLocaleString()} Ks` : '0 Ks'}</b></div>` +
+                    `<div class="flex items-center justify-between gap-2"><span class="text-slate-600 dark:text-slate-300">ခွင့်ယူရက် (Leave)</span><b style="color: var(--hue-cyan);">${lvDays} ရက်</b></div>` +
+                    `<div class="flex items-center justify-between gap-2"><span class="text-slate-600 dark:text-slate-300">ကျန်ရှိရုံးဖွင့်ရက်</span><b class="text-slate-900 dark:text-white">${remDays} / ${m.targetDays} ရက်</b></div>`;
             }
 
             renderMlbbRadarChart('homeMlbbRadarChart', m.radarValues);
@@ -4055,7 +4117,31 @@
             const homeBonusStatus = document.getElementById('home-bonus-status');
             if (homeBonusVal) homeBonusVal.innerText = `${rewardsSummary.totalEarned.toLocaleString()} MMK`;
             if (homeBonusStatus) {
-                homeBonusStatus.innerText = m.a >= 3 ? '3+ AFK Forfeited' : ((d.wallet && d.wallet.bonus_active) ? 'Rewards Active' : 'AFK Alert');
+                if (m.a >= 3) {
+                    homeBonusStatus.className = 'mm-badge bg-rose-500/15 border border-rose-500/40 text-[9px] font-extrabold whitespace-nowrap text-rose-700 dark:text-rose-300';
+                    homeBonusStatus.innerText = '3+ AFK Forfeited';
+                } else if (m.a > 0 || !(d.wallet && d.wallet.bonus_active)) {
+                    homeBonusStatus.className = 'mm-badge bg-amber-500/15 border border-amber-500/40 text-[9px] font-extrabold whitespace-nowrap text-amber-800 dark:text-amber-300';
+                    homeBonusStatus.innerText = 'AFK Alert';
+                } else {
+                    homeBonusStatus.className = 'mm-badge bg-emerald-500/15 border border-emerald-500/35 text-[9px] font-extrabold whitespace-nowrap text-emerald-800 dark:text-emerald-300';
+                    homeBonusStatus.innerText = 'Rewards Active';
+                }
+            }
+
+            const slide3BreakEl = document.getElementById('home-slide3-breakdown');
+            if (slide3BreakEl) {
+                const isForfeited = m.a >= 3;
+                const rowFmt = (label, amt, activeClr) => `<div class="flex items-center justify-between gap-2"><span class="text-slate-600 dark:text-slate-300 truncate">${label}</span><b class="${amt > 0 ? '' : 'text-slate-500 dark:text-slate-400'}" ${amt > 0 ? `style="color: ${activeClr};"` : ''}>${amt > 0 ? `+${amt.toLocaleString()} Ks` : '0 Ks'}</b></div>`;
+                const forfeitLine = isForfeited
+                    ? `<p class="mm-text text-[8px] font-bold text-rose-600 dark:text-rose-300 pt-1 border-t border-rose-500/20">ခွင့်မဲ့ ၃ ရက်နှင့်အထက် ရှိသဖြင့် ယခုလ Bonus များ ပျက်ပြယ်ထားပါသည်</p>`
+                    : '';
+                slide3BreakEl.innerHTML =
+                    rowFmt(`Daily MVP (${m.e}d)`, rewardsSummary.earnedMvpDaily, 'var(--hue-gold)') +
+                    rowFmt('5-Day MVP Streak', rewardsSummary.earnedWeeklyStreak, 'var(--hue-gold)') +
+                    rowFmt('Zero-AFK Bonus', rewardsSummary.earnedAttendance, 'var(--hue-jade)') +
+                    rowFmt(`Season Rank (${escapeHtml(m.rank)})`, rewardsSummary.earnedRank, 'var(--hue-cyan)') +
+                    forfeitLine;
             }
 
             const todayRewardEl = document.getElementById('home-today-reward-badge');
@@ -4132,7 +4218,7 @@
 
         function syncProfilePhotoUI(empId, empName) {
             const initials = getInitials(empName);
-            const savedPhoto = localStorage.getItem(`gbf_photo_${empId}`);
+            const savedPhoto = safeLocalGet(`gbf_photo_${empId}`, null);
             const isOpDept = globalState && globalState.user ? globalState.user.is_operation_dept !== false : true;
             const portraitSrc = savedPhoto || getDefaultHumanPortraitSvgUri(empName, isOpDept);
             const hImg = document.getElementById('header-profile-img');
@@ -4164,7 +4250,7 @@
                     const minSide = Math.min(img.width, img.height);
                     ctx.drawImage(img, (img.width - minSide) / 2, (img.height - minSide) / 2, minSide, minSide, 0, 0, size, size);
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-                    localStorage.setItem(`gbf_photo_${globalState.user.id}`, dataUrl);
+                    safeLocalSet(`gbf_photo_${globalState.user.id}`, dataUrl);
                     syncProfilePhotoUI(globalState.user.id, globalState.user.name);
                     showToast("Profile ပုံ အသစ် သိမ်းဆည်းပြီးပါပြီ!", "success");
                 };
@@ -5051,7 +5137,7 @@
             };
 
             rewardConfig = updated;
-            localStorage.setItem('gbf_reward_config', JSON.stringify(rewardConfig));
+            safeLocalSet('gbf_reward_config', JSON.stringify(rewardConfig));
             if (globalState) {
                 globalState.reward_config = rewardConfig;
                 if (globalState.totals) globalState.totals.working_days = wdVal;
@@ -6055,7 +6141,7 @@
             const activeDnav = document.getElementById(`dnav-${t}`);
             if (activeDnav) activeDnav.classList.add('active');
 
-            if (tg && tg.BackButton) {
+            if (tgSupports('6.1') && tg.BackButton) {
                 try { t === 'home' ? tg.BackButton.hide() : tg.BackButton.show(); } catch (e) {}
             }
 
@@ -6069,12 +6155,12 @@
             triggerHaptic('light');
             const isDark = !document.body.classList.contains('dark-mode');
             applyThemeVisuals(isDark);
-            localStorage.setItem('gbf_theme', isDark ? 'dark' : 'light');
+            safeLocalSet('gbf_theme', isDark ? 'dark' : 'light');
         }
 
         function logoutConfirm() {
             clearSessionToken();
-            localStorage.removeItem('gbf_user');
+            safeLocalRemove('gbf_user');
             location.reload();
         }
     </script>

@@ -4,7 +4,7 @@
  */
 
 const GBF_CONFIG = {
-  VERSION: "v9.6.0 Production LTS",
+  VERSION: "v9.6.1 Production LTS",
   TIMEZONE: "Asia/Rangoon",
   GMT_OFFSET: "GMT+6:30",
   DEFAULT_BOT_USERNAME: "GBF_HRMS_Bot",
