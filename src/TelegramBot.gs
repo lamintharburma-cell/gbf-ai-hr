@@ -5,6 +5,32 @@
  */
 
 /**
+ * 🎨 Unified Brand Symbol Legend aligned 1-for-1 with v9.5.2 App UI (1 Icon = 1 Color/Status).
+ */
+const GBF_TG_ICONS = {
+  MVP: "👑",
+  ONTIME: "❇️",
+  LATE: "⚪️",
+  LEAVE: "☑️",
+  ABSENT: "🚩",
+  PENDING: "🕒",
+  CHECKOUT: "🏁",
+  HQ: "🏢",
+  SITE: "📡"
+};
+
+function formatKpiTierBadge_(kpi, mvpDailyAmt) {
+  const k = String(kpi || "").trim();
+  if (k === "MVP" || k === "Early") {
+    return mvpDailyAmt
+      ? `${GBF_TG_ICONS.MVP} MVP (+${Number(mvpDailyAmt).toLocaleString()} MMK)`
+      : `${GBF_TG_ICONS.MVP} MVP`;
+  }
+  if (k === "Late") return `${GBF_TG_ICONS.LATE} ကျ`;
+  return `${GBF_TG_ICONS.ONTIME} မှန်`;
+}
+
+/**
  * 🤖 Authoritative Private Telegram Bot Command List synced via `setMyCommands` (v9.3.0).
  */
 const GBF_BOT_COMMANDS = [
@@ -23,7 +49,7 @@ const GBF_BOT_COMMANDS = [
  */
 const GBF_GROUP_BOT_COMMANDS = [
   { command: "board", description: "📊 ယနေ့ Group Attendance Live Board ကြည့်ရန်" },
-  { command: "teams", description: "🗼 ယနေ့ Field Teams (Alpha/Bravo/Charlie) ကြည့်ရန်" },
+  { command: "teams", description: "🛡️ ယနေ့ Field Teams (Alpha/Bravo/Charlie) ကြည့်ရန်" },
   { command: "checkin", description: "📍 Private Bot မှ Check-In / Status ကြည့်ရန်" },
   { command: "id", description: "🪪 Group Chat ID စစ်ဆေးရန်" }
 ];
@@ -149,10 +175,27 @@ function truncateBodyBeforeFooter_(baseHtml, footerHtml, maxChars) {
     kept = next;
   }
   if (!kept) kept = lines[0].slice(0, budget);
-  const openCount = (kept.match(/<blockquote>/gi) || []).length;
-  const closeCount = (kept.match(/<\/blockquote>/gi) || []).length;
-  if (openCount > closeCount) kept += "\n... <i>(truncated)</i></blockquote>";
-  else kept += "\n... <i>(truncated)</i>";
+  const stack = [];
+  const tagRe = /<\/?(b|i|u|s|code|pre|blockquote)\b[^>]*>/gi;
+  let tm;
+  while ((tm = tagRe.exec(kept)) !== null) {
+    const full = tm[0];
+    const tagName = tm[1].toLowerCase();
+    if (full.startsWith("</")) {
+      const lastIdx = stack.lastIndexOf(tagName);
+      if (lastIdx !== -1) stack.splice(lastIdx, 1);
+    } else {
+      stack.push(tagName);
+    }
+  }
+  const hasBlockquote = stack.includes("blockquote");
+  while (stack.length > 0 && stack[stack.length - 1] !== "blockquote") {
+    kept += `</${stack.pop()}>`;
+  }
+  kept += "\n... <i>(truncated)</i>";
+  if (hasBlockquote) {
+    while (stack.length > 0) kept += `</${stack.pop()}>`;
+  }
   return footer ? `${kept}\n\n${footer}` : kept;
 }
 
@@ -478,6 +521,88 @@ function finalizeApproverMessageAndRemoveButtons_(cb, decisionFooterHtml, opts) 
   }
 }
 
+/**
+ * 🛡️ Cryptographically/RBAC-verified Approver Callback Access Control List & Row Integrity Check.
+ * Prevents unlinked Telegram users, missing `cb.from.id`, junior self-approvals, or forged row targets.
+ */
+function authorizeApproverCallback_(cb, type, action, row, sheet, targetEmpId, settings) {
+  const cleanTarget = String(targetEmpId == null ? "" : targetEmpId).trim();
+  const actorChatId = sanitizeTelegramChatId_(cb && cb.from ? cb.from.id : "");
+  if (!actorChatId) {
+    logToAudit("CALLBACK_ACL_DENIED", "UNKNOWN", "NO_ID", `${type}_${action}_R${row}_${cleanTarget} (MISSING_FROM_ID)`);
+    return { authorized: false, reason: "MISSING_FROM_ID" };
+  }
+
+  const settingsObj = settings || getSettings();
+  const adminChatId = sanitizeTelegramChatId_(settingsObj.HR_ADMIN_CHAT_ID);
+  const isAdminChat = Boolean(adminChatId && actorChatId === adminChatId);
+  const actor = findEmployeeByChatId_(actorChatId);
+
+  const deny = (reason) => {
+    logToAudit(
+      "CALLBACK_ACL_DENIED",
+      actor ? actor.empId : "UNKNOWN",
+      actor ? actor.name : actorChatId,
+      `${type}_${action}_R${row}_${cleanTarget} (${reason})`
+    );
+    return { authorized: false, reason: reason };
+  };
+
+  if (!actor && !isAdminChat) {
+    return deny("UNLINKED_USER");
+  }
+
+  const validAction = type === "VOC" ? (action === "ACK" || action === "MEET") : (action === "APP" || action === "REJ");
+  if (!validAction) {
+    return deny("INVALID_ACTION");
+  }
+
+  const empCol = type === "VOC" ? 3 : 2;
+  const sheetEmpId = String(sheet.getRange(row, empCol).getValue() || "").trim();
+  if (!sheetEmpId || sheetEmpId !== cleanTarget) {
+    return deny("ROW_TARGET_MISMATCH");
+  }
+
+  const actorLayer = actor ? resolvePositionLayer(actor.role, actor.empId, settingsObj) : "TM";
+  if (actor && cleanTarget && cleanTarget !== "ANONYMOUS" && String(actor.empId).trim() === cleanTarget) {
+    const otherApprovers = isAdminChat
+      ? resolveApproversForRequester(cleanTarget, actor.name, actor.role).chatIds.filter(id => String(id).trim() !== actorChatId)
+      : ["NON_ADMIN"];
+    if (!isAdminChat || otherApprovers.length > 0) {
+      return deny("SELF_APPROVAL");
+    }
+  }
+
+  const hrWatchIds = String(settingsObj.APPROVER_HR_WATCH_IDS || "").split(",").map(s => s.trim()).filter(Boolean);
+  const isHrWatch = Boolean(actor && hrWatchIds.includes(actor.empId));
+  const isTopTier = isAdminChat || isHrWatch || actorLayer === "TM" || actorLayer === "MM";
+
+  if (type === "VOC") {
+    if (!isTopTier) return deny("INSUFFICIENT_TIER");
+  } else {
+    if (!isTopTier) {
+      if (actorLayer === "TL") {
+        const reqInfo = getEmployeeContactInfo(cleanTarget);
+        const reqLayer = resolvePositionLayer(reqInfo.role, cleanTarget, settingsObj);
+        const tlTargets = String(settingsObj.POS_LAYER_TL_TARGETS || "TT,JT,ST").toUpperCase().split(",").map(s => s.trim()).filter(Boolean);
+        const routing = resolveApproversForRequester(cleanTarget, reqInfo.name, reqInfo.role);
+        if (!tlTargets.includes(reqLayer) || !routing.chatIds.includes(actorChatId)) {
+          return deny("INSUFFICIENT_TIER");
+        }
+      } else {
+        return deny("INSUFFICIENT_TIER");
+      }
+    }
+  }
+
+  return {
+    authorized: true,
+    approverName: actor ? `${actor.name} (#${actor.empId})` : "HR Admin",
+    approverEmpId: actor ? actor.empId : "ADMIN",
+    layer: actorLayer
+  };
+}
+
 function handleCallbackQuery(cb) {
   if (!cb || !cb.data) return;
 
@@ -504,7 +629,6 @@ function handleCallbackQuery(cb) {
     const action = parts[1];        // "APP", "REJ", "ACK", or "MEET"
     const row = parseInt(parts[2], 10);
     const targetEmpId = parts.slice(3).join("_");
-    const approverName = (cb.from && cb.from.first_name) ? cb.from.first_name : "Approver";
 
     if (!row || isNaN(row) || row < 2) {
       answerCallbackSafe_(cb.id, "⚠️ Invalid Row Data", false);
@@ -512,6 +636,7 @@ function handleCallbackQuery(cb) {
     }
 
     const ss = getGBFSpreadsheet_();
+    const settings = getSettings();
     const rowActionLockKey = `DECIDED_${type}_ROW_${row}`;
     const alreadyDecidedInCache = cache.get(rowActionLockKey);
 
@@ -522,6 +647,13 @@ function handleCallbackQuery(cb) {
         answerCallbackSafe_(cb.id, "⚠️ Ticket Row Not Found", false);
         return;
       }
+
+      const acl = authorizeApproverCallback_(cb, type, action, row, vSheet, targetEmpId, settings);
+      if (!acl.authorized) {
+        answerCallbackSafe_(cb.id, "⛔ ဤတောင်းဆိုမှုကို အတည်ပြုခွင့် မရှိပါ။", true);
+        return;
+      }
+      const approverName = acl.approverName;
 
       const currentVocStatus = String(vSheet.getRange(row, 9).getValue() || "").trim();
       if (alreadyDecidedInCache || (currentVocStatus !== "" && currentVocStatus !== "Pending_Review")) {
@@ -575,6 +707,13 @@ function handleCallbackQuery(cb) {
       answerCallbackSafe_(cb.id, "⚠️ Request Row Not Found", false);
       return;
     }
+
+    const acl = authorizeApproverCallback_(cb, type, action, row, sheet, targetEmpId, settings);
+    if (!acl.authorized) {
+      answerCallbackSafe_(cb.id, "⛔ ဤတောင်းဆိုမှုကို အတည်ပြုခွင့် မရှိပါ။", true);
+      return;
+    }
+    const approverName = acl.approverName;
 
     const currentStatus = String(sheet.getRange(row, statusCol).getValue() || "").trim();
     if (alreadyDecidedInCache || (currentStatus !== "" && currentStatus !== "Pending")) {
@@ -870,6 +1009,9 @@ function buildGroupBoardCard_(viewTab, updatedState, settings, latestEvent) {
   const leaveList = sys.today_leaves_list || [];
   const pendingList = sys.today_pending_list || [];
   const totalEmp = Number(sys.total_emp || (checkedList.length + leaveList.length + pendingList.length) || 0);
+  const mvpCnt = checkedList.filter(x => x.kpi === "MVP").length;
+  const onTimeCnt = checkedList.filter(x => x.kpi === "On-Time").length;
+  const lateCnt = checkedList.filter(x => x.kpi === "Late").length;
 
   let msg = "";
   let latestMapUrl = latestEvent && latestEvent.actorMapUrl ? latestEvent.actorMapUrl : "";
@@ -878,18 +1020,30 @@ function buildGroupBoardCard_(viewTab, updatedState, settings, latestEvent) {
   }
 
   if (viewTab === "pending") {
-    const pendingItems = pendingList.map((p, idx) => `${idx + 1}. <b>${escapeHtmlText_(p.name)}</b>`);
-    const lvItems = leaveList.map(lv => `• <b>${escapeHtmlText_(lv.name)}</b> — ${escapeHtmlText_(lv.type)} (${lv.status === "Approved" ? "🟢 Approved" : "🟡 Pending"})`);
+    const pendingItems = pendingList.map((p, idx) => `${idx + 1}. ${GBF_TG_ICONS.PENDING} <b>${escapeHtmlText_(p.name)}</b>`);
+    const lvItems = leaveList.map(lv => `• ${GBF_TG_ICONS.LEAVE} <b>${escapeHtmlText_(lv.name)}</b> — ${escapeHtmlText_(lv.type)} (${lv.status === "Approved" ? `${GBF_TG_ICONS.ONTIME} Approved` : `${GBF_TG_ICONS.PENDING} Pending`})`);
     const lvSection = lvItems.length > 0
-      ? `\n\n🏖️ <b>ယနေ့ ခွင့်တိုင်ကြားထားသူများ (${leaveList.length} ဦး):</b>\n${lvItems.join("\n")}`
+      ? `\n\n${GBF_TG_ICONS.LEAVE} <b>ယနေ့ ခွင့်တိုင်ကြားထားသူများ (${leaveList.length} ဦး):</b>\n${lvItems.join("\n")}`
       : "";
-    const header = `⏳ <b>G.B.F. မဝင်ရသေးသူနှင့် ခွင့်စာရင်းအပြည့် (${todayStr})</b>\n` +
-      `👥 <b>Active:</b> ${checkedList.length}/${totalEmp} ဦး | 🏖️ <b>ခွင့်:</b> ${leaveList.length} ဦး | ⏳ <b>ကျန်:</b> ${pendingList.length} ဦး\n` +
-      `<blockquote><b>⏳ မဝင်ရသေးသူ (${pendingList.length} ဦး):</b>\n`;
+    const header = `${GBF_TG_ICONS.PENDING} <b>G.B.F. မဝင်ရသေးသူနှင့် ခွင့်စာရင်း (${todayStr})</b>\n` +
+      `${GBF_TG_ICONS.ONTIME} <b>တက်:</b> ${checkedList.length}/${totalEmp} ဦး  •  ${GBF_TG_ICONS.LEAVE} <b>ခွင့်:</b> ${leaveList.length}  •  ${GBF_TG_ICONS.PENDING} <b>ကျန်:</b> ${pendingList.length}\n` +
+      `<blockquote><b>${GBF_TG_ICONS.PENDING} မဝင်ရသေးသူ (${pendingList.length} ဦး):</b>\n`;
     if (pendingItems.length === 0) {
-      msg = `${header}🎉 <i>ဝန်ထမ်းအားလုံး ရုံးတက်/ခွင့် စာရင်းဝင်ပြီး ဖြစ်ပါသည်။</i>${lvSection}</blockquote>`;
+      const donePrefix = `${header}🎉 <i>ဝန်ထမ်းအားလုံး ရုံးတက်/ခွင့် စာရင်းဝင်ပြီး ဖြစ်ပါသည်။</i>`;
+      if (lvItems.length === 0) {
+        msg = `${donePrefix}</blockquote>`;
+      } else {
+        msg = fitLinesWithinBudget_(
+          `${donePrefix}\n\n${GBF_TG_ICONS.LEAVE} <b>ယနေ့ ခွင့်တိုင်ကြားထားသူများ (${leaveList.length} ဦး):</b>\n`,
+          lvItems,
+          `</blockquote>`,
+          "\n",
+          rem => `\n<i>... နှင့် အခြား ${rem} ဦး (Mini App တွင် အပြည့်အစုံ ကြည့်ပါ)</i>`,
+          3750
+        );
+      }
     } else {
-      const lvTail = lvSection.length <= 700 ? lvSection : `\n\n🏖️ <b>ယနေ့ ခွင့်:</b> ${leaveList.length} ဦး (Mini App တွင် ကြည့်ပါ)`;
+      const lvTail = lvSection.length <= 700 ? lvSection : `\n\n${GBF_TG_ICONS.LEAVE} <b>ယနေ့ ခွင့်:</b> ${leaveList.length} ဦး (Mini App တွင် ကြည့်ပါ)`;
       msg = fitLinesWithinBudget_(
         header,
         pendingItems,
@@ -907,43 +1061,40 @@ function buildGroupBoardCard_(viewTab, updatedState, settings, latestEvent) {
     if (latestEvent) {
       const safeActor = escapeHtmlText_(latestEvent.actorName);
       const actionHeader = latestEvent.actionType === "Check In"
-        ? `✅ <b>${safeActor}</b> ရုံးတက်စာရင်းသွင်းပြီး\n⏰ <b>အချိန်:</b> ${escapeHtmlText_(latestEvent.displayTime)} • <b>${latestEvent.kpiLabel}</b>`
-        : `🏁 <b>${safeActor}</b> ရုံးဆင်းစာရင်းသွင်းပြီး\n⏰ <b>အချိန်:</b> ${escapeHtmlText_(latestEvent.displayTime)}${latestEvent.workedDuration ? `\n⏱️ <b>အလုပ်ချိန် စုစုပေါင်း:</b> <code>${escapeHtmlText_(latestEvent.workedDuration)}</code>` : ""}`;
-      highlightBlock = `${actionHeader}\n📏 <b>ရုံးနှင့်အကွာအဝေး:</b> <code>${escapeHtmlText_(latestEvent.distText)}</code> (${latestEvent.zoneTag})`;
-      if (latestEvent.actorMapUrl) {
-        highlightBlock += `\n🗺️ <a href="${latestEvent.actorMapUrl}">Map ပေါ်တွင် အကွာအဝေးတိုင်းတာမှု ကြည့်ရန် (HQ ➔ Check-In)</a>`;
-      }
+        ? `✅ <b>${safeActor}</b> — ${escapeHtmlText_(latestEvent.displayTime)} • <b>${latestEvent.kpiLabel}</b>`
+        : `${GBF_TG_ICONS.CHECKOUT} <b>${safeActor}</b> (Check-Out) — ${escapeHtmlText_(latestEvent.displayTime)}${latestEvent.workedDuration ? `\n⏱️ <b>အလုပ်ချိန်:</b> <code>${escapeHtmlText_(latestEvent.workedDuration)}</code>` : ""}`;
+      const mapInline = latestEvent.actorMapUrl ? ` • <a href="${latestEvent.actorMapUrl}">🗺️ Map</a>` : "";
+      highlightBlock = `${actionHeader}\n📏 <b>တည်နေရာ:</b> <code>${escapeHtmlText_(latestEvent.distText)}</code> (${latestEvent.zoneTag})${mapInline}`;
     }
 
-    const head = `📡 <b>G.B.F. ယနေ့ ရုံးတက်အစဉ်လိုက်နှင့် တည်နေရာတိုင်းတာချက်</b>\n` +
-      `📅 <b>ရက်စွဲ:</b> ${todayStr}  |  👥 <b>ရုံးတက်:</b> ${checkedList.length}/${totalEmp} ဦး  |  ⏳ <b>ကျန်:</b> ${pendingList.length} ဦး\n` +
+    const head = `📅 <b>${todayStr} (ယနေ့) Company Attendance • ${checkedList.length}/${totalEmp} ဦး</b>\n` +
+      `${GBF_TG_ICONS.MVP} MVP ${mvpCnt}  •  ${GBF_TG_ICONS.ONTIME} မှန် ${onTimeCnt}  •  ${GBF_TG_ICONS.LATE} ကျ ${lateCnt}  •  ${GBF_TG_ICONS.LEAVE} ${leaveList.length}  •  ${GBF_TG_ICONS.PENDING} ${pendingList.length}\n` +
       `<blockquote>${highlightBlock}</blockquote>\n` +
       `🏆 <b>ယနေ့ ဝင်ရောက်ပြီးသူများ (Arrival Order):</b>\n`;
 
     const checkedLines = checkedList.map((emp, idx) => {
-      const rankIcon = idx === 0 ? "🥇 #1" : (idx === 1 ? "🥈 #2" : (idx === 2 ? "🥉 #3" : `🔹 #${idx + 1}`));
-      const kBadge = emp.kpi === "MVP" ? "👑" : (emp.kpi === "On-Time" ? "🟢" : "❗");
-      const zIcon = emp.loc_status === "HQ_Zone" ? "🏢" : "🗼";
+      const kBadge = emp.kpi === "MVP" ? GBF_TG_ICONS.MVP : (emp.kpi === "Late" ? GBF_TG_ICONS.LATE : GBF_TG_ICONS.ONTIME);
+      const zIcon = emp.loc_status === "HQ_Zone" ? GBF_TG_ICONS.HQ : GBF_TG_ICONS.SITE;
       const mapAnchor = emp.map_url ? ` • <a href="${emp.map_url}">🗺️ Map</a>` : "";
       const durBadge = emp.out_time ? computeWorkedDurationText_(emp.time, emp.out_time) : "";
-      const outTag = emp.out_time ? ` ➔ Out: ${escapeHtmlText_(emp.out_time)}${durBadge ? ` (${escapeHtmlText_(durBadge)})` : ""}` : "";
-      return `${rankIcon} <b>${escapeHtmlText_(emp.name)}</b> — ${escapeHtmlText_(emp.time)}${outTag} (${kBadge} ${escapeHtmlText_(emp.kpi)} | ${zIcon} <code>${escapeHtmlText_(emp.distance_text)}</code>${mapAnchor})`;
+      const outTag = emp.out_time ? ` ➔ <code>${escapeHtmlText_(emp.out_time)}</code>${durBadge ? ` (${escapeHtmlText_(durBadge)})` : ""}` : "";
+      return `${idx + 1}. ${kBadge} <b>${escapeHtmlText_(emp.name)}</b> — <code>${escapeHtmlText_(emp.time)}</code>${outTag} • ${zIcon} <code>${escapeHtmlText_(emp.distance_text)}</code>${mapAnchor}`;
     });
 
     let footerSections = "";
     if (leaveList.length > 0) {
       const lvPreview = leaveList.slice(0, 12).map(lv => {
-        const stIcon = lv.status === "Approved" ? "🟢 Approved" : "🟡 Pending";
-        return `• <b>${escapeHtmlText_(lv.name)}</b> — ${escapeHtmlText_(lv.type)} (${stIcon})`;
+        const stIcon = lv.status === "Approved" ? `${GBF_TG_ICONS.ONTIME} Approved` : `${GBF_TG_ICONS.PENDING} Pending`;
+        return `• ${GBF_TG_ICONS.LEAVE} <b>${escapeHtmlText_(lv.name)}</b> — ${escapeHtmlText_(lv.type)} (${stIcon})`;
       }).join("\n");
       const lvMore = leaveList.length > 12 ? `\n• <i>+${leaveList.length - 12} ဦး (Pending tab တွင် ကြည့်ပါ)</i>` : "";
-      footerSections += `\n\n🏖️ <b>ယနေ့ ခွင့်တိုင်ကြားထားသူများ (${leaveList.length} ဦး):</b>\n${lvPreview}${lvMore}`;
+      footerSections += `\n\n${GBF_TG_ICONS.LEAVE} <b>ယနေ့ ခွင့်တိုင်ကြားထားသူများ (${leaveList.length} ဦး):</b>\n${lvPreview}${lvMore}`;
     }
 
     if (pendingList.length > 0) {
       const previewNames = pendingList.slice(0, 5).map(p => escapeHtmlText_(p.name)).join(", ");
       const moreCount = pendingList.length > 5 ? ` +${pendingList.length - 5} ဦး (Pending နှိပ်ကြည့်ပါ)` : "";
-      footerSections += `\n\n⏳ <b>မဝင်ရသေးသူ (${pendingList.length} ဦး):</b> ${previewNames}${moreCount}`;
+      footerSections += `\n\n${GBF_TG_ICONS.PENDING} <b>မဝင်ရသေးသူ (${pendingList.length} ဦး):</b> ${previewNames}${moreCount}`;
     } else {
       footerSections += `\n\n🎉 <b>ဝန်ထမ်းအားလုံး ရုံးတက်/ခွင့် စာရင်းဝင်ပြီးဖြစ်ပါသည်။</b>`;
     }
@@ -965,8 +1116,8 @@ function buildGroupBoardCard_(viewTab, updatedState, settings, latestEvent) {
   const rows = [
     [
       { text: viewTab === "board" ? "🔄 Refresh Board" : "📊 Live Board", callback_data: "CMD_GRP_BOARD" },
-      { text: `⏳ Pending (${pendingList.length})`, callback_data: "CMD_GRP_PENDING" },
-      { text: "🗼 Field Teams", callback_data: "CMD_GRP_TEAMS" }
+      { text: `${GBF_TG_ICONS.PENDING} Pending (${pendingList.length})`, callback_data: "CMD_GRP_PENDING" },
+      { text: "🛡️ Field Teams", callback_data: "CMD_GRP_TEAMS" }
     ]
   ];
   const row2 = [];
@@ -994,11 +1145,11 @@ function broadcastAttendanceToTelegramGroup_(data, kpiStatus, distanceMeters, lo
 
     const distText = formatDistanceText_(distanceMeters);
     const isInsideHq = distanceMeters <= maxRadius;
-    const zoneTag = isInsideHq ? `🏢 ရုံးချုပ်အတွင်း (≤${maxRadius}m)` : `🗼 ပြင်ပ/ဆိုက်တိုက်ရိုက်`;
+    const zoneTag = isInsideHq ? `${GBF_TG_ICONS.HQ} HQ ≤${maxRadius}m` : `${GBF_TG_ICONS.SITE} Site`;
     const hasCoords = data && data.lat != null && data.lng != null && String(data.lat).trim() !== "" && String(data.lng).trim() !== "" && !isNaN(Number(data.lat)) && !isNaN(Number(data.lng));
     const actorMapUrl = hasCoords ? buildGoogleMapsMeasureUrl_(officeLat, officeLng, `${data.lat},${data.lng}`) : "";
     const mvpDailyAmt = parseFloat(settings.REWARD_MVP_PER_DAY) || 1000;
-    const kpiEmoji = kpiStatus === "MVP" ? `👑 MVP EARLY (+${mvpDailyAmt.toLocaleString()} MMK)` : (kpiStatus === "On-Time" ? "🟢 On-Time" : "❗ Late");
+    const kpiEmoji = formatKpiTierBadge_(kpiStatus, mvpDailyAmt);
 
     const checkedList = updatedState.system.today_checked_in_list || [];
     const myToday = checkedList.find(x => x.id === String(data.emp_id).trim());
@@ -1128,10 +1279,10 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
     let quickStatusBlock = `🔑 ပထမဆုံးအကြိမ် ဝင်ရောက်ပါက Official PIN (သို့) <code>/link PIN</code> ဖြင့် Telegram ID ချိတ်ဆက်နိုင်ပါသည်။`;
     if (emp) {
       const st = getFullSystemState(emp.empId, emp.name, null, currentMonth);
-      let attBadge = "⏳ Check-In မဝင်ရသေးပါ";
+      let attBadge = `${GBF_TG_ICONS.PENDING} Check-In မဝင်ရသေးပါ`;
       if (st && st.today_state) {
-        if (st.today_state.status === "CHECKED_IN") attBadge = `🟢 Checked-In (${escapeHtmlText_(st.today_state.time_in)})`;
-        else if (st.today_state.status === "CHECKED_OUT") attBadge = `🏁 Checked-Out (${escapeHtmlText_(st.today_state.time_out)})`;
+        if (st.today_state.status === "CHECKED_IN") attBadge = `${GBF_TG_ICONS.ONTIME} Checked-In (${escapeHtmlText_(st.today_state.time_in)})`;
+        else if (st.today_state.status === "CHECKED_OUT") attBadge = `${GBF_TG_ICONS.CHECKOUT} Checked-Out (${escapeHtmlText_(st.today_state.time_out)})`;
       }
       const rem = (st && st.wallet) ? `${Number(st.wallet.remaining_advance || 0).toLocaleString()} MMK` : "-";
       quickStatusBlock = `✅ <b>Linked Account:</b> ${escapeHtmlText_(emp.name)} (<code>${escapeHtmlText_(emp.empId)}</code> • ${escapeHtmlText_(emp.role)})\n` +
@@ -1179,11 +1330,11 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
     const streakAmt = (parseFloat(settings.REWARD_WEEKLY_MVP_BONUS) || 10000).toLocaleString();
     const text = `🤖 <b>GBF HR-AI Assistant</b>\n` +
       `📌 <b>နောက်ကျကြေး၊ AFK နှင့် ဆုကြေး စည်းမျဉ်းများ</b>\n` +
-      `<blockquote>🌟 <b>MVP Early (≤ ${escapeHtmlText_(settings.TIME_EARLY || "09:00")} AM):</b> +${mvpAmt} MMK/ရက်\n` +
-      `🟢 <b>On-Time (≤ ${escapeHtmlText_(settings.TIME_LATE || "09:15")} AM):</b> အချိန်မှန် (No Penalty)\n` +
-      `❗ <b>Late (&gt; ${escapeHtmlText_(settings.TIME_LATE || "09:15")} AM):</b> တစ်လ ၃ ကြိမ် Grace ပေးပြီး <b>၄ ကြိမ်မြောက်မှစ၍ -2,000 MMK/ကြိမ်</b>\n` +
+      `<blockquote>${GBF_TG_ICONS.MVP} <b>MVP Early (≤ ${escapeHtmlText_(settings.TIME_EARLY || "09:00")} AM):</b> +${mvpAmt} MMK/ရက်\n` +
+      `${GBF_TG_ICONS.ONTIME} <b>On-Time (≤ ${escapeHtmlText_(settings.TIME_LATE || "09:15")} AM):</b> အချိန်မှန် (No Penalty)\n` +
+      `${GBF_TG_ICONS.LATE} <b>Late (&gt; ${escapeHtmlText_(settings.TIME_LATE || "09:15")} AM):</b> တစ်လ ၃ ကြိမ် Grace ပေးပြီး <b>၄ ကြိမ်မြောက်မှစ၍ -2,000 MMK/ကြိမ်</b>\n` +
       `🛡️ <b>Zero-AFK Bonus (0 AFK):</b> +${attAmt} MMK/လ (Weekly MVP Streak: +${streakAmt} MMK)\n` +
-      `🚩 <b>3+ AFK Rule:</b> ခွင့်မဲ့ ၃ ကြိမ်ပြည့်ပါက လစဉ် Bonus အားလုံး ပျက်ပြယ်ပါမည်</blockquote>\n` +
+      `${GBF_TG_ICONS.ABSENT} <b>3+ AFK Rule:</b> ခွင့်မဲ့ ၃ ကြိမ်ပြည့်ပါက လစဉ် Bonus အားလုံး ပျက်ပြယ်ပါမည်</blockquote>\n` +
       `— <b>GBF HR AI Management Team</b>`;
     return {
       text: text,
@@ -1217,10 +1368,10 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
       `🏷️ <b>ရာထူး:</b> ${escapeHtmlText_(p.role)} | 📌 <b>Status:</b> ${escapeHtmlText_(p.status)}\n\n` +
       `💵 <b>Base Salary:</b> <code>${Number(p.base_salary || 0).toLocaleString()} MMK</code>\n` +
       `🛡️ <b>Attendance Bonus (0 AFK):</b> <code>+${Number(p.attendance_bonus || 0).toLocaleString()} MMK</code>\n` +
-      `🌟 <b>Daily MVP &amp; Weekly Streak:</b> <code>+${Number(p.mvp_streak_bonus || 0).toLocaleString()} MMK</code>\n` +
+      `${GBF_TG_ICONS.MVP} <b>Daily MVP &amp; Weekly Streak:</b> <code>+${Number(p.mvp_streak_bonus || 0).toLocaleString()} MMK</code>\n` +
       `🏆 <b>MLBB Rank Bonus:</b> <code>+${Number(p.rank_bonus || 0).toLocaleString()} MMK</code>\n` +
       `💳 <b>Advance Deduction:</b> <code>-${Number(p.advance_deduction || 0).toLocaleString()} MMK</code>\n` +
-      `⚠️ <b>Absence &amp; Late Penalty:</b> <code>-${(Number(p.absence_deduction || 0) + Number(p.late_penalty || 0)).toLocaleString()} MMK</code></blockquote>\n` +
+      `${GBF_TG_ICONS.ABSENT} <b>Absence &amp; Late Penalty:</b> <code>-${(Number(p.absence_deduction || 0) + Number(p.late_penalty || 0)).toLocaleString()} MMK</code></blockquote>\n` +
       `💰 <b>NET PAYABLE:</b> <code>${Number(p.net_payable || 0).toLocaleString()} MMK</code>`;
     return {
       text: text,
@@ -1246,10 +1397,10 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
     const text = `🤖 <b>GBF HR-AI Assistant</b>\n` +
       `မင်္ဂလာပါ <b>${escapeHtmlText_(state.user.name)}</b> (<code>${escapeHtmlText_(state.user.role)}</code>) ရှင့်/ခင်ဗျာ။\n\n` +
       `<blockquote>📅 <b>ရုံးတက်ရက် (Present):</b> ${state.totals.present} ရက်\n` +
-      `🌟 <b>MVP &amp; Streak Bonus:</b> +${Number(calc.mvpAndStreakBonus || 0).toLocaleString()} ကျပ်\n` +
+      `${GBF_TG_ICONS.MVP} <b>MVP &amp; Streak Bonus:</b> +${Number(calc.mvpAndStreakBonus || 0).toLocaleString()} ကျပ်\n` +
       `🛡️ <b>Zero-AFK Bonus:</b> ${Number(calc.attendanceBonus || 0).toLocaleString()} ကျပ် (AFK ${state.totals.unexcused_absent} ရက်)\n` +
       `🏆 <b>Rank Bonus (${escapeHtmlText_(calc.rank)}):</b> +${Number(calc.rankBonus || 0).toLocaleString()} ကျပ်\n` +
-      `❗ <b>နောက်ကျ/AFK ဖြတ်ငွေ:</b> -${penalties.toLocaleString()} ကျပ်\n` +
+      `${GBF_TG_ICONS.LATE} <b>နောက်ကျ/AFK ဖြတ်ငွေ:</b> -${penalties.toLocaleString()} ကျပ်\n` +
       `💳 <b>Advance နုတ်ငွေ:</b> -${Number(calc.advanceDeduction || 0).toLocaleString()} ကျပ်\n` +
       `💰 <b>ခန့်မှန်းရရှိငွေ (Net):</b> <code>${netExclAdvance.toLocaleString()} MMK</code></blockquote>\n` +
       `<i>* Grace ၃ ကြိမ်ပေးပြီး ၄ ကြိမ်မြောက် နောက်ကျမှစ၍ 2,000 Ks ဖြတ်တောက်ပါသည်။</i>`;
@@ -1269,15 +1420,15 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
   if (actionKey === "CHECKIN") {
     const todayStr = Utilities.formatDate(new Date(), GBF_CONFIG.GMT_OFFSET, "yyyy-MM-dd");
     const myToday = (state.system.today_checked_in_list || []).find(item => item.id === emp.empId);
-    let statusText = "⏳ ယနေ့ Check-In မဝင်ရသေးပါ";
+    let statusText = `${GBF_TG_ICONS.PENDING} ယနေ့ Check-In မဝင်ရသေးပါ`;
     if (state.today_state.status === "CHECKED_IN") {
-      statusText = `🟢 Checked-In (${escapeHtmlText_(state.today_state.time_in)})`;
+      statusText = `${GBF_TG_ICONS.ONTIME} Checked-In (${escapeHtmlText_(state.today_state.time_in)})`;
     } else if (state.today_state.status === "CHECKED_OUT") {
       const worked = computeWorkedDurationText_(state.today_state.time_in, state.today_state.time_out);
-      statusText = `🏁 Checked-Out (In: ${escapeHtmlText_(state.today_state.time_in)} • Out: ${escapeHtmlText_(state.today_state.time_out)}${worked ? ` • ${escapeHtmlText_(worked)}` : ""})`;
+      statusText = `${GBF_TG_ICONS.CHECKOUT} Checked-Out (In: ${escapeHtmlText_(state.today_state.time_in)} • Out: ${escapeHtmlText_(state.today_state.time_out)}${worked ? ` • ${escapeHtmlText_(worked)}` : ""})`;
     }
     const gpsLine = myToday
-      ? `\n📏 <b>GPS:</b> <code>${escapeHtmlText_(myToday.distance_text)}</code> (${myToday.loc_status === "HQ_Zone" ? "🏢 HQ Zone" : "🗼 Field Site"}) • <b>Order:</b> #${myToday.order} (${escapeHtmlText_(myToday.kpi)})`
+      ? `\n📏 <b>GPS:</b> <code>${escapeHtmlText_(myToday.distance_text)}</code> (${myToday.loc_status === "HQ_Zone" ? `${GBF_TG_ICONS.HQ} HQ Zone` : `${GBF_TG_ICONS.SITE} Field Site`}) • #${myToday.order} (${formatKpiTierBadge_(myToday.kpi)})`
       : "";
     const text = `📍 <b>Smart Attendance (${todayStr})</b>\n` +
       `<blockquote>👤 <b>ဝန်ထမ်း:</b> ${escapeHtmlText_(state.user.name)} (<code>${escapeHtmlText_(state.user.id)}</code>)\n` +
@@ -1331,16 +1482,31 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
     };
   }
 
-  // Default: MYKPI
+  // Default: MYKPI (v9.5.2 Hero HUD Mirror)
   const calc = computeEmployeeKpiAndPayroll_(state.totals, state.wallet.base_salary, state.reward_config, state.weekly_streak, state.user.strike_count, state.totals.working_days);
   const stars = "⭐".repeat(Math.max(1, calc.stars || 1));
-  const forfeitNote = calc.monthlyBonusesForfeited ? "\n🚩 <i>3+ AFK ဖြစ်ထားသဖြင့် လစဉ် Bonus များ ပျက်ပြယ်ထားပါသည်။</i>" : "";
-  const text = `🏆 <b>MLBB Gamified KPI &amp; Season Rank (${currentMonth})</b>\n` +
-    `<blockquote>👤 <b>Player:</b> ${escapeHtmlText_(state.user.name)} (<code>${escapeHtmlText_(state.user.id)}</code> • ${escapeHtmlText_(state.user.role)})\n` +
-    `🎖️ <b>Rank:</b> <b>${escapeHtmlText_(calc.rank)}</b> ${stars} (<b>${calc.kpiScore}% KPI</b> • <b>${calc.winRate}% Win Rate</b>)\n` +
-    `📊 <b>Present:</b> ${state.totals.present}/${calc.workingDays}d | 🌟 <b>MVP:</b> ${state.totals.mvp} | 🟢 <b>On-Time:</b> ${state.totals.ontime} | ❗ <b>Late:</b> ${state.totals.late} | 🚩 <b>AFK:</b> ${state.totals.unexcused_absent}\n` +
-    `🔥 <b>Weekly MVP Streak:</b> ${state.weekly_streak.currentWeekMvp}/${state.reward_config.weekly_mvp_target} (Unlocked Weeks: ${state.weekly_streak.achievedWeeks})\n` +
-    `🎁 <b>Est. Total Bonuses:</b> <code>${Number(calc.totalBonuses || 0).toLocaleString()} MMK</code> | ⚡ <b>Strike:</b> ${state.user.strike_count}/3${forfeitNote}</blockquote>`;
+  const forfeitNote = calc.monthlyBonusesForfeited ? `\n${GBF_TG_ICONS.ABSENT} <i>3+ AFK ဖြစ်ထားသဖြင့် လစဉ် Bonus များ ပျက်ပြယ်ထားပါသည်။</i>` : "";
+  const mvpPerDay = Number((state.reward_config && state.reward_config.mvp_per_day) || 1000);
+  const weeklyTarget = Math.max(1, Number((state.reward_config && state.reward_config.weekly_mvp_target) || 5));
+  const weeklyBonus = Number((state.reward_config && state.reward_config.weekly_mvp_bonus) || 10000);
+  const curStreak = Math.min(weeklyTarget, Number((state.weekly_streak && state.weekly_streak.currentWeekMvp) || 0));
+  const streakSlots = [];
+  for (let sIdx = 0; sIdx < weeklyTarget; sIdx++) {
+    streakSlots.push(sIdx < curStreak ? GBF_TG_ICONS.MVP : "▫️");
+  }
+  const myTodayAtt = (state.system && Array.isArray(state.system.today_checked_in_list))
+    ? state.system.today_checked_in_list.find(item => item.id === state.user.id)
+    : null;
+  const todayRewardLine = (myTodayAtt && myTodayAtt.kpi === "MVP")
+    ? `🎁 <b>ယနေ့ MVP (+${mvpPerDay.toLocaleString()} MMK)</b>`
+    : (myTodayAtt ? `🎁 <b>ယနေ့ ${formatKpiTierBadge_(myTodayAtt.kpi)}</b>` : `🎁 <b>${escapeHtmlText_(currentMonth)} ဆုကြေး</b>`);
+
+  const text = `🏆 <b>${escapeHtmlText_(calc.rank)}</b> ${stars} • <b>${calc.kpiScore}% KPI</b> (${escapeHtmlText_(currentMonth)})\n` +
+    `📅 <b>တက်ရောက်:</b> ${state.totals.present}/${calc.workingDays}  |  🎯 <b>နိုင်နှုန်း:</b> ${calc.winRate}%  |  ${GBF_TG_ICONS.MVP} <b>MVP:</b> ${state.totals.mvp}  |  ${GBF_TG_ICONS.ABSENT} <b>ပျက်:</b> ${state.totals.unexcused_absent}\n` +
+    `<blockquote>${todayRewardLine} • စုစုပေါင်း: <code>+${Number(calc.totalBonuses || 0).toLocaleString()} MMK</code>\n` +
+    `🔥 <b>${weeklyTarget}-Day Streak:</b> ${streakSlots.join(" ")} (${curStreak}/${weeklyTarget} • +${weeklyBonus.toLocaleString()} MMK)\n` +
+    `${GBF_TG_ICONS.MVP} <b>MVP:</b> ${state.totals.mvp}  •  ${GBF_TG_ICONS.ONTIME} <b>မှန်:</b> ${state.totals.ontime}  •  ${GBF_TG_ICONS.LATE} <b>ကျ:</b> ${state.totals.late}  •  ${GBF_TG_ICONS.ABSENT} <b>ပျက်:</b> ${state.totals.unexcused_absent}\n` +
+    `👤 <b>${escapeHtmlText_(state.user.name)}</b> (<code>${escapeHtmlText_(state.user.id)}</code> • ${escapeHtmlText_(state.user.role)}) | ⚡ <b>Strike:</b> ${state.user.strike_count}/3${forfeitNote}</blockquote>`;
   return {
     text: text,
     reply_markup: buildPrivatePortalKeyboard_(clean, {
@@ -1376,7 +1542,7 @@ function handlePortalMenuCallback_(cb) {
     }
     try {
       const tabMap = { CMD_GRP_BOARD: "board", CMD_GRP_PENDING: "pending", CMD_GRP_TEAMS: "teams" };
-      const toastMap = { CMD_GRP_BOARD: "📊 Updating Live Board...", CMD_GRP_PENDING: "⏳ Loading Pending & Leaves...", CMD_GRP_TEAMS: "🗼 Loading Field Teams..." };
+      const toastMap = { CMD_GRP_BOARD: "📊 Updating Live Board...", CMD_GRP_PENDING: "🕒 Loading Pending & Leaves...", CMD_GRP_TEAMS: "🛡️ Loading Field Teams..." };
       answerCallbackSafe_(cb.id, toastMap[cbData], false);
       const currentMonth = Utilities.formatDate(new Date(), GBF_CONFIG.GMT_OFFSET, "yyyy-MM");
       const st = getFullSystemState("__GROUP_VIEWER__", "GroupViewer", null, currentMonth);
@@ -1573,16 +1739,16 @@ function notifyPerformerAttendance_(data, kpiStatus, distanceMeters, locStatus, 
     const maxRadius = parseFloat(settings.MAX_RADIUS) || 500;
     const mvpDailyAmt = parseFloat(settings.REWARD_MVP_PER_DAY) || 1000;
     const distText = formatDistanceText_(distanceMeters);
-    const zoneTag = distanceMeters <= maxRadius ? `🏢 HQ Zone (≤${maxRadius}m)` : `🗼 Field Site`;
+    const zoneTag = distanceMeters <= maxRadius ? `${GBF_TG_ICONS.HQ} HQ Zone (≤${maxRadius}m)` : `${GBF_TG_ICONS.SITE} Field Site`;
     const hasCoords = data && data.lat != null && data.lng != null && String(data.lat).trim() !== "" && String(data.lng).trim() !== "" && !isNaN(Number(data.lat)) && !isNaN(Number(data.lng));
     const actorMapUrl = hasCoords ? buildGoogleMapsMeasureUrl_(officeLat, officeLng, `${data.lat},${data.lng}`) : "";
     const myToday = (updatedState && updatedState.system && Array.isArray(updatedState.system.today_checked_in_list))
       ? updatedState.system.today_checked_in_list.find(x => x.id === String(data.emp_id).trim())
       : null;
     const orderTag = myToday ? ` (#${myToday.order})` : "";
-    const kpiBadge = kpiStatus === "MVP" ? `👑 MVP EARLY (+${mvpDailyAmt.toLocaleString()} MMK)` : (kpiStatus === "On-Time" ? "🟢 On-Time" : "❗ Late");
+    const kpiBadge = formatKpiTierBadge_(kpiStatus, mvpDailyAmt);
     const isOut = data.type === "Check Out";
-    const title = isOut ? "🏁 <b>ရုံးဆင်း မှတ်တမ်းတင်ပြီးပါပြီ (Check-Out)</b>" : "✅ <b>ရုံးတက် မှတ်တမ်းတင်ပြီးပါပြီ (Check-In)</b>";
+    const title = isOut ? `${GBF_TG_ICONS.CHECKOUT} <b>ရုံးဆင်း မှတ်တမ်းတင်ပြီးပါပြီ (Check-Out)</b>` : "✅ <b>ရုံးတက် မှတ်တမ်းတင်ပြီးပါပြီ (Check-In)</b>";
     const timeInRef = (myToday && myToday.time) || (updatedState && updatedState.today_state && updatedState.today_state.time_in) || "";
     const workedDuration = isOut ? computeWorkedDurationText_(timeInRef, displayTime) : "";
     const durationLine = workedDuration ? `\n⏱️ <b>စုစုပေါင်း အလုပ်ချိန်:</b> <code>${escapeHtmlText_(workedDuration)}</code>` : "";
@@ -1683,21 +1849,25 @@ function buildMemberReadinessMap_(todaySystemState) {
   const sys = todaySystemState.system;
   (sys.today_checked_in_list || []).forEach(c => {
     const key = String(c.name || "").trim().toLowerCase();
-    if (key) map[key] = c.out_time ? "🏁 Out" : "🟢 In";
+    if (!key) return;
+    if (c.out_time) map[key] = GBF_TG_ICONS.CHECKOUT;
+    else if (c.kpi === "MVP" || c.kpi === "Early") map[key] = GBF_TG_ICONS.MVP;
+    else if (c.kpi === "Late") map[key] = GBF_TG_ICONS.LATE;
+    else map[key] = GBF_TG_ICONS.ONTIME;
   });
   (sys.today_leaves_list || []).forEach(lv => {
     const key = String(lv.name || "").trim().toLowerCase();
-    if (key && !map[key]) map[key] = "🏖️ Leave";
+    if (key && !map[key]) map[key] = GBF_TG_ICONS.LEAVE;
   });
   (sys.today_pending_list || []).forEach(p => {
     const key = String(p.name || "").trim().toLowerCase();
-    if (key && !map[key]) map[key] = "⏳ Pending";
+    if (key && !map[key]) map[key] = GBF_TG_ICONS.PENDING;
   });
   return map;
 }
 
 /**
- * 🗼 Formats a consolidated Daily Team Rollout card (Alpha / Beta / Charlie) from `Daily_Teams` with attendance readiness.
+ * 🛡️ Formats chronological Field Teams from `Daily_Teams` matching v9.5.2 (creation time + unified member icons, no [Active] noise).
  */
 function buildConsolidatedTeamsGroupMessage_(teamSheet, fDate, fallbackTeamName, fallbackProject, fallbackMembers, todaySystemState) {
   const byTeam = {};
@@ -1712,28 +1882,32 @@ function buildConsolidatedTeamsGroupMessage_(teamSheet, fDate, fallbackTeamName,
     const mStr = String(r[4] || "").trim();
     if (!tName) return;
     const m13 = tId.match(/TEAM-(\d{13,})/);
-    const createdMs = m13 ? parseInt(m13[1], 10) : (9007199254740000 + idx);
+    const m10 = !m13 ? tId.match(/TEAM-(1[5-9]\d{8})(?:\b|\D)/) : null;
+    const ms = m13 ? parseInt(m13[1], 10) : (m10 ? parseInt(m10[1], 10) * 1000 : NaN);
+    const hasTs = Number.isFinite(ms) && ms > 1000000000000;
+    const createdMs = hasTs ? ms : (9007199254740000 + idx);
+    const createdTime = hasTs ? Utilities.formatDate(new Date(ms), GBF_CONFIG.GMT_OFFSET, "hh:mm a") : "";
     if (!byTeam[tName]) teamOrder.push(tName);
     const prevMs = byTeam[tName] ? byTeam[tName].createdMs : createdMs;
-    byTeam[tName] = { project: proj, membersStr: mStr, createdMs: Math.min(prevMs, createdMs) };
+    const chosenMs = Math.min(prevMs, createdMs);
+    const chosenTime = (byTeam[tName] && byTeam[tName].createdTime && chosenMs === prevMs)
+      ? byTeam[tName].createdTime
+      : createdTime;
+    byTeam[tName] = { project: proj, membersStr: mStr, createdMs: chosenMs, createdTime: chosenTime };
   });
   teamOrder.sort((a, b) => (byTeam[a].createdMs - byTeam[b].createdMs));
 
   if (teamOrder.length === 0 && fallbackTeamName) {
     byTeam[fallbackTeamName] = {
       project: fallbackProject || "",
-      membersStr: (fallbackMembers || []).map(m => `${m.name} (${m.role})`).join(", ")
+      membersStr: (fallbackMembers || []).map(m => `${m.name} (${m.role})`).join(", "),
+      createdMs: Date.now(),
+      createdTime: Utilities.formatDate(new Date(), GBF_CONFIG.GMT_OFFSET, "hh:mm a")
     };
     teamOrder.push(fallbackTeamName);
   }
 
   const readinessMap = buildMemberReadinessMap_(todaySystemState);
-  const formatMemberTag = (rawName) => {
-    const clean = rawName.replace(/\s*\([^)]*\)$/, "").trim();
-    const status = readinessMap[clean.toLowerCase()];
-    return status ? `${escapeHtmlText_(clean)} [<code>${escapeHtmlText_(status)}</code>]` : escapeHtmlText_(clean);
-  };
-
   const teamBlocks = [];
   teamOrder.forEach(tName => {
     const info = byTeam[tName];
@@ -1741,26 +1915,39 @@ function buildConsolidatedTeamsGroupMessage_(teamSheet, fDate, fallbackTeamName,
     const leads = [];
     const techs = [];
     parsed.forEach(entry => {
-      if (/leader|lead|tl/i.test(entry)) leads.push(formatMemberTag(entry));
-      else techs.push(formatMemberTag(entry));
+      const cleanName = entry.replace(/\s*\([^)]*\)$/, "").trim();
+      if (!cleanName) return;
+      if (/leader|lead|tl/i.test(entry)) leads.push(cleanName);
+      else techs.push(cleanName);
     });
-    let block = `⚡ <b>${escapeHtmlText_(tName)}</b> (${escapeHtmlText_(info.project)}) [<code>Active</code>]`;
-    if (leads.length > 0) block += `\n   🌟 <b>Lead:</b> ${leads.join(", ")}`;
-    if (techs.length > 0) block += `\n   🔧 <b>Tech:</b> ${techs.join(", ")}`;
+    const memberLines = [];
+    leads.forEach(name => {
+      const rIcon = readinessMap[name.toLowerCase()] || GBF_TG_ICONS.PENDING;
+      memberLines.push(`   ${rIcon} <b>${escapeHtmlText_(name)}</b> (Lead)`);
+    });
+    techs.forEach(name => {
+      const rIcon = readinessMap[name.toLowerCase()] || GBF_TG_ICONS.PENDING;
+      memberLines.push(`   ${rIcon} ${escapeHtmlText_(name)}`);
+    });
+    const timeChip = info.createdTime ? ` • <code>${escapeHtmlText_(info.createdTime)}</code>` : "";
+    let block = `<blockquote>👥 <b>${escapeHtmlText_(tName)}</b> • ${parsed.length} ဦး${timeChip}\n` +
+      `<i>Project: ${escapeHtmlText_(info.project || "-")}</i>`;
+    if (memberLines.length > 0) block += `\n${memberLines.join("\n")}`;
+    block += `</blockquote>`;
     teamBlocks.push(block);
   });
 
-  const prefix = `🗼 <b>ယနေ့ Field Team တာဝန်ခွဲဝေမှု (${escapeHtmlText_(fDate)})</b>\n<blockquote>`;
-  const suffix = `</blockquote>\n— <b>GBF Field Operations Control</b>`;
+  const prefix = `🛡️ <b>အဖွဲ့များ (${escapeHtmlText_(fDate)} • ${teamOrder.length} သင်း • ဖွဲ့စည်းချိန်အလိုက်)</b>\n`;
+  const suffix = `\n— <b>GBF Field Operations Control</b>`;
   if (teamBlocks.length === 0) {
-    return `${prefix}<i>ယနေ့အတွက် Field Team တာဝန်ခွဲဝေမှု မရှိသေးပါ။</i>${suffix}`;
+    return `${prefix}<blockquote><i>ယနေ့အတွက် Field Team တာဝန်ခွဲဝေမှု မရှိသေးပါ။</i></blockquote>${suffix}`;
   }
   return fitLinesWithinBudget_(
     prefix,
     teamBlocks,
     suffix,
-    "\n\n",
-    rem => `\n\n<i>... နှင့် အခြား Team ${rem} ဖွဲ့</i>`,
+    "\n",
+    rem => `\n<i>... နှင့် အခြား Team ${rem} ဖွဲ့</i>`,
     3750
   );
 }
@@ -1795,12 +1982,13 @@ function notifyPerformerAndMembersTeam_(data, members, fDate, trustedChatId) {
       if (String(m.role || "").toLowerCase().includes("leader")) leads.push(`${escapeHtmlText_(m.name)} (${escapeHtmlText_(m.role)})`);
       else techs.push(`${escapeHtmlText_(m.name)} (${escapeHtmlText_(m.role)})`);
     });
-    const memberBlock = (leads.length ? `🌟 <b>Lead:</b> ${leads.join(", ")}\n` : "") +
+    const memberBlock = (leads.length ? `${GBF_TG_ICONS.MVP} <b>Lead:</b> ${leads.join(", ")}\n` : "") +
       (techs.length ? `🔧 <b>Tech:</b> ${techs.join(", ")}` : "");
+    const timeStr = Utilities.formatDate(new Date(), GBF_CONFIG.GMT_OFFSET, "hh:mm a");
 
-    const msg = `🗼 <b>ကွင်းဆင်းအဖွဲ့ တာဝန်သတ်မှတ်ချက် (Team Receipt)</b>\n` +
-      `<blockquote>📦 <b>Team:</b> ${escapeHtmlText_(data.team_name)} [<code>Active</code>]\n` +
-      `🏗️ <b>Project:</b> ${escapeHtmlText_(data.project)} | 📅 ${escapeHtmlText_(fDate)}\n` +
+    const msg = `🛡️ <b>ကွင်းဆင်းအဖွဲ့ တာဝန်သတ်မှတ်ချက် (Team Receipt)</b>\n` +
+      `<blockquote>👥 <b>${escapeHtmlText_(data.team_name)}</b> • ${(members || []).length} ဦး • <code>${escapeHtmlText_(timeStr)}</code>\n` +
+      `<i>Project: ${escapeHtmlText_(data.project)} • ${escapeHtmlText_(fDate)}</i>\n` +
       `${memberBlock}</blockquote>\n` +
       `— <b>GBF HR AI Management Team</b>`;
 
@@ -1847,11 +2035,11 @@ function runMorningAttendanceDigest(ignoreSunday) {
     const lateCnt = checked.filter(x => x.kpi === "Late").length;
     const head = `⏰ <b>09:20 AM Daily Roll-Call Digest (${todayStr})</b>\n` +
       `<blockquote>👥 <b>Total Active:</b> ${checked.length}/${sys.total_emp || 0} ဦး\n` +
-      `👑 <b>MVP Early:</b> ${mvpCnt}  |  🟢 <b>On-Time:</b> ${onTimeCnt}  |  ❗ <b>Late:</b> ${lateCnt}  |  🏖️ <b>Leave:</b> ${leaves.length}`;
+      `${GBF_TG_ICONS.MVP} <b>MVP:</b> ${mvpCnt}  •  ${GBF_TG_ICONS.ONTIME} <b>မှန်:</b> ${onTimeCnt}  •  ${GBF_TG_ICONS.LATE} <b>ကျ:</b> ${lateCnt}  •  ${GBF_TG_ICONS.LEAVE} <b>ခွင့်:</b> ${leaves.length}`;
     const tail = `</blockquote>\n— <b>GBF HR Automated Operations</b>`;
     const msg = pending.length > 0
       ? fitLinesWithinBudget_(
-          `${head}\n⏳ <b>မဝင်ရသေးသူ (${pending.length}):</b> `,
+          `${head}\n${GBF_TG_ICONS.PENDING} <b>မဝင်ရသေးသူ (${pending.length}):</b> `,
           pending.map(p => escapeHtmlText_(p.name)),
           tail,
           ", ",
@@ -1888,8 +2076,8 @@ function runEveningAttendanceDigest(ignoreSunday) {
     const stillActive = checked.filter(x => !x.out_time);
 
     const head = `🏁 <b>06:15 PM End-of-Day Attendance Summary (${todayStr})</b>\n` +
-      `<blockquote>🟢 <b>Checked-In Total:</b> ${checked.length} ဦး\n` +
-      `🏁 <b>Checked-Out Complete:</b> ${checkedOut.length} ဦး`;
+      `<blockquote>${GBF_TG_ICONS.ONTIME} <b>Checked-In Total:</b> ${checked.length} ဦး\n` +
+      `${GBF_TG_ICONS.CHECKOUT} <b>Checked-Out Complete:</b> ${checkedOut.length} ဦး`;
     const tail = `</blockquote>\n— <b>GBF HR Automated Operations</b>`;
     const msg = stillActive.length > 0
       ? fitLinesWithinBudget_(

@@ -13,9 +13,32 @@ function include(filename) {
  */
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === "get_payslip_html") {
-    const slipHtml = getPayrollSlipHtml(e.parameter.emp_id, e.parameter.month);
+    let actor = null;
+    const tokRes = verifySessionToken_(e.parameter.sess_tok);
+    if (tokRes.valid) {
+      actor = resolveActiveEmployeeById_(tokRes.sub);
+    } else {
+      const trustedChatId = resolveTrustedChatId_(e.parameter.tg_id, e.parameter.tg_sig);
+      if (trustedChatId) {
+        const emp = findEmployeeByChatId_(trustedChatId);
+        if (emp) {
+          actor = { empId: emp.empId, empName: emp.name, role: emp.role, chatId: trustedChatId };
+        }
+      }
+    }
+    if (!actor) {
+      return HtmlService.createHtmlOutput(
+        "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>401 Unauthorized</title></head>" +
+        "<body style=\"font-family:sans-serif;padding:24px;background:#0f172a;color:#f8fafc\">" +
+        "<h2>401 Unauthorized</h2><p>🔐 Session သက်တမ်းကုန်ဆုံးပါပြီ — GBF HR Mini App မှတစ်ဆင့် ပြန်လည်ဝင်ရောက်ပါ။</p>" +
+        "</body></html>"
+      )
+        .setTitle("401 Unauthorized")
+        .addMetaTag("viewport", "width=device-width, initial-scale=1.0, viewport-fit=cover");
+    }
+    const slipHtml = getPayrollSlipHtml(actor.empId, e.parameter.month);
     return HtmlService.createHtmlOutput(slipHtml)
-      .setTitle(`GBF_Payslip_${e.parameter.emp_id}_${e.parameter.month}`)
+      .setTitle(`GBF_Payslip_${actor.empId}_${e.parameter.month || ""}`)
       .addMetaTag("viewport", "width=device-width, initial-scale=1.0, viewport-fit=cover");
   }
 
@@ -99,6 +122,67 @@ function doPost(e) {
   }
 }
 
+function resolveActiveEmployeeById_(empId) {
+  const cleanId = String(empId || "").trim();
+  if (!cleanId) return null;
+  const ss = getGBFSpreadsheet_();
+  const empSheet = ss ? ss.getSheetByName("HR_Employees") : null;
+  if (!empSheet || empSheet.getLastRow() <= 1) return null;
+  const settings = getSettings();
+  const rows = empSheet.getDataRange().getValues();
+  const headers = buildHeaderMap_(rows[0]);
+  const chatIdx = headers["telegram_chat_id"] !== undefined ? headers["telegram_chat_id"] : 0;
+  const idIdx = headers["official_emp_id"] !== undefined ? headers["official_emp_id"] : 1;
+  const nameIdx = headers["employee_name"] !== undefined ? headers["employee_name"] : 2;
+  const roleIdx = headers["role"] !== undefined ? headers["role"] : 3;
+  const statusIdx = headers["status"] !== undefined ? headers["status"] : 7;
+
+  for (let i = 1; i < rows.length; i++) {
+    const rId = String(rows[i][idIdx] || "").trim();
+    const rStatus = String(rows[i][statusIdx] || "Active").trim().toLowerCase();
+    if (rId === cleanId && rStatus !== "inactive") {
+      const role = String(rows[i][roleIdx] || "").trim();
+      return {
+        empId: rId,
+        empName: String(rows[i][nameIdx] || "").trim(),
+        role: role,
+        layer: resolvePositionLayer(role, rId, settings),
+        chatId: sanitizeTelegramChatId_(rows[i][chatIdx])
+      };
+    }
+  }
+  return null;
+}
+
+function resolveAuthenticatedActor_(safeData) {
+  const tokRes = verifySessionToken_(safeData && safeData.session_token);
+  if (!tokRes.valid) {
+    return {
+      authenticated: false,
+      auth_required: true,
+      reason: tokRes.reason || "INVALID_SESSION",
+      message: "🔐 Session သက်တမ်းကုန်ဆုံးပါပြီ — PIN ပြန်ရိုက်ထည့်ပါ။"
+    };
+  }
+  const emp = resolveActiveEmployeeById_(tokRes.sub);
+  if (!emp) {
+    return {
+      authenticated: false,
+      auth_required: true,
+      reason: "INACTIVE_OR_MISSING_EMP",
+      message: "🔐 ဝန်ထမ်းအကောင့် အတည်ပြု၍မရပါ — PIN ပြန်ရိုက်ထည့်ပါ။"
+    };
+  }
+  return {
+    authenticated: true,
+    empId: emp.empId,
+    empName: emp.empName,
+    role: emp.role,
+    layer: emp.layer,
+    chatId: emp.chatId || tokRes.cid || ""
+  };
+}
+
 /**
  * 🧭 Unified Action Dispatcher shared between HTTP `doPost` and `google.script.run`.
  */
@@ -111,39 +195,111 @@ function dispatchApiAction_(data) {
     case "get_initial_data":
       return getInitialData(safeData.chat_id, safeData.selected_month);
     case "login_sync": {
-      const state = getFullSystemState(safeData.emp_id, safeData.emp_name, safeData.chat_id, safeData.selected_month);
-      const verifiedEmpId = state && state.user ? state.user.id : (safeData.emp_id || "SSO");
-      const verifiedEmpName = state && state.user ? state.user.name : (safeData.emp_name || "Telegram_User");
+      const suppliedTok = String(safeData.session_token || "").trim();
+      const inputPin = String(safeData.pin || safeData.emp_id || "").trim();
+      let state = null;
+
+      if (suppliedTok) {
+        const tokRes = verifySessionToken_(suppliedTok);
+        if (tokRes.valid) {
+          const activeEmp = resolveActiveEmployeeById_(tokRes.sub);
+          if (activeEmp) {
+            state = getFullSystemState(activeEmp.empId, activeEmp.empName, safeData.chat_id, safeData.selected_month);
+          }
+        }
+      }
+
+      if (!state && !inputPin && safeData.chat_id) {
+        state = getFullSystemState("", "", safeData.chat_id, safeData.selected_month);
+      }
+
+      if (!state && inputPin) {
+        if (inputPin === "__GROUP_VIEWER__" || inputPin.startsWith("__")) {
+          return { success: false, message: "PIN နံပါတ် မကိုက်ညီပါ။" };
+        }
+        const hasVerifiedChat = Boolean(safeData.chat_id);
+        const rateKeys = normalizeRateKeys_(inputPin, safeData.client_nonce, safeData.chat_id);
+        const rateCheck = checkLoginRateLimit_(rateKeys, hasVerifiedChat);
+        if (rateCheck.blocked) {
+          return {
+            success: false,
+            rate_limited: true,
+            message: "⛔ PIN မှားယွင်းမှု များလွန်းသဖြင့် ၁၅ မိနစ် ခေတ္တပိတ်ထားပါသည်။"
+          };
+        }
+        state = getFullSystemState(inputPin, safeData.emp_name, safeData.chat_id, safeData.selected_month);
+        if (!state) {
+          recordLoginFailure_(rateKeys, inputPin, hasVerifiedChat);
+          return { success: false, message: "PIN နံပါတ် မကိုက်ညီပါ။" };
+        }
+        clearLoginFailures_(rateKeys);
+      }
+
+      if (!state) {
+        return {
+          success: false,
+          auth_required: Boolean(suppliedTok || !inputPin),
+          message: suppliedTok
+            ? "🔐 Session သက်တမ်းကုန်ဆုံးပါပြီ — PIN ပြန်ရိုက်ထည့်ပါ။"
+            : "PIN နံပါတ် မကိုက်ညီပါ။"
+        };
+      }
+
+      const verifiedEmpId = state.user ? state.user.id : "SSO";
+      const verifiedEmpName = state.user ? state.user.name : "Telegram_User";
       const chatDetail = safeData.chat_id ? ` | ChatID: ${safeData.chat_id}` : "";
       logToAudit("LOGIN", verifiedEmpId, verifiedEmpName, `Sync Month: ${safeData.selected_month}${chatDetail}`);
       return {
-        success: state !== null,
+        success: true,
         data: state,
-        message: state ? "Synced" : "PIN နံပါတ် မကိုက်ညီပါ။"
+        session_token: state.session_token || "",
+        message: "Synced"
       };
     }
     case "attendance":
-      return processWebAppAttendance(safeData);
     case "leave_request":
-      return processWebAppLeave(safeData);
     case "advance_request":
-      return processWebAppAdvance(safeData);
     case "assign_team":
-      return processWebAppTeam(safeData);
     case "submit_voice":
-      return processWebAppVoice(safeData);
     case "run_ai_predictions":
-      return runAIPredictionsForMonth(safeData.target_month, safeData.emp_id);
     case "generate_monthly_payroll":
-      return generateMonthlyPayroll(safeData.target_month, safeData.emp_id);
     case "get_employee_payslip":
-      return getEmployeePayslipData(safeData.emp_id, safeData.target_month);
     case "save_payslip_to_drive":
-      return savePayslipPdfToDrive(safeData.emp_id, safeData.target_month);
     case "update_reward_settings":
-      return updateRewardSettingsInSheet(safeData);
-    case "sync_formula_registry":
-      return syncKpiFormulaRegistrySheet(safeData.emp_id);
+    case "sync_formula_registry": {
+      const actor = resolveAuthenticatedActor_(safeData);
+      if (!actor.authenticated) {
+        return { success: false, auth_required: true, message: actor.message };
+      }
+      safeData.emp_id = actor.empId;
+      safeData.emp_name = actor.empName;
+      safeData.chat_id = actor.chatId || safeData.chat_id;
+      switch (action) {
+        case "attendance":
+          return processWebAppAttendance(safeData);
+        case "leave_request":
+          return processWebAppLeave(safeData);
+        case "advance_request":
+          return processWebAppAdvance(safeData);
+        case "assign_team":
+          return processWebAppTeam(safeData);
+        case "submit_voice":
+          return processWebAppVoice(safeData);
+        case "run_ai_predictions":
+          return runAIPredictionsForMonth(safeData.target_month, safeData.emp_id);
+        case "generate_monthly_payroll":
+          return generateMonthlyPayroll(safeData.target_month, safeData.emp_id);
+        case "get_employee_payslip":
+          return getEmployeePayslipData(safeData.emp_id, safeData.target_month);
+        case "save_payslip_to_drive":
+          return savePayslipPdfToDrive(safeData.emp_id, safeData.target_month);
+        case "update_reward_settings":
+          return updateRewardSettingsInSheet(safeData);
+        case "sync_formula_registry":
+          return syncKpiFormulaRegistrySheet(safeData.emp_id);
+      }
+      return { success: false, message: "Unknown action: " + action };
+    }
     default:
       return { success: false, message: "Unknown action: " + action };
   }
@@ -170,13 +326,11 @@ function assertAuthorizedRole_(empId, allowedLayers) {
   const nameIdx = headers["employee_name"] !== undefined ? headers["employee_name"] : 2;
   const roleIdx = headers["role"] !== undefined ? headers["role"] : 3;
   const statusIdx = headers["status"] !== undefined ? headers["status"] : 7;
-  const pinIdx = headers["pin"] !== undefined ? headers["pin"] : 8;
 
   for (let i = 1; i < rows.length; i++) {
     const rId = String(rows[i][idIdx] || "").trim();
-    const rPin = String(rows[i][pinIdx] || "").trim();
     const rStatus = String(rows[i][statusIdx] || "Active").trim().toLowerCase();
-    if ((rId === cleanId || rPin === cleanId) && rStatus !== "inactive") {
+    if (rId === cleanId && rStatus !== "inactive") {
       const role = String(rows[i][roleIdx] || "").trim();
       const layer = resolvePositionLayer(role, rId, settings);
       if (allowedLayers.includes(layer)) {
@@ -404,26 +558,26 @@ function runSystemDiagnostics() {
 // 📊 CORE WORKFORCE STATE & MINI APP MUTATIONS
 // ==========================================
 function getInitialData(chatId, selectedMonth) {
-  const sheet = getGBFSpreadsheet_().getSheetByName("HR_Employees");
-  const employees = [];
+  const cleanChatId = sanitizeTelegramChatId_(chatId);
   let ssoUser = null;
-  if (sheet && sheet.getLastRow() > 1) {
-    const data = sheet.getDataRange().getValues();
-    for (let i = 1; i < data.length; i++) {
-      const empId = String(data[i][1] || "").trim();
-      const empName = String(data[i][2] || "").trim();
-      const empRole = String(data[i][3] || "").trim();
-      const empStatus = String(data[i][7] || "").trim().toLowerCase();
-      if (empId && empName && empStatus !== "inactive") {
-        employees.push({ id: empId, name: empName, role: empRole });
-        if (chatId && String(data[i][0] || "").trim() === String(chatId).trim()) {
+  if (cleanChatId) {
+    const sheet = getGBFSpreadsheet_().getSheetByName("HR_Employees");
+    if (sheet && sheet.getLastRow() > 1) {
+      const data = sheet.getDataRange().getValues();
+      for (let i = 1; i < data.length; i++) {
+        const empId = String(data[i][1] || "").trim();
+        const empName = String(data[i][2] || "").trim();
+        const empRole = String(data[i][3] || "").trim();
+        const empStatus = String(data[i][7] || "").trim().toLowerCase();
+        if (empId && empName && empStatus !== "inactive" && String(data[i][0] || "").trim() === cleanChatId) {
           ssoUser = { id: empId, name: empName, role: empRole };
+          break;
         }
       }
     }
   }
-  const ssoState = ssoUser ? getFullSystemState(ssoUser.id, ssoUser.name, chatId, selectedMonth) : null;
-  return { success: true, employees: employees, sso_matched: ssoState !== null, sso_data: ssoState };
+  const ssoState = ssoUser ? getFullSystemState(ssoUser.id, ssoUser.name, cleanChatId, selectedMonth) : null;
+  return { success: true, employees: [], sso_matched: ssoState !== null, sso_data: ssoState };
 }
 
 function getFullSystemState(empId, empName, chatId, selectedMonth, skipBindLock) {
@@ -887,6 +1041,9 @@ function getFullSystemState(empId, empName, chatId, selectedMonth, skipBindLock)
   }
 
   result.available_months = Array.from(availableMonthsSet).sort().reverse();
+  if (!isGroupViewer) {
+    result.session_token = issueSessionToken_(empId, positionLayer, cleanChatId || matchedRowChatId);
+  }
   return result;
 }
 

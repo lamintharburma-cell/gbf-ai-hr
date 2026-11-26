@@ -162,6 +162,8 @@ test('Test 2: src/Index.html DOM, CSS, Accessibility & Offline/URI Hardening int
   assert.ok(html.includes('mvp-crown-anim') && !declaredIds.has('home-today-squad-chip') && !declaredIds.has('today-checkin-avatars'), 'Removed home-today-squad-chip and avatar circles must stay absent, with animated MVP star CSS present');
   assert.ok(/<svg\b[^>]*width="0"[^>]*>\s*<defs>/.test(htmlMarkupOnly) && !/<svg\b[^>]*class="[^"]*\bhidden\b[^"]*"[^>]*>\s*<defs>/.test(htmlMarkupOnly), 'Shared SVG sprite <defs> must remain in render tree (never display:none/hidden)');
   assert.ok(appScript.includes('leaveMap') && !appScript.includes('fallbackState = cached || buildRosterStateByPin'), 'Team drawer must surface leaveMap states and live GAS auth fallback must not bypass server verification with static roster');
+  assert.ok(!html.includes('OFFICIAL_GBF_ROSTER'), 'OFFICIAL_GBF_ROSTER must be removed from Index.html to avoid exposing production salaries/IDs');
+  assert.ok(appScript.includes('DEMO_SANDBOX_FIXTURE') && appScript.includes('currentSessionToken') && appScript.includes('gbf_sess_tok') && appScript.includes('auth_required') && appScript.includes('sess_tok'), 'Missing v9.6.0 session token or demo sandbox fixture wiring in Index.html');
   const openDivs = (htmlMarkupOnly.match(/<div\b/gi) || []).length;
   const closeDivs = (htmlMarkupOnly.match(/<\/div>/gi) || []).length;
   assert.equal(openDivs, closeDivs, `Unbalanced <div> count in Index.html: open=${openDivs} vs close=${closeDivs}`);
@@ -440,7 +442,8 @@ test('Test 7: Bot Option B Commands, CMD_* Inline Callbacks & Performer Receipts
   const empRows = [
     ['Telegram_Chat_ID', 'Official_Emp_ID', 'Employee_Name', 'Role', 'Phone', 'Joined', 'Base', 'Status', 'PIN', 'Strike'],
     ['6062798917', '1001', 'La Min Thar', 'CEO / TM', '09111', '2024-01-01', 800000, 'Active', '1001', 0],
-    ['777888999', '1002', 'Ko Aung', 'TL', '09222', '2024-01-01', 600000, 'Active', '1002', 0]
+    ['777888999', '1002', 'Ko Aung', 'TL', '09222', '2024-01-01', 600000, 'Active', '1002', 0],
+    ['555666777', '1004', 'Boss Thwin', 'TM', '09444', '2024-01-01', 800000, 'Active', '1004', 0]
   ];
   const lvRows = [
     ['Leave_ID', 'Official_Emp_ID', 'Emp_Name', 'Leave_Type', 'Start_Date', 'End_Date', 'Total_Days', 'Reason', 'Pattern', 'HR_Status'],
@@ -605,11 +608,25 @@ test('Test 7: Bot Option B Commands, CMD_* Inline Callbacks & Performer Receipts
   );
   assert.equal(sentMessages.length, countBeforeTeam + 2);
 
-  // Approver decision notification includes Advance amount & inline buttons
-  context.handleCallbackQuery({ id: 'cb2', data: 'ADV_APP_2_1001', from: { first_name: 'Boss' }, message: { chat: { id: 999, type: 'private' }, message_id: 50, text: 'Req' } });
+  // Unauthorized / self / wrong-row callback attempts MUST NOT modify Advance_Salary or Leave_Management
+  context.handleCallbackQuery({ id: 'cb-bad-noid', data: 'ADV_APP_2_1001', from: {}, message: { chat: { id: 999, type: 'private' }, message_id: 50, text: 'Req' } });
+  assert.equal(advRows[1][6], 'Pending', 'Missing cb.from.id must be rejected');
+  context.handleCallbackQuery({ id: 'cb-bad-unlinked', data: 'ADV_APP_2_1001', from: { id: 999999, first_name: 'Hacker' }, message: { chat: { id: 999, type: 'private' }, message_id: 50, text: 'Req' } });
+  assert.equal(advRows[1][6], 'Pending', 'Unlinked Telegram ID must be rejected');
+  context.handleCallbackQuery({ id: 'cb-bad-tier', data: 'ADV_APP_2_1001', from: { id: 777888999, first_name: 'TL' }, message: { chat: { id: 777888999, type: 'private' }, message_id: 50, text: 'Req' } });
+  assert.equal(advRows[1][6], 'Pending', 'TL must not approve TM request');
+  context.handleCallbackQuery({ id: 'cb-bad-self', data: 'ADV_APP_2_1001', from: { id: 6062798917, first_name: 'Self' }, message: { chat: { id: 6062798917, type: 'private' }, message_id: 50, text: 'Req' } });
+  assert.equal(advRows[1][6], 'Pending', 'Requester self-approval must be blocked');
+  context.handleCallbackQuery({ id: 'cb-bad-rowtarget', data: 'ADV_APP_2_9999', from: { id: 555666777, first_name: 'Boss' }, message: { chat: { id: 555666777, type: 'private' }, message_id: 50, text: 'Req' } });
+  assert.equal(advRows[1][6], 'Pending', 'Mismatched row targetEmpId must be rejected');
+  assert.ok(auditLogs.filter(a => a.action === 'CALLBACK_ACL_DENIED').length >= 5, 'Expected CALLBACK_ACL_DENIED audit entries');
+
+  // Approver decision notification includes Advance amount, verified approver sheet name & inline buttons
+  context.handleCallbackQuery({ id: 'cb2', data: 'ADV_APP_2_1001', from: { id: 555666777, first_name: 'FakeDisplay' }, message: { chat: { id: 555666777, type: 'private' }, message_id: 50, text: 'Req' } });
   const advNotify = sentMessages.find(m => m.chat_id === '6062798917' && m.text.includes('ခွင့်ပြုလိုက်ပါပြီ'));
   assert.ok(advNotify, 'Expected enriched Advance approval receipt for performer');
   assert.ok(advNotify.text.includes('100,000 MMK'));
+  assert.ok(advNotify.text.includes('Boss Thwin (#1004)') && !advNotify.text.includes('FakeDisplay'));
   assert.ok(advNotify.text.includes('<blockquote>'));
   assert.ok(advNotify.reply_markup.inline_keyboard.flat().some(b => b.callback_data === 'CMD_WALLET'));
   assert.ok(sentMessages.length > beforeReceipts + 4);
@@ -698,7 +715,7 @@ test('Test 8: Telegram HTML formatter, /askai 4 Quick Buttons & Check-Out durati
     'MVP', 42, 'Normal', '08:40 AM', { system: { today_checked_in_list: [{ id: '1001', order: 1, time: '08:40 AM' }] } },
     { OFFICE_LAT: 16.804683, OFFICE_LNG: 96.177149, MAX_RADIUS: 500, REWARD_MVP_PER_DAY: 1000 }, ''
   );
-  assert.ok(sentMessages.at(-1).text.includes('MVP EARLY (+1,000 MMK)'));
+  assert.ok(sentMessages.at(-1).text.includes('👑 MVP (+1,000 MMK)'));
 
   context.notifyPerformerAttendance_(
     { emp_id: '1001', emp_name: 'Ko La Min Thar', type: 'Check Out', lat: 16.8046, lng: 96.1771 },
@@ -707,9 +724,9 @@ test('Test 8: Telegram HTML formatter, /askai 4 Quick Buttons & Check-Out durati
   );
   assert.ok(sentMessages.at(-1).text.includes('8 နာရီ 45 မိနစ် (8h 45m)'));
 
-  // 6. Consolidated Daily Team Rollout formatting
+  // 6. Consolidated Daily Team Rollout formatting (v9.5.2 unified icons, no [Active] clutter)
   const teamHtml = context.buildConsolidatedTeamsGroupMessage_(sheets.Daily_Teams, '2026-11-24', '', '', []);
-  assert.ok(teamHtml.includes('Team 1 (Alpha)') && teamHtml.includes('Lead:') && teamHtml.includes('Tech:'));
+  assert.ok(teamHtml.includes('Team 1 (Alpha)') && teamHtml.includes('(Lead)') && teamHtml.includes('Ko Aung') && !teamHtml.includes('[<code>Active</code>]'));
 });
 
 test('Test 9: Telegram Group Live Board, Topic Thread, Scoped Menus, In-Place Private Edit, Multi-Approver Sync & Digests', () => {
@@ -883,11 +900,14 @@ test('Test 9: Telegram Group Live Board, Topic Thread, Scoped Menus, In-Place Pr
   assert.ok(editedMessages.at(-1).text.includes('Staff Nine'), 'Pending tab must display all pending staff beyond 5');
 
   context.handleCallbackQuery({ id: 'cb-grp-t', data: 'CMD_GRP_TEAMS', message: { chat: { id: -1003886390064, type: 'supergroup' }, message_id: 701 } });
+  const grpTeamText = editedMessages.at(-1).text;
   assert.ok(
-    editedMessages.at(-1).text.includes('Team 1 (Alpha)') &&
-    editedMessages.at(-1).text.includes('[<code>🟢 In</code>]') &&
-    editedMessages.at(-1).text.includes('[<code>🏖️ Leave</code>]') &&
-    editedMessages.at(-1).text.includes('[<code>⏳ Pending</code>]')
+    grpTeamText.includes('Team 1 (Alpha)') &&
+    !grpTeamText.includes('[<code>Active</code>]') &&
+    grpTeamText.includes('👑 <b>Ko La Min Thar</b> (Lead)') &&
+    grpTeamText.includes('☑️ Ko Myo Thant Zaw') &&
+    grpTeamText.includes('🕒 Staff Four') &&
+    (grpTeamText.match(/<blockquote>/g) || []).length === (grpTeamText.match(/<\/blockquote>/g) || []).length
   );
 
   // 4. Group /checkin provides deep-link to Private Bot; Private /start checkin deep-links directly
@@ -908,16 +928,22 @@ test('Test 9: Telegram Group Live Board, Topic Thread, Scoped Menus, In-Place Pr
   assert.equal(editedMessages.length, editsBeforePrivateEdit + 1);
   assert.ok(editedMessages.at(-1).reply_markup.inline_keyboard.flat().some(b => b.callback_data === 'CMD_MAIN_MENU'));
 
-  // 6. Multi-Approver Sync edits ALL sibling approver messages simultaneously & preserves HTML formatting
+  // 6. Multi-Approver Sync edits ALL sibling approver messages simultaneously, enforces ACL & uses verified sheet approver name
   const leaveHtml = '📅 <b>Leave Request</b>  [<code>⏳ PENDING</code>]\n<blockquote>👤 Ko Myo Thant Zaw</blockquote>';
   const kbLv = context.buildApprovalInlineKeyboard('LV_APP_2_3013', 'LV_REJ_2_3013');
   context.sendToTierApprovers('3013', 'Ko Myo Thant Zaw', 'JT', leaveHtml, kbLv);
   const firstDispatchedMsgId = nextMsgId - 1;
+
+  // Junior requester self-approval attempt MUST be denied before modifying sheet
+  context.handleCallbackQuery({ id: 'cb-lv-self', data: 'LV_APP_2_3013', from: { id: 777000111, first_name: 'Self' }, message: { chat: { id: 777000111, type: 'private' }, message_id: 9999 } });
+  assert.equal(lvRows[1][9], 'Pending', 'Junior self-approval must be blocked by ACL');
+
   const editsBeforeSync = editedMessages.length;
-  context.handleCallbackQuery({ id: 'cb-lv-app', data: 'LV_APP_2_3013', from: { first_name: 'Boss' }, message: { chat: { id: 6062798917, type: 'private' }, message_id: firstDispatchedMsgId } });
+  context.handleCallbackQuery({ id: 'cb-lv-app', data: 'LV_APP_2_3013', from: { id: 6062798917, first_name: 'SpoofedBoss' }, message: { chat: { id: 6062798917, type: 'private' }, message_id: firstDispatchedMsgId } });
   const syncedCount = editedMessages.length - editsBeforeSync;
   assert.equal(syncedCount, 2, 'Expected BOTH TM and HR Watch sibling approver messages to be synced and cleared');
-  assert.ok(editedMessages.at(-1).text.includes('<b>Leave Request</b>') && editedMessages.at(-1).text.includes('APPROVED ✅'));
+  assert.ok(editedMessages.at(-1).text.includes('<b>Leave Request</b>') && editedMessages.at(-1).text.includes('APPROVED ✅') && editedMessages.at(-1).text.includes('Ko La Min Thar (#1001)'));
+  assert.ok(!editedMessages.at(-1).text.includes('SpoofedBoss'));
   assert.deepEqual(editedMessages.at(-1).reply_markup, { inline_keyboard: [] });
 
   // 7. Scheduled Morning & Evening Group Digests post with thread_id & Group buttons
@@ -966,12 +992,12 @@ test('Test 9: Telegram Group Live Board, Topic Thread, Scoped Menus, In-Place Pr
   delete cacheStore['APPROVAL_TARGETS_LV_3'];
   delete cacheStore['APPROVAL_HTML_LV_3'];
   const editsBeforeDurable = editedMessages.length;
-  context.handleCallbackQuery({ id: 'cb-lv10-app', data: 'LV_APP_3_3013', from: { first_name: 'PrimaryBoss' }, message: { chat: { id: 6062798917, type: 'private' }, message_id: firstMsgLv10 } });
+  context.handleCallbackQuery({ id: 'cb-lv10-app', data: 'LV_APP_3_3013', from: { id: 6062798917, first_name: 'PrimaryBoss' }, message: { chat: { id: 6062798917, type: 'private' }, message_id: firstMsgLv10 } });
   assert.equal(editedMessages.length - editsBeforeDurable, 2, 'Durable ScriptProperties fallback must sync both sibling approver messages');
-  assert.ok(editedMessages.at(-1).text.includes('PrimaryBoss') && editedMessages.at(-1).text.includes('<blockquote>'), 'Fallback sheet card rebuild must keep HTML blockquote');
+  assert.ok(editedMessages.at(-1).text.includes('Ko La Min Thar (#1001)') && editedMessages.at(-1).text.includes('<blockquote>'), 'Fallback sheet card rebuild must keep HTML blockquote');
 
   const editsBeforeStale = editedMessages.length;
-  context.handleCallbackQuery({ id: 'cb-lv10-stale', data: 'LV_REJ_3_3013', from: { first_name: 'SecondApprover' }, message: { chat: { id: 888000222, type: 'private' }, message_id: secondMsgLv10 } });
+  context.handleCallbackQuery({ id: 'cb-lv10-stale', data: 'LV_REJ_3_3013', from: { id: 888000222, first_name: 'SecondApprover' }, message: { chat: { id: 888000222, type: 'private' }, message_id: secondMsgLv10 } });
   assert.equal(editedMessages.length - editsBeforeStale, 1, 'Stale second click must edit ONLY the clicked stale message without clobbering sibling copy');
   assert.equal(editedMessages.at(-1).chat_id, '888000222');
 
@@ -989,4 +1015,199 @@ test('Test 9: Telegram Group Live Board, Topic Thread, Scoped Menus, In-Place Pr
   assert.ok(earlyIdx >= 0 && lateIdx > earlyIdx && legacyIdx > lateIdx, 'Teams must sort chronologically by TEAM-<epoch_ms> with legacy IDs after timestamped squads');
   assert.equal(nov24Teams[earlyIdx].created_time, '08:25 AM');
   assert.equal(nov24Teams[lateIdx].created_time, '08:50 AM');
+
+  const tgTeamsCard = context.buildConsolidatedTeamsGroupMessage_(sheets.Daily_Teams, '2026-11-24', '', '', [], sortedState);
+  assert.ok(
+    tgTeamsCard.indexOf('Zulu Early Squad') < tgTeamsCard.indexOf('Alpha Late Squad') &&
+    tgTeamsCard.includes('08:25 AM') &&
+    tgTeamsCard.includes('08:50 AM') &&
+    (tgTeamsCard.match(/<blockquote>/g) || []).length === (tgTeamsCard.match(/<\/blockquote>/g) || []).length
+  );
+});
+
+test('Test 10: Security Session Hardening (Mon–Sat TTL, Zero-Trust doGet/API, PIN Lockout, Anonymous Voice & Pre-Auth Roster)', () => {
+  const filesToLoad = ['Config.gs', 'Database.gs', 'TelegramIdentity.gs', 'PayrollEngine.gs', 'TelegramBot.gs', 'GeminiAI.gs', 'Code.gs'];
+  const auditLogs = [];
+  const empRows = [
+    ['Telegram_Chat_ID', 'Official_Emp_ID', 'Employee_Name', 'Role', 'Phone', 'Joined', 'Base', 'Status', 'PIN', 'Strike', 'Department'],
+    ['6062798917', '1001', 'Ko La Min Thar', 'CEO / TM', '09111', '2024-01-01', 800000, 'Active', '1001', 0, 'Management'],
+    ['777000111', '3013', 'Ko Myo Thant Zaw', 'JT', '09333', '2025-03-01', 400000, 'Active', '3013', 0, 'Field Operations']
+  ];
+  const voiceRows = [['Ticket_ID', 'Timestamp', 'Emp_ID', 'Emp_Name', 'Category', 'Message', 'Sentiment', 'Reply', 'Status']];
+  const settingRows = [
+    ['Setting_Key', 'Setting_Value', 'Description'],
+    ['APPROVER_TM_EMP_IDS', '1001', 'TM'],
+    ['REWARD_MVP_PER_DAY', '1000', 'MVP']
+  ];
+
+  function makeSheet(rowsRef) {
+    return {
+      getLastRow: () => rowsRef.length,
+      getLastColumn: () => rowsRef[0].length,
+      appendRow: r => rowsRef.push(r),
+      getDataRange: () => ({ getValues: () => rowsRef, getDisplayValues: () => rowsRef.map(r => r.map(String)) }),
+      getRange: (r, c, nr, nc) => {
+        const rr = nr || 1, cc = nc || 1;
+        return {
+          getValue: () => (rowsRef[r - 1] ? rowsRef[r - 1][c - 1] : ''),
+          setValue: v => { while (rowsRef.length < r) rowsRef.push([]); rowsRef[r - 1][c - 1] = v; },
+          getValues: () => rowsRef.slice(r - 1, r - 1 + rr).map(row => row.slice(c - 1, c - 1 + cc)),
+          getDisplayValues: () => rowsRef.slice(r - 1, r - 1 + rr).map(row => row.slice(c - 1, c - 1 + cc).map(v => String(v ?? ''))),
+          setValues: vals => vals.forEach((rv, ri) => { while (rowsRef.length < r + ri) rowsRef.push([]); rv.forEach((v, ci) => { rowsRef[r - 1 + ri][c - 1 + ci] = v; }); }),
+          setNumberFormat: () => {}
+        };
+      }
+    };
+  }
+
+  const sheets = {
+    HR_Employees: makeSheet(empRows),
+    System_Settings: makeSheet(settingRows),
+    Daily_Attendance: makeSheet([['Att_ID', 'Date', 'Emp_ID', 'In', 'GPS', 'Out', 'OutGPS', 'Dist', 'Loc', 'KPI', 'Name']]),
+    Daily_Teams: makeSheet([['Team_ID', 'Date', 'Team_Name', 'Project', 'Members']]),
+    Leave_Management: makeSheet([['Leave_ID', 'Emp_ID', 'Name', 'Type', 'Start', 'End', 'Days', 'Reason', 'Pattern', 'Status']]),
+    Advance_Salary: makeSheet([['Req_ID', 'Emp_ID', 'Name', 'Amount', 'Date', 'Reason', 'Status', 'AI']]),
+    HR_Voice_Feedback: makeSheet(voiceRows),
+    Payroll_Prep_Ledger: makeSheet([['Pay_ID', 'Month', 'Emp_ID', 'Name', 'Role', 'Base', 'AttBonus', 'MvpStreak', 'RankBonus', 'InstBonus', 'AdvDed', 'AbsDed', 'LatePen', 'Net', 'Status']]),
+    System_Audit_Logs: makeSheet([['Timestamp', 'Action', 'Emp_ID', 'Name', 'Details']])
+  };
+
+  const propStore = { BOT_TOKEN: '', TG_LINK_SECRET: 'link-secret-test', WEB_SESSION_SECRET: 'web-secret-test', WEB_APP_URL: 'https://example.test/exec' };
+  const cacheStore = {};
+
+  const context = vm.createContext({
+    console, Date, Math, Number, String, Array, Object, Set, JSON, encodeURIComponent, parseInt, parseFloat, isNaN, isFinite,
+    Utilities: {
+      getUuid: () => 'uuid-10',
+      formatDate: () => '2026-11-26',
+      computeHmacSha256Signature: (m, s) => [...crypto.createHmac('sha256', s).update(m).digest()],
+      base64EncodeWebSafe: b => Buffer.from(b).toString('base64').replace(/\+/g, '-').replace(/\//g, '_')
+    },
+    PropertiesService: {
+      getScriptProperties: () => ({
+        getProperty: k => propStore[k] || null,
+        setProperty: (k, v) => { propStore[k] = v; }
+      })
+    },
+    CacheService: {
+      getScriptCache: () => ({
+        get: k => (Object.prototype.hasOwnProperty.call(cacheStore, k) ? cacheStore[k] : null),
+        put: (k, v) => { cacheStore[k] = String(v); },
+        remove: k => { delete cacheStore[k]; }
+      })
+    },
+    LockService: { getScriptLock: () => ({ tryLock: () => true, waitLock: () => {}, releaseLock: () => {} }) },
+    SpreadsheetApp: { getActiveSpreadsheet: () => ({ getSheetByName: n => sheets[n] || null }), flush: () => {} },
+    HtmlService: {
+      createHtmlOutput: html => ({
+        _html: String(html),
+        _title: '',
+        setTitle(t) { this._title = t; return this; },
+        addMetaTag() { return this; },
+        getContent() { return this._html; }
+      })
+    },
+    UrlFetchApp: { fetch: () => ({ getResponseCode: () => 200, getContentText: () => '{}' }) },
+    Logger: { log: () => {} }
+  });
+
+  for (const f of filesToLoad) vm.runInContext(fs.readFileSync(path.join(SRC_DIR, f), 'utf8'), context);
+  context.logToAudit = (action, empId, empName, details) => auditLogs.push({ action, empId, empName, details });
+
+  // 1. Session token issue / verify, tamper & expiry rejection
+  const validTok = context.issueSessionToken_('3013', 'JT', '777000111', 3600);
+  const verOk = context.verifySessionToken_(validTok);
+  assert.equal(verOk.valid, true);
+  assert.equal(verOk.sub, '3013');
+  const [pPart, sPart] = validTok.split('.');
+  assert.equal(context.verifySessionToken_(`${pPart}.${sPart.slice(0, -2)}AA`).valid, false);
+  const expiredTok = context.issueSessionToken_('3013', 'JT', '777000111', -10);
+  assert.equal(context.verifySessionToken_(expiredTok).reason, 'EXPIRED');
+
+  // 2. Monday-to-Saturday workweek TTL checks (Asia/Yangon GMT+6:30)
+  // Mon 2026-11-23 08:00 YGN -> UTC 2026-11-23 01:30 -> expires Sat 2026-11-28 23:59:59 YGN
+  const monYgn = new Date(Date.UTC(2026, 10, 23, 8, 0, 0) - 390 * 60000);
+  const monTtl = context.computeWorkweekSessionTtlSec_(monYgn);
+  assert.equal(monTtl, 5 * 86400 + 15 * 3600 + 59 * 60 + 59);
+  // Late Sat 2026-11-28 18:00 YGN -> enforces 12-hour (43,200s) floor
+  const satLateYgn = new Date(Date.UTC(2026, 10, 28, 18, 0, 0) - 390 * 60000);
+  assert.equal(context.computeWorkweekSessionTtlSec_(satLateYgn), 43200);
+  // Sun 2026-11-29 10:00 YGN -> expires next Sat 2026-12-05 23:59:59 YGN
+  const sunYgn = new Date(Date.UTC(2026, 10, 29, 10, 0, 0) - 390 * 60000);
+  assert.equal(context.computeWorkweekSessionTtlSec_(sunYgn), 6 * 86400 + 13 * 3600 + 59 * 60 + 59);
+
+  // 3. Pre-auth getInitialData returns empty employees array
+  const initUnauth = context.getInitialData('', '2026-11');
+  assert.equal(initUnauth.success, true);
+  assert.equal(Array.isArray(initUnauth.employees) && initUnauth.employees.length === 0, true);
+  assert.equal(initUnauth.sso_matched, false);
+
+  // 4. doGet?action=get_payslip_html rejects forged emp_id without valid sess_tok, and binds to token actor
+  const noTokSlip = context.doGet({ parameter: { action: 'get_payslip_html', emp_id: '1001', month: '2026-11' } });
+  assert.ok(noTokSlip.getContent().includes('401 Unauthorized'));
+  assert.ok(!noTokSlip.getContent().includes('800,000'));
+
+  const validSlip = context.doGet({ parameter: { action: 'get_payslip_html', emp_id: '1001', sess_tok: validTok, month: '2026-11' } });
+  assert.ok(validSlip.getContent().includes('Ko Myo Thant Zaw') && validSlip.getContent().includes('400,000'));
+  assert.ok(!validSlip.getContent().includes('Ko La Min Thar') && !validSlip.getContent().includes('800,000'));
+
+  // 5. Client emp_id spoofing & missing/expired token in dispatchApiAction_
+  const missingAtt = context.dispatchApiAction_({ action: 'attendance', emp_id: '1001', type: 'Check In' });
+  assert.equal(missingAtt.success, false);
+  assert.equal(missingAtt.auth_required, true);
+
+  const spoofAdmin = context.dispatchApiAction_({
+    action: 'update_reward_settings',
+    emp_id: '1001',
+    session_token: validTok,
+    reward_config: { mvp_per_day: 9999 }
+  });
+  assert.equal(spoofAdmin.success, false);
+  assert.ok(spoofAdmin.message.includes('⛔ ခွင့်ပြုချက်မရှိပါ'));
+
+  // 6. Anonymous voice accepts valid session_token but records ANONYMOUS without leaking empId
+  context.analyzeVoiceFeedbackWithGemini = () => ({ sentiment: '🟢 Constructive', reply: 'Thanks' });
+  const anonVoiceRes = context.dispatchApiAction_({
+    action: 'submit_voice',
+    session_token: validTok,
+    category: 'Workplace',
+    message: 'Need helmet',
+    is_anonymous: true,
+    idempotencyKey: 'idemp-anon-1'
+  });
+  assert.equal(anonVoiceRes.success, true);
+  assert.equal(voiceRows[1][2], 'ANONYMOUS');
+  assert.ok(voiceRows[1][3].includes('Anonymous') && !voiceRows[1][3].includes('Ko Myo Thant Zaw'));
+
+  // 7. PIN brute-force lockout (8 failures block guesses, but verified Telegram SSO still works!)
+  for (let i = 0; i < 8; i++) {
+    const failRes = context.dispatchApiAction_({ action: 'login_sync', pin: '9999', client_nonce: 'attacker-cli', selected_month: '2026-11' });
+    assert.equal(failRes.success, false);
+  }
+  const lockedRes = context.dispatchApiAction_({ action: 'login_sync', pin: '1001', client_nonce: 'attacker-cli', selected_month: '2026-11' });
+  assert.equal(lockedRes.success, false);
+  assert.equal(lockedRes.rate_limited, true);
+  assert.ok(auditLogs.some(a => a.action === 'LOGIN_BRUTE_GUARD'));
+
+  // Verified signed Telegram SSO bypasses client_nonce PIN lockout cleanly and issues session_token
+  const ssoSig = context.signTelegramChatId_('6062798917');
+  const ssoRes = context.dispatchApiAction_({ action: 'login_sync', chat_id: '6062798917', chat_sig: ssoSig, selected_month: '2026-11' });
+  assert.equal(ssoRes.success, true);
+  assert.ok(ssoRes.session_token && context.verifySessionToken_(ssoRes.session_token).sub === '1001');
+
+  // 8. Reserved __GROUP_VIEWER__ sentinel MUST NOT bypass login_sync authentication
+  const gvBypass1 = context.dispatchApiAction_({ action: 'login_sync', pin: '__GROUP_VIEWER__', selected_month: '2026-11' });
+  assert.equal(gvBypass1.success, false);
+  assert.equal(gvBypass1.data, undefined);
+  const gvBypass2 = context.dispatchApiAction_({ action: 'login_sync', emp_id: '__GROUP_VIEWER__', selected_month: '2026-11' });
+  assert.equal(gvBypass2.success, false);
+  assert.equal(gvBypass2.data, undefined);
+
+  // 9. Rotating client_nonce PIN spray still triggers global web rate limit
+  for (let i = 0; i < 24; i++) {
+    context.dispatchApiAction_({ action: 'login_sync', pin: String(5000 + i), client_nonce: `rot-${i}`, selected_month: '2026-11' });
+  }
+  const sprayLocked = context.dispatchApiAction_({ action: 'login_sync', pin: '1001', client_nonce: 'fresh-nonce', selected_month: '2026-11' });
+  assert.equal(sprayLocked.success, false);
+  assert.equal(sprayLocked.rate_limited, true);
 });

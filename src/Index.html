@@ -2396,6 +2396,50 @@
             return ExternalUriDispatcher.openExternal(url);
         }
 
+        let currentSessionToken = (function () {
+            try { return sessionStorage.getItem('gbf_sess_tok') || ''; } catch (e) { return ''; }
+        })();
+
+        function getClientNonce() {
+            try {
+                let n = sessionStorage.getItem('gbf_client_nonce');
+                if (!n) {
+                    n = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+                        ? crypto.randomUUID()
+                        : ('cli_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10));
+                    sessionStorage.setItem('gbf_client_nonce', n);
+                }
+                return n;
+            } catch (e) {
+                return 'cli_mem';
+            }
+        }
+
+        function setSessionToken(tok) {
+            const clean = String(tok || '').trim();
+            if (!clean) return;
+            currentSessionToken = clean;
+            try { sessionStorage.setItem('gbf_sess_tok', clean); } catch (e) {}
+        }
+
+        function clearSessionToken() {
+            currentSessionToken = '';
+            try { sessionStorage.removeItem('gbf_sess_tok'); } catch (e) {}
+        }
+
+        function handleSessionExpired(msg) {
+            clearSessionToken();
+            const appEl = document.getElementById('app-view');
+            const navEl = document.getElementById('bottom-nav');
+            if (appEl) appEl.classList.add('hidden');
+            if (navEl) {
+                navEl.classList.add('hidden');
+                navEl.classList.remove('flex');
+            }
+            showPinLoginView();
+            triggerPinErrorShake(msg || "Session သက်တမ်းကုန်ဆုံးပါပြီ — PIN ပြန်ရိုက်ထည့်ပါ");
+        }
+
         /* ========================================================================
          * 🔌 TIERED WATCHDOG BRIDGE (8.5s Interactive / 25s Heavy + Dual Fallback)
          * ======================================================================== */
@@ -2412,6 +2456,10 @@
 
             async call(payload, options = {}) {
                 const timeoutMs = options.timeoutMs || this.TIMEOUT_FAST_MS;
+                const reqPayload = Object.assign({}, payload || {});
+                if (currentSessionToken && !reqPayload.session_token) {
+                    reqPayload.session_token = currentSessionToken;
+                }
 
                 if (typeof navigator !== 'undefined' && !navigator.onLine) {
                     return { success: false, offline: true, timeout: false, message: 'Offline mode active.' };
@@ -2428,7 +2476,7 @@
                         const res = await fetch(GAS_URL, {
                             method: 'POST',
                             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                            body: JSON.stringify(payload),
+                            body: JSON.stringify(reqPayload),
                             signal: controller ? controller.signal : undefined
                         });
                         clearTimeout(timer);
@@ -2436,7 +2484,7 @@
                     } catch (err) {
                         clearTimeout(timer);
                         if (typeof google !== 'undefined' && google.script && google.script.run) {
-                            return this._callGoogleScriptRun(payload, timeoutMs);
+                            return this._callGoogleScriptRun(reqPayload, timeoutMs);
                         }
                         const isAbort = err && (err.name === 'AbortError' || String(err.message || '').includes('aborted'));
                         return {
@@ -2449,7 +2497,7 @@
                 }
 
                 if (typeof google !== 'undefined' && google.script && google.script.run) {
-                    return this._callGoogleScriptRun(payload, timeoutMs);
+                    return this._callGoogleScriptRun(reqPayload, timeoutMs);
                 }
 
                 return { success: false, offline: false, timeout: false, noEndpoint: true, message: 'No active GAS endpoint' };
@@ -2627,9 +2675,16 @@
                     let latestState = null;
                     for (const item of items) {
                         const res = await BackendBridge.call(item.payload, { timeoutMs: BackendBridge.TIMEOUT_HEAVY_MS });
+                        if (res && res.auth_required) {
+                            handleSessionExpired(res.message);
+                            break;
+                        }
                         if (res && res.success) {
                             syncedCount++;
-                            if (res.updated_data) latestState = res.updated_data;
+                            if (res.updated_data) {
+                                latestState = res.updated_data;
+                                if (res.updated_data.session_token) setSessionToken(res.updated_data.session_token);
+                            }
                             await new Promise((resolve) => {
                                 const tx = db.transaction([this.STORE_OUTBOX], 'readwrite');
                                 tx.objectStore(this.STORE_OUTBOX).delete(item.idempotencyKey);
@@ -2961,23 +3016,10 @@
             legend_rank_bonus: 15000
         };
 
-        const OFFICIAL_GBF_ROSTER = {
-            "1001": { id: "1001", name: "Ko La Min Thar", role: "Leader", salary: 800000 },
-            "1002": { id: "1002", name: "Ko Myint Thein Zaw", role: "Field Operations Team Leader", salary: 700000 },
-            "1003": { id: "1003", name: "Ma Hsu Lae Nandar", role: "Executive Operations Manager", salary: 700000 },
-            "1004": { id: "1004", name: "Ko Thwin Htoo", role: "Executive Operations Manager", salary: 800000 },
-            "1006": { id: "1006", name: "Ko Ye Min Oo", role: "Field Operations Team Leader", salary: 550000 },
-            "2006": { id: "2006", name: "Ko Myo", role: "Field Operations Team Leader", salary: 650000 },
-            "2007": { id: "2007", name: "Ko Wai Yan Oo", role: "Field Operations Team Leader", salary: 650000 },
-            "2008": { id: "2008", name: "Ko Khant Ko Ko Latt", role: "Senior FTTx Field Technician", salary: 500000 },
-            "2010": { id: "2010", name: "Ko Ye Htut Aung", role: "Senior FTTx Field Technician", salary: 580000 },
-            "3011": { id: "3011", name: "Ko Khin Maung Than", role: "Relationship Manager", salary: 450000 },
-            "3012": { id: "3012", name: "Ma Than Tin Aye", role: "Customer Support Team Lead", salary: 550000 },
-            "3013": { id: "3013", name: "Ko Myo Thant Zaw", role: "Junior FTTx Field Technician", salary: 400000 },
-            "3015": { id: "3015", name: "Ko Tin Tun Aung", role: "Junior FTTx Field Technician", salary: 400000 },
-            "3016": { id: "3016", name: "Ko Wai Lin Mg", role: "Junior FTTx Field Technician", salary: 400000 },
-            "3017": { id: "3017", name: "Ko Tint Lwin Oo", role: "Junior FTTx Field Technician", salary: 400000 },
-            "3019": { id: "3019", name: "Ko Aung Ko Zin", role: "Junior FTTx Field Technician", salary: 400000 }
+        /* Standalone Offline Preview Fixture (active only when no GAS backend endpoint exists) */
+        const DEMO_SANDBOX_FIXTURE = {
+            "9901": { id: "9901", name: "Demo Lead", role: "Field Operations Team Leader", salary: 500000 },
+            "9902": { id: "9902", name: "Demo Tech", role: "Senior FTTx Field Technician", salary: 420000 }
         };
 
         function escapeHtml(str) {
@@ -3417,7 +3459,8 @@
             GBFOfflineStore.refreshOutboxBadge();
 
             const savedUser = localStorage.getItem('gbf_user');
-            if (savedUser) {
+            const isStandaloneDemo = !GAS_URL && !(typeof google !== 'undefined' && google.script && google.script.run);
+            if (savedUser && (currentSessionToken || isStandaloneDemo)) {
                 try {
                     currentUser = JSON.parse(savedUser);
                     if (currentUser && currentUser.id) {
@@ -3447,6 +3490,7 @@
                 .then(data => {
                     unblockUI();
                     if (data && data.success && data.sso_matched && data.sso_data) {
+                        if (data.sso_data.session_token) setSessionToken(data.sso_data.session_token);
                         currentUser = {
                             id: data.sso_data.user.id,
                             name: data.sso_data.user.name,
@@ -3473,9 +3517,9 @@
             }
 
             if (!GAS_URL && !(typeof google !== 'undefined' && google.script && google.script.run)) {
-                const localState = buildRosterStateByPin(pinVal);
+                const localState = buildDemoSandboxState(pinVal);
                 if (!localState) {
-                    triggerPinErrorShake("PIN နံပါတ် မှားယွင်းနေပါသည်");
+                    triggerPinErrorShake("Demo Sandbox PIN (9901) သို့မဟုတ် Live Server ချိတ်ဆက်၍ ဝင်ပါ");
                     return;
                 }
                 localStorage.setItem('gbf_user', JSON.stringify(currentUser));
@@ -3487,8 +3531,10 @@
             blockUI("Verifying Security PIN...", "Connecting to GBF HR Server");
             callGasBackend({
                 action: "login_sync",
+                pin: pinVal,
                 emp_id: pinVal,
                 emp_name: "",
+                client_nonce: getClientNonce(),
                 chat_id: tgChatId,
                 chat_sig: tgChatSig,
                 selected_month: selectedMonth
@@ -3497,6 +3543,8 @@
                     unblockUI();
                     isSubmitting = false;
                     if (data && data.success && data.data) {
+                        const issuedTok = data.session_token || (data.data && data.data.session_token);
+                        if (issuedTok) setSessionToken(issuedTok);
                         currentUser = {
                             id: data.data.user.id,
                             name: data.data.user.name,
@@ -3509,7 +3557,7 @@
                             showToast("Telegram ID ချိတ်ဆက်ပြီးပါပြီ (Auto-SSO Ready)", "success");
                         }
                     } else {
-                        const cached = await GBFOfflineStore.loadLocalState(pinVal);
+                        const cached = (data && (data.offline || data.timeout)) ? await GBFOfflineStore.loadLocalState(pinVal) : null;
                         if (cached && (data.offline || data.timeout)) {
                             currentUser = { id: cached.user.id, name: cached.user.name, role: cached.user.role };
                             localStorage.setItem('gbf_user', JSON.stringify(currentUser));
@@ -3643,7 +3691,7 @@
 
         function syncDashboardData(isFirst = false, monthToFetch = selectedMonth) {
             if (!GAS_URL && !(typeof google !== 'undefined' && google.script && google.script.run)) {
-                const localState = buildRosterStateByPin(currentUser.id);
+                const localState = buildDemoSandboxState(currentUser.id);
                 if (localState) {
                     if (isFirst) unlockPortalEntryTransition(localState);
                     else renderFullUI(localState);
@@ -3656,8 +3704,7 @@
             blockUI(`Syncing ${monthToFetch} Data...`, "Loading Attendance, Wallet & KPI");
             callGasBackend({
                 action: "login_sync",
-                emp_id: currentUser.id,
-                emp_name: currentUser.name || "",
+                session_token: currentSessionToken,
                 chat_id: tgChatId,
                 chat_sig: tgChatSig,
                 selected_month: monthToFetch
@@ -3665,6 +3712,8 @@
                 .then(async (data) => {
                     unblockUI();
                     if (data && data.success && data.data) {
+                        const issuedTok = data.session_token || (data.data && data.data.session_token);
+                        if (issuedTok) setSessionToken(issuedTok);
                         currentUser = {
                             id: data.data.user.id,
                             name: data.data.user.name,
@@ -3678,6 +3727,9 @@
                             showToast("Telegram ID ချိတ်ဆက်ပြီးပါပြီ (Auto-SSO Ready)", "success");
                         }
                         GBFOfflineStore.flushOutbox(false);
+                    } else if (data && data.auth_required) {
+                        localStorage.removeItem('gbf_user');
+                        handleSessionExpired(data.message);
                     } else {
                         const cached = await GBFOfflineStore.loadLocalState(currentUser.id);
                         if (cached && (data.offline || data.timeout)) {
@@ -4121,12 +4173,12 @@
             reader.readAsDataURL(file);
         }
 
-        function buildRosterStateByPin(pinCode) {
-            const staff = OFFICIAL_GBF_ROSTER[String(pinCode).trim()];
+        function buildDemoSandboxState(pinCode) {
+            const staff = DEMO_SANDBOX_FIXTURE[String(pinCode).trim()];
             if (!staff) return null;
             currentUser = { id: staff.id, name: staff.name, role: staff.role };
             const maxAdv = Math.round(staff.salary * 0.5);
-            const usedAdv = 100000;
+            const usedAdv = 50000;
             const todayIso = getYangonTodayIso();
             const isOpDept = /tech|field|fttx/i.test(staff.role) || (staff.role === 'Team Leader');
             const workDays = getClientMonthWorkDays(selectedMonth);
@@ -4134,7 +4186,7 @@
             return {
                 selected_month: selectedMonth,
                 available_months: [selectedMonth, "2026-10", "2026-09"],
-                user: { id: staff.id, name: staff.name, role: staff.role, department: isOpDept ? "Field Operations" : "Management", is_operation_dept: isOpDept, base_salary: staff.salary, strike_count: 0 },
+                user: { id: staff.id, name: staff.name, role: staff.role, department: isOpDept ? "Field Operations" : "Management", is_operation_dept: isOpDept, position_layer: "TL", is_leader: true, base_salary: staff.salary, strike_count: 0 },
                 wallet: {
                     base_salary: staff.salary,
                     max_advance_limit: maxAdv,
@@ -4147,11 +4199,11 @@
                 reward_config: { ...rewardConfig, working_days: workDays },
                 weekly_streak: { achievedWeeks: 1, maxWeekMvp: 5, currentWeekMvp: 5, unlocked: true },
                 system: {
-                    today_active: 6,
-                    total_emp: 16,
+                    today_active: 1,
+                    total_emp: 2,
                     office_gps: { lat: 16.804683, lng: 96.177149, max_radius: 500 },
                     today_checked_in_list: [
-                        { order: 1, id: "2008", name: "Ko Khant Ko Ko Latt", role: "Senior FTTx Tech", time: "08:31 AM", kpi: "MVP", squad: "Team 1 (Alpha)", distance_m: 85, distance_text: "85 m", loc_status: "HQ_Zone", map_url: MAPS_DIR_BASE + "16.804683,96.177149/16.8051,96.1775" }
+                        { order: 1, id: "9902", name: "Demo Tech", role: "Senior FTTx Field Technician", time: "08:31 AM", kpi: "MVP", squad: "Team 1 (Alpha)", distance_m: 85, distance_text: "85 m", loc_status: "HQ_Zone", map_url: MAPS_DIR_BASE + "16.804683,96.177149/16.8051,96.1775" }
                     ],
                     today_leaves_list: [],
                     today_pending_list: [],
@@ -4165,7 +4217,7 @@
                     voice: [],
                     teams: [],
                     leave: [],
-                    advance: [{ date: "08.11.2026", amount: "100,000", status: "Approved" }],
+                    advance: [{ date: "08.11.2026", amount: "50,000", status: "Approved" }],
                     attendance: [{ date: todayIso, in_time: "08:40 AM", out_time: "05:15 PM", kpi: "MVP" }]
                 }
             };
@@ -5584,6 +5636,10 @@
             if (!GAS_URL && !(typeof google !== 'undefined' && google.script && google.script.run)) return;
             callGasBackend({ action: "get_employee_payslip", emp_id: currentUser.id, target_month: selectedMonth })
                 .then(data => {
+                    if (data && data.auth_required) {
+                        handleSessionExpired(data.message);
+                        return;
+                    }
                     if (data && data.success && data.payslip) {
                         document.getElementById('payslip-content').innerHTML = renderPayslipHtmlBox(data.payslip);
                     }
@@ -5614,7 +5670,11 @@
 
         function openPdfPayslip() {
             if (!GAS_URL) return showToast("Deployment URL မတွေ့ပါ", "warning");
-            const url = `${GAS_URL}?action=get_payslip_html&emp_id=${encodeURIComponent(currentUser.id)}&month=${encodeURIComponent(selectedMonth)}`;
+            if (!currentSessionToken) {
+                handleSessionExpired("🔐 Session သက်တမ်းကုန်ဆုံးပါပြီ — PIN ပြန်ရိုက်ထည့်ပါ");
+                return;
+            }
+            const url = `${GAS_URL}?action=get_payslip_html&sess_tok=${encodeURIComponent(currentSessionToken)}&month=${encodeURIComponent(selectedMonth)}`;
             ExternalUriDispatcher.openExternal(url);
         }
 
@@ -5654,9 +5714,14 @@
                     isSubmitting = false;
                     if (submitBtn) submitBtn.disabled = false;
 
+                    if (data && data.auth_required) {
+                        handleSessionExpired(data.message);
+                        return;
+                    }
                     if (data && data.success) {
                         showToast(data.message || successMsg, "success");
                         if (data.updated_data) {
+                            if (data.updated_data.session_token) setSessionToken(data.updated_data.session_token);
                             await GBFOfflineStore.saveLocalOnly(currentUser.id, data.updated_data);
                             renderFullUI(data.updated_data);
                         }
@@ -6008,6 +6073,7 @@
         }
 
         function logoutConfirm() {
+            clearSessionToken();
             localStorage.removeItem('gbf_user');
             location.reload();
         }
