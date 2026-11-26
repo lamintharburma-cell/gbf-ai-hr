@@ -113,7 +113,7 @@ test('Test 2: src/Index.html DOM, CSS, Accessibility & Offline/URI Hardening int
     'pin-dot-0', 'pin-dot-1', 'pin-dot-2', 'pin-dot-3',
     'btn-chk-in', 'btn-chk-leave', 'btn-chk-pending',
     'home-dot-0', 'home-dot-1', 'home-dot-2',
-    'home-today-squad-chip',
+    'home-daily-streak-row', 'home-daily-streak-badge', 'home-history-log-list', 'team-inline-member-drawer',
     'home-seg-0', 'home-seg-1', 'home-seg-2',
     'home-ring-present', 'home-ring-workdays', 'home-ring-winrate', 'home-ring-mvp',
     'home-strip-mvp', 'home-strip-ontime', 'home-strip-late', 'home-strip-afk',
@@ -152,7 +152,13 @@ test('Test 2: src/Index.html DOM, CSS, Accessibility & Offline/URI Hardening int
   assert.ok(declaredIds.has('gps-arena-card') && declaredIds.has('gps-arena-header-row') && declaredIds.has('gps-arena-collapsible') && declaredIds.has('btn-gps-collapse'), 'Missing collapsible GPS Arena DOM IDs');
   assert.ok(appScript.includes('toggleMonthMenu') && appScript.includes('selectMonthOption') && appScript.includes('renderMonthPickerUI'), 'Missing month picker JS helpers');
   assert.ok(appScript.includes('toggleGpsArenaDetails') && appScript.includes('renderGpsArenaCard') && appScript.includes('computeClientRewardsSummary'), 'Missing GPS collapse & reward summary helpers');
-  assert.ok(appScript.includes('getSquadEmblemLetter') && appScript.includes('buildCheckedInColumnHtml') && appScript.includes('buildLeaveColumnHtml') && appScript.includes('buildPendingColumnHtml'), 'Missing 3-column roster or A/B/C squad emblem helpers');
+  assert.ok(appScript.includes('getSquadEmblemLetter') && appScript.includes('gbfBrandRankSvg') && appScript.includes('gbfSquadShieldSvg') && appScript.includes('renderStreakSlotsHtml') && appScript.includes('buildAssignedTeamMemberSet') && appScript.includes('selectHomeTeamTab') && appScript.includes('selectHomeHistoryFilter'), 'Missing v9.5 unified Reward/Squad SVG, streak, deduplication, or history helpers');
+  assert.ok(html.includes('mvp-crown-anim') && !declaredIds.has('home-today-squad-chip') && !declaredIds.has('today-checkin-avatars'), 'Removed home-today-squad-chip and avatar circles must stay absent, with animated MVP star CSS present');
+  assert.ok(/<svg\b[^>]*width="0"[^>]*>\s*<defs>/.test(htmlMarkupOnly) && !/<svg\b[^>]*class="[^"]*\bhidden\b[^"]*"[^>]*>\s*<defs>/.test(htmlMarkupOnly), 'Shared SVG sprite <defs> must remain in render tree (never display:none/hidden)');
+  assert.ok(appScript.includes('leaveMap') && !appScript.includes('fallbackState = cached || buildRosterStateByPin'), 'Team drawer must surface leaveMap states and live GAS auth fallback must not bypass server verification with static roster');
+  const openDivs = (htmlMarkupOnly.match(/<div\b/gi) || []).length;
+  const closeDivs = (htmlMarkupOnly.match(/<\/div>/gi) || []).length;
+  assert.equal(openDivs, closeDivs, `Unbalanced <div> count in Index.html: open=${openDivs} vs close=${closeDivs}`);
   assert.ok(!declaredIds.has('today-teams-detail-panel') && !declaredIds.has('team-cards-wrapper'), 'Duplicate squad card wrapper must stay removed');
   assert.ok(!htmlMarkupOnly.includes('fa-broadcast-tower'), 'Broken FA6 fa-broadcast-tower icon must not be present');
   assert.ok(appScript.includes('endMs < startMs') && appScript.includes('a > rem'), 'Missing client-side inverted leave date & 50% advance guards');

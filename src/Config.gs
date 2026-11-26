@@ -1,10 +1,10 @@
 /**
- * ⚙️ G.B.F. Enterprise HR & AI Management System — Configuration & Core Utilities (v9.2 Production LTS)
+ * ⚙️ G.B.F. Enterprise HR & AI Management System — Configuration & Core Utilities (v9.5 Production LTS)
  * Standardized constants, credential getters, cached settings, and shared pure helpers.
  */
 
 const GBF_CONFIG = {
-  VERSION: "v9.4.3 Production LTS",
+  VERSION: "v9.5.0 Production LTS",
   TIMEZONE: "Asia/Rangoon",
   GMT_OFFSET: "GMT+6:30",
   DEFAULT_BOT_USERNAME: "GBF_HRMS_Bot",

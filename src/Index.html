@@ -12,7 +12,7 @@
     <meta id="gbf-web-app-url" name="gbf-web-app-url" content="<?= typeof webAppUrl !== 'undefined' ? webAppUrl : '' ?>">
     <meta id="gbf-tg-chat-id" name="gbf-tg-chat-id" content="<?= typeof initialChatId !== 'undefined' ? initialChatId : '' ?>">
     <meta id="gbf-tg-chat-sig" name="gbf-tg-chat-sig" content="<?= typeof initialChatSig !== 'undefined' ? initialChatSig : '' ?>">
-    <title>G.B.F. Enterprise HR &amp; AI Mini App (v9.4 LTS)</title>
+    <title>G.B.F. Enterprise HR &amp; AI Mini App (v9.5 LTS)</title>
 
     <!-- 1. Official Telegram Mini App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -104,6 +104,7 @@
 
             --hue-magenta: #C026D3;
             --hue-gold: #A16207;
+            --hue-silver: #475569;
             --hue-jade: #15803D;
             --hue-cyan: #0369A1;
             --hue-coral: #BE123C;
@@ -184,6 +185,7 @@
 
             --hue-magenta: #E879F9;
             --hue-gold: #FACC15;
+            --hue-silver: #CBD5E1;
             --hue-jade: #4ADE80;
             --hue-cyan: #38BDF8;
             --hue-coral: #FB7185;
@@ -894,7 +896,47 @@
             to { opacity: 0; transform: translateY(-16px) scale(0.95); }
         }
 
+        @media (prefers-reduced-motion: no-preference) {
+            @keyframes mvpCrownPulse {
+                0%, 100% {
+                    transform: translateY(0) scale(1);
+                    filter: drop-shadow(0 0 3px rgba(250, 204, 21, 0.55));
+                }
+                50% {
+                    transform: translateY(-1px) scale(1.07);
+                    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.85));
+                }
+            }
+            @keyframes mvpSparkleTwinkle {
+                0%, 100% { opacity: 0.35; transform: scale(0.8); }
+                50% { opacity: 1; transform: scale(1.18); }
+            }
+            .mvp-crown-anim {
+                animation: mvpCrownPulse 2.1s ease-in-out infinite;
+                transform-origin: center;
+            }
+            .mvp-spark-anim {
+                animation: mvpSparkleTwinkle 1.6s ease-in-out infinite;
+                transform-box: fill-box;
+                transform-origin: center;
+            }
+        }
+
+        .team-pill-btn {
+            background: var(--astral-row);
+            border: 1px solid var(--astral-border);
+            transition: transform 0.16s var(--ease-out), border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+        .team-pill-btn:active { transform: scale(0.97); }
+        .team-pill-btn.is-active {
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.24) 0%, rgba(59, 130, 246, 0.14) 60%, var(--astral-row) 100%);
+            border-color: rgba(56, 189, 248, 0.72);
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.22);
+        }
+
         @media (prefers-reduced-motion: reduce) {
+            .mvp-crown-anim,
+            .mvp-spark-anim,
             .ambient-orb-1,
             .ambient-orb-2,
             .loader-sonar,
@@ -922,6 +964,43 @@
 </head>
 
 <body class="dark-mode antialiased min-h-screen relative">
+
+    <!-- Shared SVG Definitions for Unified Reward Icons & Team Shield Crests -->
+    <svg width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden;pointer-events:none;" aria-hidden="true">
+        <defs>
+            <linearGradient id="gbfMvpGoldGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#FFFBEB"/>
+                <stop offset="45%" stop-color="#FDE047"/>
+                <stop offset="100%" stop-color="#D97706"/>
+            </linearGradient>
+            <linearGradient id="gbfMvpWhiteCore" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#FFFFFF"/>
+                <stop offset="100%" stop-color="#FEF08A"/>
+            </linearGradient>
+            <linearGradient id="gbfGoldStarGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#FEF08A"/>
+                <stop offset="55%" stop-color="#FACC15"/>
+                <stop offset="100%" stop-color="#D97706"/>
+            </linearGradient>
+            <linearGradient id="gbfSilverStarGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#FFFFFF"/>
+                <stop offset="50%" stop-color="#CBD5E1"/>
+                <stop offset="100%" stop-color="#64748B"/>
+            </linearGradient>
+            <linearGradient id="gbfSqGradA" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#34D399"/>
+                <stop offset="100%" stop-color="#059669"/>
+            </linearGradient>
+            <linearGradient id="gbfSqGradB" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#38BDF8"/>
+                <stop offset="100%" stop-color="#2563EB"/>
+            </linearGradient>
+            <linearGradient id="gbfSqGradC" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#FBBF24"/>
+                <stop offset="100%" stop-color="#EA580C"/>
+            </linearGradient>
+        </defs>
+    </svg>
 
     <!-- Ambient Living Background Orbs -->
     <div class="ambient-orb-1"></div>
@@ -1084,10 +1163,10 @@
                     <!-- Left Column (Desktop 7 cols: Unified Command + GPS Mission + 3-Col Roster + 1-Row Squads) -->
                     <div class="lg:col-span-7 space-y-3">
 
-                        <!-- Unified Command Strip & Live GPS Mission Card -->
+                        <!-- Unified Command Strip & Live GPS Mission Card (Check-In/Out + GPS Telemetry always together) -->
                         <div id="gps-arena-card" class="glass-card hud-hover-lift rounded-3xl p-2.5 sm:p-3 space-y-2 border border-sky-400/30 transition-all">
                             <div id="gps-arena-header-row" class="space-y-1.5">
-                                <!-- Integrated Executive/Leader Command Strip (collapses post-check-in with card) -->
+                                <!-- Integrated Non-Duplicate Leader Command Strip -->
                                 <div id="role-pulse-strip" class="hidden pb-1.5 border-b border-slate-200/70 dark:border-sky-400/20"></div>
                                 <div class="flex items-center justify-between gap-2 px-0.5">
                                     <div class="flex items-center gap-2 min-w-0">
@@ -1098,11 +1177,11 @@
                                         <h2 class="text-[10.5px] font-ui-label font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-100 truncate">GPS Arena · 500m Ops</h2>
                                     </div>
                                     <div class="flex items-center gap-1.5 shrink-0">
-                                        <button type="button" onclick="toggleTodayCheckinPanel()" title="ယနေ့တက်ရောက်သူ စာရင်းဖွင့်ကြည့်ရန်" class="tap-spring inline-flex items-center gap-1.5 text-[10px] font-extrabold tabular-nums whitespace-nowrap px-2.5 py-1 rounded-full border border-sky-400/35 bg-sky-500/10 text-sky-700 dark:text-sky-300" id="active-counter">
+                                        <button type="button" onclick="toggleTodayCheckinPanel()" title="ယနေ့တက်ရောက်သူ စာရင်းဖွင့်/ပိတ်ရန်" class="tap-spring inline-flex items-center gap-1.5 text-[10px] font-extrabold tabular-nums whitespace-nowrap px-2.5 py-1 rounded-full border border-sky-400/35 bg-sky-500/10 text-sky-700 dark:text-sky-300" id="active-counter">
                                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                                             <span>0 / 0</span>
                                         </button>
-                                        <button type="button" id="btn-gps-collapse" onclick="toggleGpsArenaDetails()" title="အတိုချုံ့ပြရန်" aria-label="Collapse GPS Arena Details" class="hidden touch-target tap-spring w-7 h-7 rounded-full border border-slate-300/60 dark:border-sky-400/30 bg-white/75 dark:bg-slate-800/80 text-slate-700 dark:text-sky-300 items-center justify-center shrink-0">
+                                        <button type="button" id="btn-gps-collapse" onclick="toggleGpsArenaDetails()" title="GPS အသေးစိတ်ဖွင့်/ပိတ်ရန်" aria-label="Toggle GPS Arena Details" aria-expanded="true" class="hidden touch-target tap-spring w-7 h-7 rounded-full border border-slate-300/60 dark:border-sky-400/30 bg-white/75 dark:bg-slate-800/80 text-slate-700 dark:text-sky-300 items-center justify-center shrink-0">
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>
                                         </button>
                                     </div>
@@ -1112,18 +1191,7 @@
                             <div id="smart-attendance-wrapper" class="w-full"></div>
 
                             <div id="gps-arena-collapsible" class="space-y-1.5">
-                                <!-- Slim 1-Line Today Status + Squad Pill (Routes Past Dates to History) -->
-                                <div id="home-today-squad-chip" class="px-2.5 py-1.5 rounded-xl mlbb-std-row flex items-center justify-between gap-2">
-                                    <div class="flex items-center gap-2 min-w-0">
-                                        <span id="home-chip-date-badge" class="px-2 py-0.5 rounded-lg bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-400/30 text-[9.5px] font-extrabold tabular-nums shrink-0">ယနေ့</span>
-                                        <span id="home-chip-squad-text" class="text-[10.5px] font-bold text-slate-900 dark:text-white truncate">Check-In နှင့် Squad အခြေအနေ</span>
-                                    </div>
-                                    <button type="button" onclick="switchTab('logs')" class="touch-target tap-spring px-2 py-1 rounded-lg text-[10px] font-extrabold text-sky-700 dark:text-sky-300 whitespace-nowrap shrink-0 inline-flex items-center gap-1">
-                                        <span>ပြက္ခဒိန် ▸</span>
-                                    </button>
-                                </div>
-
-                                <!-- Compact Integrated HQ Distance & Field Telemetry Bar -->
+                                <!-- Compact Integrated HQ Distance & Field Telemetry Bar (Always Paired with Check-In / Check-Out) -->
                                 <div class="pt-1.5 border-t border-slate-200/70 dark:border-sky-400/20 space-y-1.5">
                                     <div class="flex items-center justify-between gap-2">
                                         <div class="flex items-center gap-2 min-w-0">
@@ -1157,147 +1225,152 @@
                             </div>
                         </div>
 
-                        <!-- Checked-In Scoreboard & 3-Column Roster Inspector (လာ | မလာ/ခွင့် | မဝင်သေး) -->
-                        <div id="home-roster-section" class="glass-card hud-hover-lift rounded-2xl p-3 transition-all">
+                        <!-- Unified Company Attendance Table + Team A/B/C Shield Crests Card -->
+                        <div id="home-roster-section" class="mlbb-squad-shell hud-hover-lift rounded-3xl p-2.5 sm:p-3 space-y-2 transition-all">
                             <button type="button" onclick="toggleTodayCheckinPanel()" class="tap-spring w-full flex items-center justify-between gap-2 text-left">
-                                <div class="flex items-center gap-2.5 min-w-0">
-                                    <div id="today-checkin-avatars" class="flex items-center -space-x-2 shrink-0"></div>
-                                    <div class="min-w-0">
-                                        <p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate" id="today-checkin-summary">ယနေ့ ရုံးတက်ဝင်ရောက်ထားသူများ</p>
-                                        <p class="text-[9px] font-semibold text-slate-600 dark:text-slate-300 truncate" id="today-checkin-sub">လာ • ခွင့်/မလာ • မဝင်သေး ၃ ကော်လံကြည့်ရန် နှိပ်ပါ</p>
-                                    </div>
-                                </div>
-                                <span class="w-8 h-8 rounded-xl bg-blue-500/10 dark:bg-slate-800/90 text-blue-700 dark:text-sky-300 border border-blue-500/20 flex items-center justify-center shrink-0">
-                                    <svg id="checkin-panel-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                                </span>
-                            </button>
-
-                            <div id="today-checkin-detail-panel" class="hidden mt-2.5 pt-2.5 border-t border-slate-200/70 dark:border-sky-400/15 space-y-1.5">
-                                <div class="grid grid-cols-3 gap-1.5">
-                                    <button type="button" onclick="filterCheckinList('in')" id="btn-chk-in" class="tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-emerald-500/35 bg-emerald-500/12 text-emerald-800 dark:text-emerald-300 text-[9px] font-extrabold whitespace-nowrap">လာ (0)</button>
-                                    <button type="button" onclick="filterCheckinList('leave')" id="btn-chk-leave" class="tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-amber-500/35 bg-amber-500/12 text-amber-800 dark:text-amber-300 text-[9px] font-extrabold whitespace-nowrap">ခွင့်/မလာ (0)</button>
-                                    <button type="button" onclick="filterCheckinList('pending')" id="btn-chk-pending" class="tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-slate-400/30 bg-slate-500/10 text-slate-700 dark:text-slate-200 text-[9px] font-extrabold whitespace-nowrap">မဝင်သေး (0)</button>
-                                </div>
-                                <div id="today-checkin-detail-list" class="grid grid-cols-3 gap-1.5 items-start"></div>
-                            </div>
-                        </div>
-
-                        <!-- Active Battle Squads (Strict 1-Row per Team: A/B/C Logo Circle + Human Avatars) -->
-                        <div id="home-squads-section" class="mlbb-squad-shell rounded-3xl p-3 transition-all">
-                            <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-blue-500/20 dark:border-sky-400/20">
                                 <div class="flex items-center gap-2 min-w-0">
-                                    <span class="hud-chamfer w-6 h-6 bg-amber-500/15 border border-amber-500/40 flex items-center justify-center shrink-0" style="color: var(--hue-gold);">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+                                    <span class="w-6 h-6 rounded-lg bg-sky-500/15 border border-sky-400/35 flex items-center justify-center shrink-0" style="color: var(--hue-cyan);">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                                     </span>
                                     <div class="min-w-0">
-                                        <h3 class="text-[10.5px] font-ui-label font-extrabold uppercase tracking-wider text-slate-900 dark:text-white truncate" id="today-teams-summary">BATTLE SQUADS (0)</h3>
-                                        <p class="text-[8.5px] text-slate-600 dark:text-slate-300 font-medium truncate" id="today-teams-sub">အဖွဲ့လိုဂို (A/B/C) နှင့် ပါဝင်သူစာရင်း</p>
+                                        <p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate" id="today-checkin-summary">Company Attendance</p>
+                                        <p class="text-[8.5px] font-semibold text-slate-600 dark:text-slate-300 truncate" id="today-checkin-sub">တက်ရောက် • ခွင့်/ပျက် • မဝင်သေး</p>
                                     </div>
                                 </div>
-                                <button type="button" onclick="toggleTodayTeamsPanel()" class="tap-spring px-2 py-1 rounded-xl bg-blue-500/10 dark:bg-white/10 border border-blue-500/25 dark:border-sky-400/25 text-[8.5px] font-ui-label font-extrabold flex items-center gap-1 shrink-0" style="color: var(--hue-cyan);">
-                                    <span>အမည်စာရင်း</span>
-                                    <svg id="teams-panel-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                                </button>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span id="home-att-tier-counters" class="hidden sm:inline-flex items-center gap-1 text-[8.5px] font-extrabold tabular-nums"></span>
+                                    <span class="w-7 h-7 rounded-xl bg-blue-500/10 dark:bg-slate-800/90 text-blue-700 dark:text-sky-300 border border-blue-500/20 flex items-center justify-center shrink-0">
+                                        <svg id="checkin-panel-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200 rotate-180" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                                    </span>
+                                </div>
+                            </button>
+
+                            <div id="today-checkin-detail-panel" class="pt-1.5 border-t border-blue-500/20 dark:border-sky-400/20 space-y-1.5">
+                                <div class="grid grid-cols-3 gap-1.5">
+                                    <button type="button" onclick="filterCheckinList('in')" id="btn-chk-in" class="tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl mlbb-steel-btn text-[9px] font-extrabold whitespace-nowrap ring-1 ring-amber-400/50">တက်ရောက် (0)</button>
+                                    <button type="button" onclick="filterCheckinList('leave')" id="btn-chk-leave" class="tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-sky-400/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 text-[9px] font-extrabold whitespace-nowrap">ခွင့်/ပျက် (0)</button>
+                                    <button type="button" onclick="filterCheckinList('pending')" id="btn-chk-pending" class="tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-slate-400/30 bg-slate-500/10 text-slate-700 dark:text-slate-200 text-[9px] font-extrabold whitespace-nowrap">မဝင်သေး (0)</button>
+                                </div>
+                                <div id="today-checkin-detail-list" class="ios-scroll max-h-52 overflow-y-auto overscroll-contain rounded-xl border border-blue-500/20 dark:border-white/10 bg-slate-100/55 dark:bg-slate-950/45"></div>
                             </div>
 
-                            <div id="today-teams-rows-list" class="space-y-1.5"></div>
+                            <!-- Attached Team A / Team B / Team C Shield Crests inside SAME Card -->
+                            <div id="home-squads-section" class="pt-2 border-t border-blue-500/20 dark:border-sky-400/20 space-y-1.5">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                        <span id="home-teams-header-crest" class="shrink-0 inline-flex items-center justify-center" aria-hidden="true"></span>
+                                        <h3 class="text-[10px] font-ui-label font-extrabold uppercase tracking-wider text-slate-900 dark:text-white truncate" id="today-teams-summary">အဖွဲ့များ (0)</h3>
+                                    </div>
+                                    <span class="text-[8.5px] text-slate-600 dark:text-slate-300 font-semibold truncate" id="today-teams-sub">အဖွဲ့နှိပ်၍ ကြည့်ရန်</span>
+                                </div>
+                                <div id="today-teams-rows-list" class="space-y-1.5"></div>
+                                <div id="team-inline-member-drawer" class="hidden"></div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Right Column (Desktop 5 cols: MLBB 3-Ring Mastery HUD + Ice-Cyan Radar + Calendar Entry) -->
-                    <div id="home-hero-section" class="lg:col-span-5 space-y-3.5">
+                    <!-- Right Column (Desktop 5 cols: Option C History -> KPI Chart + 5-Day Daily Streak Below Chart) -->
+                    <div id="home-hero-section" class="lg:col-span-5 space-y-3">
                         <!-- MLBB Season Mastery HUD Card (Dual Theme Astral Ice / Astral Steel-Navy) -->
-                        <div class="mlbb-card p-4 rounded-3xl relative overflow-hidden">
-                            <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-blue-500/20 dark:border-sky-400/20">
-                                <div class="flex items-center gap-2.5 min-w-0">
-                                    <div id="home-rank-crest" class="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center shrink-0" aria-hidden="true">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FACC15" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6 6 1-4.5 4.2 1.2 6.8L12 17l-5.7 3 1.2-6.8L3 9l6-1z"/></svg>
+                        <div class="mlbb-card p-3 sm:p-3.5 rounded-3xl relative overflow-hidden">
+                            <div class="flex items-center justify-between gap-2 pb-2 border-b border-blue-500/20 dark:border-sky-400/20">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <div id="home-rank-crest" class="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center shrink-0" aria-hidden="true">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FACC15" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6 6 1-4.5 4.2 1.2 6.8L12 17l-5.7 3 1.2-6.8L3 9l6-1z"/></svg>
                                     </div>
                                     <div class="min-w-0">
                                         <div class="flex items-center gap-1.5 flex-wrap">
-                                            <span class="text-lg font-black italic tracking-wide victory-gold uppercase leading-none" id="home-kpi-rank">MYTHIC</span>
-                                            <span class="hud-chamfer text-[10px] font-extrabold px-2 py-0.5 tabular-nums whitespace-nowrap border border-sky-400/40 bg-sky-500/15" style="color: var(--hue-cyan);" id="home-kpi-score">96% KPI</span>
+                                            <span class="text-base font-black italic tracking-wide victory-gold uppercase leading-none" id="home-kpi-rank">MYTHIC</span>
+                                            <span class="hud-chamfer text-[9.5px] font-extrabold px-1.5 py-0.5 tabular-nums whitespace-nowrap border border-sky-400/40 bg-sky-500/15" style="color: var(--hue-cyan);" id="home-kpi-score">96% KPI</span>
                                         </div>
-                                        <span class="block text-[10px] font-bold uppercase tracking-wider mt-0.5 text-slate-600 dark:text-sky-200/85">လက်ရှိ Season စွမ်းဆောင်ရည်</span>
+                                        <span class="block text-[9px] font-bold uppercase tracking-wider text-slate-600 dark:text-sky-200/85">Season Performance</span>
                                     </div>
                                 </div>
-                                <button type="button" onclick="openProfileView()" class="mlbb-steel-btn tap-spring text-[10.5px] font-ui-label font-extrabold px-2.5 py-1.5 rounded-xl inline-flex items-center gap-1 shrink-0">
+                                <button type="button" onclick="openProfileView()" class="mlbb-steel-btn tap-spring text-[9.5px] font-ui-label font-extrabold px-2.5 py-1.5 rounded-xl inline-flex items-center gap-1 shrink-0">
                                     <span>ကိုယ်ရေး/ဆု</span>
                                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                                 </button>
                             </div>
 
-                            <!-- MLBB 3-Ring Telemetry Strip (Magenta / Gold / Jade — IMG_7735 & IMG_7738) -->
-                            <div class="flex items-center justify-around gap-2 py-2 my-1">
+                            <!-- Compact MLBB 3-Ring Telemetry Strip -->
+                            <div class="flex items-center justify-around gap-2 py-1.5 my-1">
                                 <div class="stat-ring ring-magenta">
                                     <div class="flex items-baseline justify-center gap-0.5 leading-none">
-                                        <span class="text-lg font-black tabular-nums text-slate-900 dark:text-white" id="home-ring-present">0</span>
-                                        <span class="text-[10.5px] font-extrabold tabular-nums text-slate-600 dark:text-slate-300" id="home-ring-workdays">/26</span>
+                                        <span class="text-base font-black tabular-nums text-slate-900 dark:text-white" id="home-ring-present">0</span>
+                                        <span class="text-[10px] font-extrabold tabular-nums text-slate-600 dark:text-slate-300" id="home-ring-workdays">/26</span>
                                     </div>
-                                    <span class="text-[9.5px] leading-tight font-extrabold mt-0.5" style="color: var(--hue-magenta);">တက်ရောက်ရက်</span>
+                                    <span class="text-[8.5px] leading-tight font-extrabold mt-0.5" style="color: var(--hue-magenta);">တက်ရောက်ရက်</span>
                                 </div>
                                 <div class="stat-ring ring-gold">
-                                    <span class="text-base font-black tabular-nums leading-none text-slate-900 dark:text-white" id="home-ring-winrate">0%</span>
-                                    <span class="text-[9.5px] leading-tight font-extrabold mt-0.5" style="color: var(--hue-gold);">အနိုင်ရနှုန်း</span>
+                                    <span class="text-sm font-black tabular-nums leading-none text-slate-900 dark:text-white" id="home-ring-winrate">0%</span>
+                                    <span class="text-[8.5px] leading-tight font-extrabold mt-0.5" style="color: var(--hue-gold);">အနိုင်ရနှုန်း</span>
                                 </div>
-                                <div class="stat-ring ring-jade">
-                                    <span class="text-lg font-black tabular-nums leading-none text-slate-900 dark:text-white" id="home-ring-mvp">0</span>
-                                    <span class="text-[9.5px] leading-tight font-extrabold mt-0.5" style="color: var(--hue-jade);">MVP (အစော)</span>
-                                </div>
-                            </div>
-
-                            <!-- On-Time / Late / AFK Compact Breakdown Micro-Strip -->
-                            <div class="grid grid-cols-4 gap-1 px-1.5 py-1.5 mb-1.5 rounded-2xl bg-slate-100/80 dark:bg-slate-950/50 border border-blue-500/15 dark:border-white/10 text-center tabular-nums">
-                                <div class="px-1">
-                                    <span class="block text-[9.5px] font-bold" style="color: var(--hue-gold);">MVP (အစော)</span>
-                                    <span class="block text-xs font-black text-slate-900 dark:text-white" id="home-strip-mvp">0</span>
-                                </div>
-                                <div class="px-1 border-l border-slate-300/60 dark:border-white/10">
-                                    <span class="block text-[9.5px] font-bold" style="color: var(--hue-jade);">အချိန်မှန်</span>
-                                    <span class="block text-xs font-black text-slate-900 dark:text-white" id="home-strip-ontime">0</span>
-                                </div>
-                                <div class="px-1 border-l border-slate-300/60 dark:border-white/10">
-                                    <span class="block text-[9.5px] font-bold" style="color: var(--hue-coral);">နောက်ကျ</span>
-                                    <span class="block text-xs font-black text-slate-900 dark:text-white" id="home-strip-late">0</span>
-                                </div>
-                                <div class="px-1 border-l border-slate-300/60 dark:border-white/10">
-                                    <span class="block text-[9.5px] font-bold" style="color: var(--hue-magenta);">ပျက်ကွက်</span>
-                                    <span class="block text-xs font-black text-slate-900 dark:text-white" id="home-strip-afk">0</span>
+                                <div class="stat-ring ring-gold">
+                                    <span class="text-base font-black tabular-nums leading-none text-slate-900 dark:text-white" id="home-ring-mvp">0</span>
+                                    <span class="text-[8.5px] leading-tight font-extrabold mt-0.5" style="color: var(--hue-gold);">MVP (အစော)</span>
                                 </div>
                             </div>
 
                             <!-- iOS Segmented HUD View Switcher -->
-                            <div class="mt-2 hud-seg-track" role="tablist" aria-label="Hero Mastery Panels">
+                            <div class="mt-1 hud-seg-track" role="tablist" aria-label="Hero Mastery Panels">
                                 <div id="home-segmented-pill" class="hud-seg-indicator" style="transform: translateX(0%);"></div>
                                 <button type="button" role="tab" aria-selected="true" id="home-seg-0" onclick="scrollToHomeSlide(0)" class="hud-seg-btn tap-control is-active">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 21 8.5 18 20 6 20 3 8.5"/></svg>
-                                    <span>Radar</span>
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 21 8.5 18 20 6 20 3 8.5"/></svg>
+                                    <span>History &amp; Radar</span>
                                 </button>
                                 <button type="button" role="tab" aria-selected="false" id="home-seg-1" onclick="scrollToHomeSlide(1)" class="hud-seg-btn tap-control">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
                                     <span>စာရင်းချုပ်</span>
                                 </button>
                                 <button type="button" role="tab" aria-selected="false" id="home-seg-2" onclick="scrollToHomeSlide(2)" class="hud-seg-btn tap-control">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
                                     <span>ဆုကြေး</span>
                                 </button>
                             </div>
 
-                            <div id="home-kpi-carousel" onscroll="onHomeCarouselScroll(this)" class="touch-carousel flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth pt-2.5">
-                                <!-- Slide 1: Ice-Cyan 5-Axis Radar -->
+                            <div id="home-kpi-carousel" onscroll="onHomeCarouselScroll(this)" class="touch-carousel flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth pt-2">
+                                <!-- Slide 1 (Option C Side-by-Side): Personal History Left -> 5-Axis Radar Chart Right -->
                                 <div class="w-full shrink-0 snap-center">
-                                    <div class="bg-white/75 dark:bg-slate-950/55 rounded-2xl p-2.5 border border-blue-500/20 dark:border-sky-400/20">
-                                        <div class="flex items-center justify-between px-1 mb-1">
-                                            <span class="text-[10.5px] font-ui-label font-extrabold uppercase tracking-wider" style="color: var(--hue-cyan);">စွမ်းဆောင်ရည် ၅ ဝင်ရိုး</span>
-                                            <span class="text-[10.5px] font-extrabold tabular-nums whitespace-nowrap" style="color: var(--hue-gold);" id="home-kpi-winrate">95% Win Rate</span>
+                                    <div class="grid grid-cols-12 gap-1.5 items-stretch">
+                                        <div class="col-span-6 bg-white/75 dark:bg-slate-950/55 rounded-2xl p-2 border border-blue-500/20 dark:border-sky-400/20 flex flex-col justify-between space-y-1.5">
+                                            <div class="flex items-center justify-between gap-1">
+                                                <span class="text-[9px] font-ui-label font-extrabold uppercase tracking-wider truncate" style="color: var(--hue-cyan);">မိမိ History</span>
+                                                <span class="text-[8.5px] font-extrabold tabular-nums whitespace-nowrap" style="color: var(--hue-gold);" id="home-history-summary-label">0/26 ရက်</span>
+                                            </div>
+                                            <div class="grid grid-cols-4 gap-1 text-center tabular-nums">
+                                                <button type="button" onclick="selectHomeHistoryFilter('mvp')" id="home-hist-chip-mvp" class="tap-spring px-0.5 py-1 rounded-lg border border-amber-400/60 bg-amber-500/15 flex flex-col items-center justify-center leading-tight">
+                                                    <span id="home-chip-icon-mvp" class="flex flex-col items-center justify-center gap-0.5 text-[7px] font-extrabold whitespace-nowrap" style="color: var(--hue-gold);">MVP</span>
+                                                    <span class="text-[10px] font-black text-slate-900 dark:text-white mt-0.5" id="home-strip-mvp">0</span>
+                                                </button>
+                                                <button type="button" onclick="selectHomeHistoryFilter('ontime')" id="home-hist-chip-ontime" class="tap-spring px-0.5 py-1 rounded-lg border border-blue-500/15 dark:border-white/10 bg-slate-100/80 dark:bg-white/5 flex flex-col items-center justify-center leading-tight">
+                                                    <span id="home-chip-icon-ontime" class="flex flex-col items-center justify-center gap-0.5 text-[7px] font-extrabold whitespace-nowrap" style="color: var(--hue-gold);">မှန်</span>
+                                                    <span class="text-[10px] font-black text-slate-900 dark:text-white mt-0.5" id="home-strip-ontime">0</span>
+                                                </button>
+                                                <button type="button" onclick="selectHomeHistoryFilter('late')" id="home-hist-chip-late" class="tap-spring px-0.5 py-1 rounded-lg border border-blue-500/15 dark:border-white/10 bg-slate-100/80 dark:bg-white/5 flex flex-col items-center justify-center leading-tight">
+                                                    <span id="home-chip-icon-late" class="flex flex-col items-center justify-center gap-0.5 text-[7px] font-extrabold whitespace-nowrap" style="color: var(--hue-silver);">ကျ</span>
+                                                    <span class="text-[10px] font-black text-slate-900 dark:text-white mt-0.5" id="home-strip-late">0</span>
+                                                </button>
+                                                <button type="button" onclick="selectHomeHistoryFilter('afk')" id="home-hist-chip-afk" class="tap-spring px-0.5 py-1 rounded-lg border border-blue-500/15 dark:border-white/10 bg-slate-100/80 dark:bg-white/5 flex flex-col items-center justify-center leading-tight">
+                                                    <span id="home-chip-icon-afk" class="flex flex-col items-center justify-center gap-0.5 text-[7px] font-extrabold whitespace-nowrap" style="color: var(--hue-coral);">ပျက်</span>
+                                                    <span class="text-[10px] font-black text-slate-900 dark:text-white mt-0.5" id="home-strip-afk">0</span>
+                                                </button>
+                                            </div>
+                                            <div id="home-history-log-list" class="rounded-xl bg-slate-100/85 dark:bg-slate-900/75 border border-blue-500/15 dark:border-white/10 px-1.5 py-1.5 space-y-1 text-[8px] tabular-nums min-h-[44px]"></div>
                                         </div>
-                                        <div class="w-full h-48 flex items-center justify-center">
-                                            <canvas id="homeMlbbRadarChart" role="img" aria-label="MLBB 5-Axis Employee KPI Radar Chart"></canvas>
+
+                                        <div class="col-span-6 bg-white/75 dark:bg-slate-950/55 rounded-2xl p-1.5 border border-blue-500/20 dark:border-sky-400/20 flex flex-col justify-between items-center">
+                                            <div class="w-full flex items-center justify-between gap-1 px-0.5">
+                                                <span class="text-[8.5px] font-ui-label font-extrabold uppercase" style="color: var(--hue-cyan);">KPI Chart</span>
+                                                <span class="text-[8px] font-extrabold tabular-nums whitespace-nowrap" style="color: var(--hue-gold);" id="home-kpi-winrate">95% Win Rate</span>
+                                            </div>
+                                            <div class="w-full h-36 flex items-center justify-center">
+                                                <canvas id="homeMlbbRadarChart" role="img" aria-label="MLBB 5-Axis Employee KPI Radar Chart"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Slide 2: Battle Telemetry Matrix -->
+                                <!-- Slide 2: Unified Brand Star Telemetry Matrix -->
                                 <div class="w-full shrink-0 snap-center pl-2">
                                     <div class="bg-white/75 dark:bg-slate-950/55 rounded-2xl p-3 border border-blue-500/20 dark:border-sky-400/20 h-full flex flex-col justify-between">
                                         <div class="flex items-center justify-between mb-2">
@@ -1306,39 +1379,27 @@
                                         </div>
 
                                         <div class="flex h-2 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-800 mb-3">
-                                            <div id="home-progress-early" class="h-2 transition-all duration-500" style="width: 68%; background: var(--hue-gold);"></div>
-                                            <div id="home-progress-ontime" class="h-2 transition-all duration-500" style="width: 27%; background: var(--hue-jade);"></div>
-                                            <div id="home-progress-late" class="h-2 transition-all duration-500" style="width: 5%; background: var(--hue-coral);"></div>
+                                            <div id="home-progress-early" class="h-2 transition-all duration-500" style="width: 68%; background: linear-gradient(90deg, #FFFBEB, #FACC15);"></div>
+                                            <div id="home-progress-ontime" class="h-2 transition-all duration-500" style="width: 27%; background: var(--hue-gold);"></div>
+                                            <div id="home-progress-late" class="h-2 transition-all duration-500" style="width: 5%; background: var(--hue-silver);"></div>
                                         </div>
 
                                         <div class="grid grid-cols-4 gap-1.5 text-center">
-                                            <button type="button" onclick="inspectSingleMetric('mvp')" id="metric-btn-mvp" class="tap-spring p-2 rounded-xl bg-amber-500/10 dark:bg-white/5 border border-amber-500/35">
-                                                <span class="inline-flex items-center justify-center gap-0.5 text-[8px] font-extrabold" style="color: var(--hue-gold);">
-                                                    <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 14.8 8.6 22 9.3 16.5 14 18.2 21 12 17.3 5.8 21 7.5 14 2 9.3 9.2 8.6z"/></svg>
-                                                    MVP
-                                                </span>
+                                            <button type="button" onclick="inspectSingleMetric('mvp')" id="metric-btn-mvp" class="tap-spring p-2 rounded-xl bg-amber-500/12 dark:bg-white/5 border border-amber-500/40">
+                                                <span id="slide2-lbl-mvp" class="inline-flex items-center justify-center gap-0.5 text-[8px] font-extrabold" style="color: var(--hue-gold);">MVP</span>
                                                 <span class="block text-sm font-black tabular-nums mt-0.5" style="color: var(--hue-gold);" id="home-stat-early">0</span>
                                             </button>
-                                            <button type="button" onclick="inspectSingleMetric('ontime')" id="metric-btn-ontime" class="tap-spring p-2 rounded-xl bg-emerald-500/10 dark:bg-white/5 border border-emerald-500/35">
-                                                <span class="inline-flex items-center justify-center gap-0.5 text-[8px] font-extrabold" style="color: var(--hue-jade);">
-                                                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
-                                                    အချိန်မှန်
-                                                </span>
-                                                <span class="block text-sm font-black tabular-nums mt-0.5" style="color: var(--hue-jade);" id="home-stat-ontime">0</span>
+                                            <button type="button" onclick="inspectSingleMetric('ontime')" id="metric-btn-ontime" class="tap-spring p-2 rounded-xl bg-amber-500/10 dark:bg-white/5 border border-amber-400/35">
+                                                <span id="slide2-lbl-ontime" class="inline-flex items-center justify-center gap-0.5 text-[8px] font-extrabold" style="color: var(--hue-gold);">အချိန်မှန်</span>
+                                                <span class="block text-sm font-black tabular-nums mt-0.5" style="color: var(--hue-gold);" id="home-stat-ontime">0</span>
                                             </button>
-                                            <button type="button" onclick="inspectSingleMetric('late')" id="metric-btn-late" class="tap-spring p-2 rounded-xl bg-rose-500/10 dark:bg-white/5 border border-rose-500/30">
-                                                <span class="inline-flex items-center justify-center gap-0.5 text-[8px] font-extrabold" style="color: var(--hue-coral);">
-                                                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-                                                    နောက်ကျ
-                                                </span>
-                                                <span class="block text-sm font-black tabular-nums mt-0.5" style="color: var(--hue-coral);" id="home-stat-late">0</span>
+                                            <button type="button" onclick="inspectSingleMetric('late')" id="metric-btn-late" class="tap-spring p-2 rounded-xl bg-slate-500/12 dark:bg-white/5 border border-slate-400/35">
+                                                <span id="slide2-lbl-late" class="inline-flex items-center justify-center gap-0.5 text-[8px] font-extrabold" style="color: var(--hue-silver);">နောက်ကျ</span>
+                                                <span class="block text-sm font-black tabular-nums mt-0.5" style="color: var(--hue-silver);" id="home-stat-late">0</span>
                                             </button>
-                                            <button type="button" onclick="inspectSingleMetric('afk')" id="metric-btn-afk" class="tap-spring p-2 rounded-xl bg-fuchsia-500/10 dark:bg-white/5 border border-fuchsia-500/30">
-                                                <span class="inline-flex items-center justify-center gap-0.5 text-[8px] font-extrabold" style="color: var(--hue-magenta);">
-                                                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
-                                                    ခွင့်မဲ့
-                                                </span>
-                                                <span class="block text-sm font-black tabular-nums mt-0.5" style="color: var(--hue-magenta);" id="home-stat-absent">0</span>
+                                            <button type="button" onclick="inspectSingleMetric('afk')" id="metric-btn-afk" class="tap-spring p-2 rounded-xl bg-rose-500/10 dark:bg-white/5 border border-rose-500/35">
+                                                <span id="slide2-lbl-afk" class="inline-flex items-center justify-center gap-0.5 text-[8px] font-extrabold" style="color: var(--hue-coral);">ခွင့်မဲ့</span>
+                                                <span class="block text-sm font-black tabular-nums mt-0.5" style="color: var(--hue-coral);" id="home-stat-absent">0</span>
                                             </button>
                                         </div>
                                         <p class="mm-text text-[8.5px] text-center text-slate-600 dark:text-slate-300 mt-2">ကိန်းဂဏန်းတစ်ခုချင်းစီကို နှိပ်၍ အသေးစိတ်စစ်ဆေးနိုင်ပါသည်</p>
@@ -1356,7 +1417,7 @@
                                                 </span>
                                                 <p class="text-sm font-black text-slate-900 dark:text-white tabular-nums whitespace-nowrap mt-0.5" id="home-bonus-val">0 MMK</p>
                                             </div>
-                                            <span class="mm-badge bg-emerald-500/15 border border-emerald-500/35 text-[9px] font-extrabold whitespace-nowrap" style="color: var(--hue-jade);" id="home-bonus-status">Rewards Active</span>
+                                            <span class="mm-badge bg-emerald-500/15 border border-emerald-500/35 text-[9px] font-extrabold whitespace-nowrap text-emerald-800 dark:text-emerald-300" id="home-bonus-status">Rewards Active</span>
                                         </div>
 
                                         <div class="p-2.5 rounded-xl bg-slate-100/80 dark:bg-white/5 border border-blue-500/15 dark:border-white/10">
@@ -1377,12 +1438,25 @@
                                 </div>
                             </div>
 
-                            <div class="flex items-center justify-between mt-2.5 pt-2 border-t border-blue-500/20 dark:border-sky-400/20">
+                            <!-- Daily Streak (Day 1..5) Attached Directly Below KPI Chart (Synced with Profile Reward Pass) -->
+                            <div id="home-daily-streak-box" class="mt-2 pt-2 border-t border-blue-500/20 dark:border-sky-400/20 space-y-1.5">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-[9.5px] font-extrabold inline-flex items-center gap-1" style="color: var(--hue-gold);">
+                                        <i class="fas fa-fire"></i>
+                                        <span>Daily Streak (5-Day MVP Bonus)</span>
+                                    </span>
+                                    <span class="text-[9px] font-black tabular-nums whitespace-nowrap text-emerald-800 dark:text-emerald-300" id="home-daily-streak-badge">0/5 MVP</span>
+                                </div>
+                                <p class="mm-text text-[8px] text-slate-600 dark:text-slate-300" id="home-daily-streak-desc">တစ်ပတ်အတွင်း MVP (5) ရက်ပြည့်ပါက +10,000 MMK ဆုကြေး ရရှိမည်</p>
+                                <div id="home-daily-streak-row" class="grid grid-cols-5 gap-1.5"></div>
+                            </div>
+
+                            <div class="flex items-center justify-between mt-2 pt-1.5 border-t border-blue-500/20 dark:border-sky-400/20">
                                 <div class="flex items-center gap-1.5">
                                     <button type="button" onclick="scrollToHomeSlide(0)" id="home-dot-0" class="w-4 h-1.5 rounded-full bg-sky-400 transition-all cursor-pointer" aria-label="Slide 1"></button>
                                     <button type="button" onclick="scrollToHomeSlide(1)" id="home-dot-1" class="w-1.5 h-1.5 rounded-full bg-slate-400/40 transition-all cursor-pointer" aria-label="Slide 2"></button>
                                     <button type="button" onclick="scrollToHomeSlide(2)" id="home-dot-2" class="w-1.5 h-1.5 rounded-full bg-slate-400/40 transition-all cursor-pointer" aria-label="Slide 3"></button>
-                                    <span class="text-[8.5px] font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider ml-1" id="home-slide-label">1/3 • Radar Chart</span>
+                                    <span class="text-[8.5px] font-bold text-slate-600 dark:text-slate-200 uppercase tracking-wider ml-1" id="home-slide-label">1/3 • History &amp; Radar</span>
                                 </div>
                                 <div class="flex items-center gap-1">
                                     <button type="button" onclick="stepHomeCarousel(-1)" aria-label="Previous Slide" class="tap-spring w-7 h-7 rounded-lg bg-slate-200/70 dark:bg-white/10 text-slate-800 dark:text-white flex items-center justify-center">
@@ -1473,10 +1547,10 @@
                         </div>
 
                         <div class="grid grid-cols-4 gap-1.5 text-center bg-white/70 dark:bg-black/30 rounded-2xl p-2.5 border border-blue-500/20 dark:border-white/10">
-                            <div><span class="inline-flex items-center justify-center gap-1 text-[8px] font-bold" style="color: var(--hue-gold);"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 14.8 8.6 22 9.3 16.5 14 18.2 21 12 17.3 5.8 21 7.5 14 2 9.3 9.2 8.6z"/></svg>MVP</span><span class="block text-xs font-black tabular-nums" style="color: var(--hue-gold);" id="stat-early">0</span></div>
-                            <div><span class="inline-flex items-center justify-center gap-1 text-[8px] font-bold" style="color: var(--hue-jade);"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>OnTime</span><span class="block text-xs font-black tabular-nums" style="color: var(--hue-jade);" id="stat-ontime">0</span></div>
-                            <div><span class="inline-flex items-center justify-center gap-1 text-[8px] font-bold" style="color: var(--hue-coral);"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>Late</span><span class="block text-xs font-black tabular-nums" style="color: var(--hue-coral);" id="stat-late">0</span></div>
-                            <div><span class="inline-flex items-center justify-center gap-1 text-[8px] font-bold" style="color: var(--hue-magenta);"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>AFK</span><span class="block text-xs font-black tabular-nums" style="color: var(--hue-magenta);" id="stat-absent">0</span></div>
+                            <div><span id="prof-lbl-mvp" class="inline-flex items-center justify-center gap-1 text-[8px] font-bold" style="color: var(--hue-gold);">MVP</span><span class="block text-xs font-black tabular-nums" style="color: var(--hue-gold);" id="stat-early">0</span></div>
+                            <div><span id="prof-lbl-ontime" class="inline-flex items-center justify-center gap-1 text-[8px] font-bold" style="color: var(--hue-gold);">OnTime</span><span class="block text-xs font-black tabular-nums" style="color: var(--hue-gold);" id="stat-ontime">0</span></div>
+                            <div><span id="prof-lbl-late" class="inline-flex items-center justify-center gap-1 text-[8px] font-bold" style="color: var(--hue-silver);">Late</span><span class="block text-xs font-black tabular-nums" style="color: var(--hue-silver);" id="stat-late">0</span></div>
+                            <div><span id="prof-lbl-afk" class="inline-flex items-center justify-center gap-1 text-[8px] font-bold" style="color: var(--hue-coral);">AFK</span><span class="block text-xs font-black tabular-nums" style="color: var(--hue-coral);" id="stat-absent">0</span></div>
                         </div>
                     </div>
 
@@ -1514,10 +1588,10 @@
                 <!-- Filter Pills -->
                 <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
                     <button type="button" onclick="setKpiDetailFilter('all')" id="kpi-flt-all" class="tap-spring px-3 py-1.5 rounded-full bg-primary text-white text-[10px] font-extrabold shrink-0">အားလုံး (All)</button>
-                    <button type="button" onclick="setKpiDetailFilter('mvp')" id="kpi-flt-mvp" class="tap-spring inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" class="text-amber-bright" aria-hidden="true"><path d="M12 2 14.8 8.6 22 9.3 16.5 14 18.2 21 12 17.3 5.8 21 7.5 14 2 9.3 9.2 8.6z"/></svg><span>MVP</span></button>
-                    <button type="button" onclick="setKpiDetailFilter('ontime')" id="kpi-flt-ontime" class="tap-spring inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-emerald-bright" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span>On-Time</span></button>
-                    <button type="button" onclick="setKpiDetailFilter('late')" id="kpi-flt-late" class="tap-spring inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-amber-400" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span>Late</span></button>
-                    <button type="button" onclick="setKpiDetailFilter('afk')" id="kpi-flt-afk" class="tap-spring inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-rose-400" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg><span>AFK</span></button>
+                    <button type="button" onclick="setKpiDetailFilter('mvp')" id="kpi-flt-mvp" class="tap-spring inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0"><span>MVP</span></button>
+                    <button type="button" onclick="setKpiDetailFilter('ontime')" id="kpi-flt-ontime" class="tap-spring inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0"><span>On-Time</span></button>
+                    <button type="button" onclick="setKpiDetailFilter('late')" id="kpi-flt-late" class="tap-spring inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0"><span>Late</span></button>
+                    <button type="button" onclick="setKpiDetailFilter('afk')" id="kpi-flt-afk" class="tap-spring inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 text-on-surface-variant dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-extrabold shrink-0"><span>AFK</span></button>
                 </div>
 
                 <div id="kpi-detail-tables-wrapper" class="space-y-3.5"></div>
@@ -1827,7 +1901,7 @@
                             <span class="text-[10px] font-extrabold text-on-surface-variant dark:text-slate-200 uppercase block mb-1.5">အဖွဲ့ဝင်များ ရွေးချယ်ပါ</span>
                             <div id="team-members-list" class="border border-slate-200 dark:border-slate-700 p-2 rounded-xl space-y-1 bg-surface-container-low dark:bg-slate-800 max-h-48 overflow-y-auto"></div>
                         </div>
-                        <button type="submit" id="btn-submit-team" class="touch-target w-full bg-slate-900 dark:bg-sky-600 hover:brightness-110 text-white font-ui-label font-extrabold py-3.5 rounded-xl active:scale-95 transition-all shadow-md text-xs uppercase tracking-wider disabled:opacity-50 inline-flex items-center justify-center gap-2">
+                        <button type="submit" id="btn-submit-team" class="touch-target w-full bg-slate-900 dark:bg-sky-700 hover:brightness-110 text-white font-ui-label font-extrabold py-3.5 rounded-xl active:scale-95 transition-all shadow-md text-xs uppercase tracking-wider disabled:opacity-50 inline-flex items-center justify-center gap-2">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
                             <span>အဖွဲ့ဖွဲ့စည်းပြီး Telegram ပို့မည်</span>
                         </button>
@@ -1910,7 +1984,7 @@
                     </div>
                 </button>
                 <button type="button" onclick="launchQuickTab('voice')" class="tap-spring p-3 rounded-2xl bg-surface-container-low dark:bg-slate-800/95 border border-slate-200/70 dark:border-slate-700/70 text-left flex items-center gap-2.5">
-                    <span class="w-9 h-9 rounded-xl bg-cobalt-vivid/20 text-cobalt-vivid flex items-center justify-center shrink-0"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></span>
+                    <span class="w-9 h-9 rounded-xl bg-sky-500/15 text-sky-700 dark:text-sky-300 flex items-center justify-center shrink-0"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></span>
                     <div>
                         <span class="block text-[11px] font-extrabold">HR-AI ဆွေးနွေးရန်</span>
                         <span class="block text-[8.5px] text-slate-600 dark:text-slate-300">Voice &amp; Support</span>
@@ -1929,7 +2003,7 @@
                 <div>
                     <span class="text-[9px] font-ui-label font-extrabold uppercase tracking-wider text-primary dark:text-emerald-bright">Google Sheets System_Settings Sync</span>
                     <h3 class="text-xs font-extrabold text-on-surface dark:text-white mt-0.5 inline-flex items-center gap-1.5">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" class="text-amber-bright shrink-0" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" class="text-amber-700 dark:text-amber-bright shrink-0" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
                         <span>Reward &amp; Bonus နှုန်းထား သတ်မှတ်ရန်</span>
                     </h3>
                 </div>
@@ -1942,14 +2016,14 @@
                 <div class="grid grid-cols-2 gap-2.5">
                     <div>
                         <label for="cfg-mvp-daily" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 flex items-center gap-1 mb-1">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" class="text-amber-bright shrink-0" aria-hidden="true"><path d="M12 2 14.8 8.6 22 9.3 16.5 14 18.2 21 12 17.3 5.8 21 7.5 14 2 9.3 9.2 8.6z"/></svg>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" class="text-amber-700 dark:text-amber-bright shrink-0" aria-hidden="true"><path d="M12 2 14.8 8.6 22 9.3 16.5 14 18.2 21 12 17.3 5.8 21 7.5 14 2 9.3 9.2 8.6z"/></svg>
                             <span>နေ့စဉ် MVP ဆုကြေး (၁ ရက်)</span>
                         </label>
                         <input type="number" id="cfg-mvp-daily" inputmode="numeric" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 font-black text-xs tabular-nums" placeholder="1000">
                     </div>
                     <div>
                         <label for="cfg-weekly-target" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 flex items-center gap-1 mb-1">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-orange-400 shrink-0" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-orange-700 dark:text-orange-400 shrink-0" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
                             <span>အပတ်စဉ် MVP Target (ရက်)</span>
                         </label>
                         <input type="number" id="cfg-weekly-target" inputmode="numeric" min="1" max="7" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 font-black text-xs tabular-nums" placeholder="5">
@@ -1959,14 +2033,14 @@
                 <div class="grid grid-cols-2 gap-2.5">
                     <div>
                         <label for="cfg-weekly-bonus" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 flex items-center gap-1 mb-1">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-amber-bright shrink-0" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/></svg>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-amber-700 dark:text-amber-bright shrink-0" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/></svg>
                             <span>အပတ်စဉ် MVP Chest Bonus</span>
                         </label>
                         <input type="number" id="cfg-weekly-bonus" inputmode="numeric" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 font-black text-xs tabular-nums" placeholder="10000">
                     </div>
                     <div>
                         <label for="cfg-att-bonus" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 flex items-center gap-1 mb-1">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-emerald-bright shrink-0" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-emerald-700 dark:text-emerald-bright shrink-0" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
                             <span>လစဉ် ရက်မှန်ဆုကြေး (0 AFK)</span>
                         </label>
                         <input type="number" id="cfg-att-bonus" inputmode="numeric" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 font-black text-xs tabular-nums" placeholder="50000">
@@ -1976,14 +2050,14 @@
                 <div class="grid grid-cols-2 gap-2.5">
                     <div>
                         <label for="cfg-mythic-bonus" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 flex items-center gap-1 mb-1">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-amber-bright shrink-0" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-amber-700 dark:text-amber-bright shrink-0" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
                             <span>MYTHIC Rank ဆုကြေး (&gt;=90%)</span>
                         </label>
                         <input type="number" id="cfg-mythic-bonus" inputmode="numeric" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 font-black text-xs tabular-nums" placeholder="30000">
                     </div>
                     <div>
                         <label for="cfg-legend-bonus" class="text-[9.5px] font-extrabold text-on-surface-variant dark:text-slate-200 flex items-center gap-1 mb-1">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-sky-400 shrink-0" aria-hidden="true"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/></svg>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-sky-700 dark:text-sky-400 shrink-0" aria-hidden="true"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/></svg>
                             <span>LEGEND Rank ဆုကြေး (&gt;=80%)</span>
                         </label>
                         <input type="number" id="cfg-legend-bonus" inputmode="numeric" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-600 font-black text-xs tabular-nums" placeholder="15000">
@@ -2498,7 +2572,7 @@
         let globalState = null;
         let isSubmitting = false;
         let pinBuffer = "";
-        let gpsArenaExpanded = false;
+        let gpsArenaExpanded = true;
         let lastTodayAttendanceStatus = null;
 
         let homeRadarChartInstance = null;
@@ -2507,7 +2581,7 @@
         let tabHistoryStack = ['home'];
 
         let homeCarouselIndex = 0;
-        const HOME_SLIDE_LABELS = ['1/3 • Radar ဝင်ရိုး', '2/3 • စာရင်းချုပ်', '3/3 • ဆုကြေး & Wallet'];
+        const HOME_SLIDE_LABELS = ['1/3 • History & Radar', '2/3 • စာရင်းချုပ်', '3/3 • ဆုကြေး & Wallet'];
 
         function getDefaultHumanPortraitSvgUri(empName, isOpDept = true) {
             const nameStr = String(empName || 'GBF');
@@ -2588,8 +2662,79 @@
             return '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 19 7v5c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V7Z" fill="rgba(245,158,11,0.14)" stroke="#F59E0B" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 8v8M9 11h6" stroke="#FBBF24" stroke-width="1.8" stroke-linecap="round"/></svg>';
         }
 
-        let checkinFilterMode = 'all';
+        function gbfBrandRankSvg(tierKey, serialNum = '', size = 18) {
+            const t = String(tierKey || 'ontime').toLowerCase();
+            const hasNum = serialNum !== '' && serialNum !== null && serialNum !== undefined;
+            const numHtml = (clr) => hasNum ? `<span class="text-[9.5px] font-extrabold tabular-nums" style="color: ${clr};">${escapeHtml(String(serialNum))}</span>` : '';
+            if (t === 'mvp' || t === 'mvp_top') {
+                return `<span class="inline-flex items-center gap-1 shrink-0" title="MVP Gold & White Crown Star">${`<svg class="mvp-crown-anim shrink-0" width="${size}" height="${size}" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M9.5 10.5L8 4.8L12.6 7.8L16 3.2L19.4 7.8L24 4.8L22.5 10.5H9.5Z" fill="url(#gbfMvpGoldGrad)" stroke="#D97706" stroke-width="0.9" stroke-linejoin="round"/><circle cx="16" cy="3" r="1.2" fill="#FFFFFF" stroke="#D97706" stroke-width="0.6"/><path d="M16 10.2L18.9 16.4L25.8 17.3L20.7 22L22 28.8L16 25.5L10 28.8L11.3 22L6.2 17.3L13.1 16.4L16 10.2Z" fill="url(#gbfMvpGoldGrad)" stroke="#D97706" stroke-width="0.95" stroke-linejoin="round"/><path d="M16 13.6L17.6 17.3L21.6 17.8L18.6 20.6L19.4 24.6L16 22.7L12.6 24.6L13.4 20.6L10.4 17.8L14.4 17.3L16 13.6Z" fill="url(#gbfMvpWhiteCore)" opacity="0.92"/><path class="mvp-spark-anim" d="M4.5 8L5.2 9.5L6.7 10.2L5.2 10.9L4.5 12.4L3.8 10.9L2.3 10.2L3.8 9.5L4.5 8Z" fill="#FFFFFF"/><path class="mvp-spark-anim" d="M27.5 11L28 12.2L29.2 12.7L28 13.2L27.5 14.4L27 13.2L25.8 12.7L27 12.2L27.5 11Z" fill="#FDE047"/></svg>`}${numHtml('var(--hue-gold)')}</span>`;
+            }
+            if (t === 'ontime' || t === 'on-time' || t === 'gold') {
+                return `<span class="inline-flex items-center gap-1 shrink-0" title="On-Time Gold Star">${`<svg class="shrink-0" width="${size - 2}" height="${size - 2}" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.4L14.9 8.5L21.6 9.4L16.7 14.1L17.9 20.8L12 17.6L6.1 20.8L7.3 14.1L2.4 9.4L9.1 8.5L12 2.4Z" fill="url(#gbfGoldStarGrad)" stroke="#D97706" stroke-width="1" stroke-linejoin="round"/></svg>`}${numHtml('var(--hue-gold)')}</span>`;
+            }
+            if (t === 'late' || t === 'silver') {
+                return `<span class="inline-flex items-center gap-1 shrink-0" title="Late Silver Star">${`<svg class="shrink-0" width="${size - 2}" height="${size - 2}" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.4L14.9 8.5L21.6 9.4L16.7 14.1L17.9 20.8L12 17.6L6.1 20.8L7.3 14.1L2.4 9.4L9.1 8.5L12 2.4Z" fill="url(#gbfSilverStarGrad)" stroke="#64748B" stroke-width="1" stroke-linejoin="round"/></svg>`}${numHtml('var(--hue-silver)')}</span>`;
+            }
+            if (t === 'leave') {
+                return `<span class="inline-flex items-center gap-1 shrink-0" title="Leave">${`<svg class="shrink-0" width="${size - 3}" height="${size - 3}" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="4" fill="rgba(56,189,248,0.18)" stroke="currentColor" stroke-width="1.8" style="color: var(--hue-cyan);"/><path d="M8 13l2.5 2.5L16 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--hue-cyan);"/></svg>`}${numHtml('var(--hue-cyan)')}</span>`;
+            }
+            if (t === 'afk' || t === 'absent') {
+                return `<span class="inline-flex items-center gap-1 shrink-0" title="Absent / AFK">${`<svg class="shrink-0" width="${size - 3}" height="${size - 3}" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" fill="rgba(251,113,133,0.18)" stroke="currentColor" stroke-width="1.9" style="color: var(--hue-coral);"/><line x1="4" x2="4" y1="22" y2="15" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="color: var(--hue-coral);"/></svg>`}${numHtml('var(--hue-coral)')}</span>`;
+            }
+            return `<span class="inline-flex items-center gap-1 shrink-0" title="Pending">${`<svg class="shrink-0" width="${size - 4}" height="${size - 4}" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="rgba(148,163,184,0.16)" stroke="#64748B" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="#64748B" stroke-width="1.8" stroke-linecap="round"/></svg>`}${numHtml('var(--text-muted)')}</span>`;
+        }
+
+        function gbfSquadShieldSvg(variantOrLetter = 'ALL', size = 22) {
+            const v = String(variantOrLetter || 'ALL').toUpperCase();
+            const map = {
+                A: { grad: 'url(#gbfSqGradA)', stroke: '#10B981', opacity: '0.92' },
+                B: { grad: 'url(#gbfSqGradB)', stroke: '#38BDF8', opacity: '0.92' },
+                C: { grad: 'url(#gbfSqGradC)', stroke: '#F59E0B', opacity: '0.92' }
+            };
+            const cfg = map[v] || { grad: 'url(#gbfSqGradB)', stroke: '#38BDF8', opacity: '0.24' };
+            const inner = (v === 'ALL')
+                ? `<path d="M11 12.5h10M12.5 16.5h7M14 20.5h4" stroke="${cfg.stroke}" stroke-width="2" stroke-linecap="round"/>`
+                : `<text x="16" y="21" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-weight="900" font-size="13.5" fill="#FFFFFF">${escapeHtml(v.slice(0, 1))}</text>`;
+            return `<svg width="${size}" height="${size}" viewBox="0 0 32 32" fill="none" class="shrink-0" aria-hidden="true"><path d="M16 2L27 7.5V16.5C27 22.8 22.1 27.9 16 30C9.9 27.9 5 22.8 5 16.5V7.5L16 2Z" fill="${cfg.grad}" fill-opacity="${cfg.opacity}" stroke="${cfg.stroke}" stroke-width="2" stroke-linejoin="round"/>${inner}</svg>`;
+        }
+
+        function renderStreakSlotsHtml(progressCount, targetSlots) {
+            let html = '';
+            for (let i = 1; i <= targetSlots; i++) {
+                const achieved = i <= progressCount;
+                html += `<div class="p-1.5 rounded-xl border text-center ${achieved ? 'bg-amber-500/15 border-amber-400/60 shadow-sm' : 'bg-slate-200/50 dark:bg-white/5 border-slate-300/40 dark:border-white/10'}">
+                    <div class="flex justify-center">${achieved ? gbfBrandRankSvg('mvp', '', 16) : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500 dark:text-slate-400" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'}</div>
+                    <span class="block text-[8px] font-black mt-0.5 tabular-nums ${achieved ? 'text-amber-700 dark:text-amber-300' : 'text-slate-600 dark:text-slate-300'}">Day ${i}</span>
+                </div>`;
+            }
+            return html;
+        }
+
+        function applyUnifiedBrandIcons() {
+            const setHtml = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+            setHtml('home-teams-header-crest', gbfSquadShieldSvg('ALL', 18));
+            setHtml('home-chip-icon-mvp', `${gbfBrandRankSvg('mvp', '', 13)}<span>MVP</span>`);
+            setHtml('home-chip-icon-ontime', `${gbfBrandRankSvg('ontime', '', 12)}<span>မှန်</span>`);
+            setHtml('home-chip-icon-late', `${gbfBrandRankSvg('late', '', 12)}<span>ကျ</span>`);
+            setHtml('home-chip-icon-afk', `${gbfBrandRankSvg('afk', '', 12)}<span>ပျက်</span>`);
+            setHtml('slide2-lbl-mvp', `${gbfBrandRankSvg('mvp', '', 13)}<span>MVP</span>`);
+            setHtml('slide2-lbl-ontime', `${gbfBrandRankSvg('ontime', '', 12)}<span>အချိန်မှန်</span>`);
+            setHtml('slide2-lbl-late', `${gbfBrandRankSvg('late', '', 12)}<span>နောက်ကျ</span>`);
+            setHtml('slide2-lbl-afk', `${gbfBrandRankSvg('afk', '', 12)}<span>ခွင့်မဲ့</span>`);
+            setHtml('prof-lbl-mvp', `${gbfBrandRankSvg('mvp', '', 13)}<span>MVP</span>`);
+            setHtml('prof-lbl-ontime', `${gbfBrandRankSvg('ontime', '', 12)}<span>OnTime</span>`);
+            setHtml('prof-lbl-late', `${gbfBrandRankSvg('late', '', 12)}<span>Late</span>`);
+            setHtml('prof-lbl-afk', `${gbfBrandRankSvg('afk', '', 12)}<span>AFK</span>`);
+            setHtml('kpi-flt-mvp', `${gbfBrandRankSvg('mvp', '', 13)}<span>MVP</span>`);
+            setHtml('kpi-flt-ontime', `${gbfBrandRankSvg('ontime', '', 12)}<span>On-Time</span>`);
+            setHtml('kpi-flt-late', `${gbfBrandRankSvg('late', '', 12)}<span>Late</span>`);
+            setHtml('kpi-flt-afk', `${gbfBrandRankSvg('afk', '', 12)}<span>AFK</span>`);
+        }
+
+        let checkinFilterMode = 'in';
         let teamsInlineExpanded = false;
+        let selectedHomeTeamIndex = null;
+        let homeHistoryFilter = 'mvp';
         let selectedSingleMetric = null;
         let kpiDetailFilter = 'all';
 
@@ -2991,11 +3136,10 @@
                         }
                     } else {
                         const cached = await GBFOfflineStore.loadLocalState(pinVal);
-                        const fallbackState = cached || buildRosterStateByPin(pinVal);
-                        if (fallbackState && (data.offline || data.timeout)) {
-                            currentUser = { id: fallbackState.user.id, name: fallbackState.user.name, role: fallbackState.user.role };
+                        if (cached && (data.offline || data.timeout)) {
+                            currentUser = { id: cached.user.id, name: cached.user.name, role: cached.user.role };
                             localStorage.setItem('gbf_user', JSON.stringify(currentUser));
-                            unlockPortalEntryTransition(fallbackState);
+                            unlockPortalEntryTransition(cached);
                             showToast("Offline Cache ဖြင့် ဝင်ရောက်ထားပါသည်", "warning");
                         } else {
                             triggerPinErrorShake((data && data.message) || "PIN နံပါတ် မှားယွင်းနေပါသည်");
@@ -3006,10 +3150,10 @@
                     unblockUI();
                     isSubmitting = false;
                     const cached = await GBFOfflineStore.loadLocalState(pinVal);
-                    const fallbackState = cached || buildRosterStateByPin(pinVal);
-                    if (fallbackState) {
+                    if (cached && cached.user) {
+                        currentUser = { id: cached.user.id, name: cached.user.name, role: cached.user.role };
                         localStorage.setItem('gbf_user', JSON.stringify(currentUser));
-                        unlockPortalEntryTransition(fallbackState);
+                        unlockPortalEntryTransition(cached);
                     } else {
                         triggerPinErrorShake("Server ချိတ်ဆက်မှု မအောင်မြင်ပါ");
                     }
@@ -3162,13 +3306,10 @@
                         GBFOfflineStore.flushOutbox(false);
                     } else {
                         const cached = await GBFOfflineStore.loadLocalState(currentUser.id);
-                        const fallbackState = cached || buildRosterStateByPin(currentUser.id);
-                        if (fallbackState) {
-                            if (isFirst) unlockPortalEntryTransition(fallbackState);
-                            else renderFullUI(fallbackState);
-                            if (data && (data.offline || data.timeout)) {
-                                showToast("Offline Cache မှ ဒေတာကို ပြသထားပါသည်", "warning");
-                            }
+                        if (cached && (data.offline || data.timeout)) {
+                            if (isFirst) unlockPortalEntryTransition(cached);
+                            else renderFullUI(cached);
+                            showToast("Offline Cache မှ ဒေတာကို ပြသထားပါသည်", "warning");
                         } else if (isFirst) {
                             localStorage.removeItem('gbf_user');
                             showPinLoginView();
@@ -3178,10 +3319,9 @@
                 .catch(async () => {
                     unblockUI();
                     const cached = await GBFOfflineStore.loadLocalState(currentUser.id);
-                    const fallbackState = cached || buildRosterStateByPin(currentUser.id);
-                    if (fallbackState) {
-                        if (isFirst) unlockPortalEntryTransition(fallbackState);
-                        else renderFullUI(fallbackState);
+                    if (cached) {
+                        if (isFirst) unlockPortalEntryTransition(cached);
+                        else renderFullUI(cached);
                     } else if (isFirst) {
                         showPinLoginView();
                     }
@@ -3196,13 +3336,10 @@
             if (canvasId === 'homeMlbbRadarChart' && homeRadarChartInstance) homeRadarChartInstance.destroy();
             if (canvasId === 'mlbbRadarChart' && profileRadarChartInstance) profileRadarChartInstance.destroy();
 
-            const labels = [
-                'အချိန်မှန်မှု',
-                'ရက်မှန်မှု',
-                'MVP (အစော)',
-                'စည်းကမ်း',
-                'အဖွဲ့စိတ်ဓာတ်'
-            ];
+            const isCompactHome = canvasId === 'homeMlbbRadarChart';
+            const labels = isCompactHome
+                ? ['အချိန်မှန်', 'ရက်မှန်', 'MVP', 'စည်းကမ်း', 'Team']
+                : ['အချိန်မှန်မှု', 'ရက်မှန်မှု', 'MVP (အစော)', 'စည်းကမ်း', 'အဖွဲ့စိတ်ဓာတ်'];
             canvas.setAttribute('aria-label', labels.map((lb, idx) => `${lb}: ${Math.round(Number(radarValues[idx] || 0))}%`).join(', '));
 
             const isDark = document.body.classList.contains('dark-mode');
@@ -3254,7 +3391,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    layout: { padding: { left: 10, right: 10, top: 10, bottom: 10 } },
+                    layout: { padding: isCompactHome ? { left: 4, right: 4, top: 4, bottom: 4 } : { left: 10, right: 10, top: 10, bottom: 10 } },
                     plugins: { legend: { display: false } },
                     scales: {
                         r: {
@@ -3264,9 +3401,9 @@
                             grid: { color: isDark ? 'rgba(148, 163, 184, 0.32)' : 'rgba(37, 99, 235, 0.24)' },
                             pointLabels: {
                                 color: isDark ? '#F1F5F9' : '#0F172A',
-                                padding: 10,
+                                padding: isCompactHome ? 3 : 10,
                                 font: {
-                                    size: isNarrowViewport ? 9.5 : 10.5,
+                                    size: isCompactHome ? (isNarrowViewport ? 8.5 : 9) : (isNarrowViewport ? 9.5 : 10.5),
                                     weight: '700',
                                     family: "'Noto Sans Myanmar', 'Plus Jakarta Sans', sans-serif"
                                 }
@@ -3364,7 +3501,7 @@
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0">
                 <span class="w-5 h-5 rounded-lg bg-sky-500/15 border border-sky-400/35 flex items-center justify-center shrink-0" style="color: var(--hue-cyan);">${gbfIcon('shield', 'w-3 h-3', 12)}</span>
-                <p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(d.user.name)} <span class="text-[9px] font-bold text-slate-600 dark:text-sky-300">· ${escapeHtml(d.user.role)}</span></p>
+                <p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate">Operations HQ <span class="text-[9px] font-bold" style="color: var(--hue-cyan);">· ${escapeHtml(selectedMonth)}</span></p>
               </div>
               <div class="flex items-center gap-1 shrink-0">
                 <button type="button" onclick="launchQuickTab('team')" class="mlbb-steel-btn tap-spring px-2 py-1 rounded-lg text-[8.5px] font-extrabold inline-flex items-center gap-1 whitespace-nowrap">
@@ -3388,8 +3525,8 @@
             const st = (d.today_state && d.today_state.status) ? d.today_state.status : "NOT_CHECKED_IN";
             if (st !== lastTodayAttendanceStatus) {
                 lastTodayAttendanceStatus = st;
-                gpsArenaExpanded = false;
             }
+            applyUnifiedBrandIcons();
             renderGpsArenaCard(d);
 
             syncProfilePhotoUI(d.user.id, d.user.name);
@@ -3506,7 +3643,9 @@
                 syncAdvanceSubmitLabel();
             }
 
-            renderHomeTodaySquadChip(d);
+            const homeHistSumEl = document.getElementById('home-history-summary-label');
+            if (homeHistSumEl) homeHistSumEl.innerText = `${m.p}/${m.targetDays} ရက်`;
+            renderHomeHistoryLog(d);
             renderTodayCheckinSection(d);
             renderTodayTeamsSection(d);
 
@@ -3825,82 +3964,70 @@
             }
         }
 
-        function renderHomeTodaySquadChip(d) {
-            const badgeEl = document.getElementById('home-chip-date-badge');
-            const textEl = document.getElementById('home-chip-squad-text');
-            if (!textEl || !d) return;
-            const summary = getTodayCompactSummary(d);
-            if (badgeEl) badgeEl.innerText = summary.todayIso;
-            textEl.innerText = `${summary.attTxt} • ${summary.squadFull}`;
-        }
-
         function renderTodayCheckinSection(d, targetDate) {
             const activeDate = targetDate || getYangonTodayIso();
             const snap = resolveSnapshotForDate(d, activeDate);
             const checkedList = snap.checked_in || [];
             const leaveList = snap.leaves || [];
             const pendingList = snap.pending || [];
-            const avatarsEl = document.getElementById('today-checkin-avatars');
             const summaryEl = document.getElementById('today-checkin-summary');
             const subEl = document.getElementById('today-checkin-sub');
+            const tierCountersEl = document.getElementById('home-att-tier-counters');
+
+            const mvpCount = checkedList.filter(x => x.kpi === 'MVP').length;
+            const ontimeCount = checkedList.filter(x => x.kpi === 'On-Time').length;
+            const lateCount = checkedList.filter(x => x.kpi === 'Late').length;
 
             const btnIn = document.getElementById('btn-chk-in');
             const btnLv = document.getElementById('btn-chk-leave');
             const btnPend = document.getElementById('btn-chk-pending');
-            if (btnIn) btnIn.innerHTML = `${gbfIcon('ontime', 'w-3 h-3 shrink-0', 11)}<span>လာ (${checkedList.length})</span>`;
-            if (btnLv) btnLv.innerHTML = `${gbfIcon('leave', 'w-3 h-3 shrink-0', 11)}<span>ခွင့်/မလာ (${leaveList.length})</span>`;
-            if (btnPend) btnPend.innerHTML = `${gbfIcon('pending', 'w-3 h-3 shrink-0', 11)}<span>မဝင်သေး (${pendingList.length})</span>`;
+            if (btnIn) btnIn.innerHTML = `${gbfBrandRankSvg('mvp', '', 12)}<span>တက်ရောက် (${checkedList.length})</span>`;
+            if (btnLv) btnLv.innerHTML = `${gbfBrandRankSvg('leave', '', 12)}<span>ခွင့်/ပျက် (${leaveList.length})</span>`;
+            if (btnPend) btnPend.innerHTML = `${gbfBrandRankSvg('pending', '', 12)}<span>မဝင်သေး (${pendingList.length})</span>`;
 
-            const colors = ['from-primary to-emerald-700', 'from-secondary to-cobalt-vivid', 'from-amber-600 to-orange-700', 'from-emerald-dark to-primary'];
-            const maxVisible = 5;
-            let html = '';
-            checkedList.slice(0, maxVisible).forEach((emp, idx) => {
-                const bg = colors[idx % colors.length];
-                html += `<div class="w-7 h-7 rounded-full bg-gradient-to-br ${bg} text-white font-extrabold text-[9px] flex items-center justify-center ring-2 ring-white dark:ring-slate-900 shadow-sm">${escapeHtml(getInitials(emp.name))}</div>`;
-            });
-            if (checkedList.length > maxVisible) {
-                html += `<div class="w-7 h-7 rounded-full bg-dark-surface text-emerald-bright font-extrabold text-[9px] flex items-center justify-center ring-2 ring-white dark:ring-slate-900">+${checkedList.length - maxVisible}</div>`;
+            if (tierCountersEl) {
+                tierCountersEl.innerHTML = `<span style="color: var(--hue-gold);">MVP ${mvpCount}</span><span class="text-slate-400">·</span><span style="color: var(--hue-gold);">မှန် ${ontimeCount}</span><span class="text-slate-400">·</span><span style="color: var(--hue-silver);">ကျ ${lateCount}</span>`;
             }
-            if (checkedList.length === 0) {
-                html = `<div class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-extrabold text-[9px] flex items-center justify-center">0</div>`;
-            }
-            avatarsEl.innerHTML = html;
 
             const dateTag = snap.isToday ? 'ယနေ့' : activeDate;
             if (checkedList.length > 0) {
                 const leaveNote = leaveList.length > 0 ? ` • ခွင့် ${leaveList.length} ဦး` : '';
-                summaryEl.innerHTML = `<span class="inline-flex items-center gap-1 align-middle">${gbfIcon('trophy', 'w-3 h-3 text-amber-500 shrink-0', 12)}<span>[${escapeHtml(dateTag)}] #1 ${escapeHtml(checkedList[0].name)} နှင့် ${checkedList.length} ဦး${escapeHtml(leaveNote)}</span></span>`;
-                subEl.innerText = `အစဉ်လိုက်၊ ရုံးနှင့် အကွာအဝေး (Map) နှင့် ခွင့်စာရင်းကြည့်ရန် နှိပ်ပါ`;
+                if (summaryEl) summaryEl.innerText = `[${dateTag}] Company Attendance • ${checkedList.length} ဦး${leaveNote}`;
+                if (subEl) subEl.innerText = `MVP ${mvpCount} • မှန် ${ontimeCount} • ကျ ${lateCount} (Team ဝင်ပြီးသူများ အောက်တွင်)`;
             } else {
-                summaryEl.innerText = `${dateTag} ရုံးတက်စာရင်း မရှိပါ (${leaveList.length > 0 ? `ခွင့် ${leaveList.length} ဦး` : '0 ဦး'})`;
-                subEl.innerText = snap.isToday ? `Check-In ပြုလုပ်ရန် အပေါ်ခလုတ်ကို နှိပ်ပါ` : `ရွေးချယ်ထားသော ရက်စွဲအတွက် Check-In မှတ်တမ်းမရှိပါ`;
+                if (summaryEl) summaryEl.innerText = `${dateTag} Company Attendance (${leaveList.length > 0 ? `ခွင့် ${leaveList.length} ဦး` : '0 ဦး'})`;
+                if (subEl) subEl.innerText = snap.isToday ? `Check-In ပြုလုပ်ရန် အပေါ်ခလုတ်ကို နှိပ်ပါ` : `ရွေးချယ်ထားသော ရက်စွဲအတွက် Check-In မှတ်တမ်းမရှိပါ`;
             }
 
-            renderCheckinDetailList(activeDate);
+            if (checkinFilterMode !== 'in' && checkinFilterMode !== 'leave' && checkinFilterMode !== 'pending') {
+                checkinFilterMode = 'in';
+            }
+            filterCheckinList(checkinFilterMode, activeDate);
         }
 
         function toggleTodayCheckinPanel() {
             playUiSound('tick');
             const panel = document.getElementById('today-checkin-detail-panel');
             const chev = document.getElementById('checkin-panel-chevron');
+            if (!panel) return;
             panel.classList.toggle('hidden');
-            chev.style.transform = panel.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            if (chev) chev.style.transform = panel.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
         }
 
-        function filterCheckinList(mode) {
-            playUiSound('tick');
-            checkinFilterMode = (checkinFilterMode === mode || mode === 'all') ? 'all' : mode;
+        function filterCheckinList(mode, targetDate) {
+            if (!targetDate) playUiSound('tick');
+            checkinFilterMode = (mode === 'leave' || mode === 'pending') ? mode : 'in';
             const colStyles = {
                 in: {
-                    active: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl mlbb-steel-btn text-[9px] font-extrabold whitespace-nowrap ring-1 ring-emerald-400/60",
-                    idle: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-emerald-500/35 bg-emerald-500/12 text-emerald-800 dark:text-emerald-300 text-[9px] font-extrabold whitespace-nowrap"
+                    active: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl mlbb-steel-btn text-[9px] font-extrabold whitespace-nowrap ring-1 ring-amber-400/60",
+                    idle: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-amber-500/35 bg-amber-500/10 text-amber-800 dark:text-amber-300 text-[9px] font-extrabold whitespace-nowrap"
                 },
                 leave: {
-                    active: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl mlbb-steel-btn text-[9px] font-extrabold whitespace-nowrap ring-1 ring-amber-400/60",
-                    idle: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-amber-500/35 bg-amber-500/12 text-amber-800 dark:text-amber-300 text-[9px] font-extrabold whitespace-nowrap"
+                    active: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl mlbb-steel-btn text-[9px] font-extrabold whitespace-nowrap ring-1 ring-sky-400/60",
+                    idle: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-sky-400/35 bg-sky-500/10 text-sky-800 dark:text-sky-300 text-[9px] font-extrabold whitespace-nowrap"
                 },
                 pending: {
-                    active: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl mlbb-steel-btn text-[9px] font-extrabold whitespace-nowrap ring-1 ring-sky-400/60",
+                    active: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl mlbb-steel-btn text-[9px] font-extrabold whitespace-nowrap ring-1 ring-slate-300/60",
                     idle: "tap-spring w-full inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-xl border border-slate-400/30 bg-slate-500/10 text-slate-700 dark:text-slate-200 text-[9px] font-extrabold whitespace-nowrap"
                 }
             };
@@ -3908,135 +4035,141 @@
                 const btn = document.getElementById(`btn-chk-${k}`);
                 if (btn) btn.className = (checkinFilterMode === k) ? colStyles[k].active : colStyles[k].idle;
             });
-            renderCheckinDetailList();
+            renderCheckinDetailList(targetDate);
         }
 
-        function buildCheckedInColumnHtml(items, office, compact) {
+        function buildAssignedTeamMemberSet(teams) {
+            const set = new Set();
+            (teams || []).forEach(t => {
+                parseSquadMembersList(t.members).forEach(m => {
+                    if (m && m.name) set.add(String(m.name).trim().toLowerCase());
+                });
+            });
+            return set;
+        }
+
+        function buildCheckedInColumnHtml(items, office, assignedSet = new Set()) {
             if (!items || items.length === 0) {
-                return `<p class="text-[9.5px] text-slate-600 dark:text-slate-300 text-center py-2.5">မရှိသေးပါ</p>`;
+                return `<p class="text-[9.5px] text-slate-600 dark:text-slate-300 text-center py-3">ယနေ့ တက်ရောက်သူ မရှိသေးပါ</p>`;
             }
-            return items.map((emp, i) => {
-                const isMe = Boolean(globalState.user && ((emp.id && String(emp.id) === String(globalState.user.id)) || (emp.name && emp.name === globalState.user.name)));
-                const rankClass = i === 0
-                    ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/45'
-                    : (i === 1 ? 'bg-sky-500/20 text-sky-800 dark:text-sky-200 border-sky-400/45' : (i === 2 ? 'bg-orange-500/20 text-orange-800 dark:text-orange-200 border-orange-400/45' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-white/15'));
-                const kpiBadge = emp.kpi === 'MVP'
-                    ? 'text-amber-800 dark:text-amber-300 bg-amber-500/15 border-amber-500/35'
-                    : (emp.kpi === 'On-Time' ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 border-emerald-500/35' : 'text-rose-700 dark:text-rose-300 bg-rose-500/15 border-rose-500/35');
-                const distLabel = emp.distance_text || (emp.distance_m != null ? formatClientDistance(emp.distance_m) : 'HQ');
-                const isHq = emp.loc_status !== 'Field_Site' && (emp.distance_m == null || emp.distance_m <= (office.max_radius || 500));
-                const zoneSvg = isHq ? gbfIcon('hq', 'w-2.5 h-2.5 shrink-0', 9) : gbfIcon('tower', 'w-2.5 h-2.5 shrink-0', 9);
-                const rawMapUrl = emp.map_url || (emp.gps ? (MAPS_DIR_BASE + `${office.lat},${office.lng}/${encodeURIComponent(emp.gps)}`) : '');
-                const mapHref = isSafeHttpUrl(rawMapUrl) ? rawMapUrl : '';
-                const distHtml = mapHref
-                    ? `<a href="${escapeHtml(mapHref)}" target="_top" rel="noopener noreferrer" onclick="return openSafeMapLink(event, this.href)" class="inline-flex items-center gap-0.5 text-[7.5px] font-bold text-sky-700 dark:text-sky-300 hover:underline whitespace-nowrap" title="Map ကြည့်ရန်">${zoneSvg}<span>${escapeHtml(distLabel)}</span></a>`
-                    : `<span class="inline-flex items-center gap-0.5 text-[7.5px] font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">${zoneSvg}<span>${escapeHtml(distLabel)}</span></span>`;
+            const tiers = [
+                { key: 'mvp', iconKey: 'mvp', label: 'MVP (အစော)', colorVar: 'var(--hue-gold)', rows: items.filter(e => e.kpi === 'MVP') },
+                { key: 'ontime', iconKey: 'ontime', label: 'အချိန်မှန် (On-Time)', colorVar: 'var(--hue-gold)', rows: items.filter(e => e.kpi === 'On-Time') },
+                { key: 'late', iconKey: 'late', label: 'နောက်ကျ (Late)', colorVar: 'var(--hue-silver)', rows: items.filter(e => e.kpi === 'Late') }
+            ].filter(g => g.rows.length > 0);
 
-                if (compact) {
-                    return `<div class="p-1.5 rounded-xl ${isMe ? 'mlbb-you-row' : 'mlbb-std-row'} space-y-0.5 min-w-0">
-                        <div class="flex items-center gap-1 min-w-0">
-                            <span class="px-1 py-0.2 rounded border text-[7.5px] font-black tabular-nums shrink-0 ${rankClass}">#${i + 1}</span>
-                            <p class="text-[9px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(emp.name)}</p>
+            const bodyRows = tiers.map(group => {
+                const visibleRows = group.rows.filter(emp => !assignedSet.has(String(emp.name || '').trim().toLowerCase()));
+                const groupHead = `<tr class="bg-slate-200/65 dark:bg-slate-900/75 border-b border-blue-500/15 dark:border-white/10">
+                    <td colspan="4" class="px-2 py-1 text-[8.5px] font-extrabold uppercase tracking-wider">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="inline-flex items-center gap-1.5" style="color: ${group.colorVar};">${gbfBrandRankSvg(group.iconKey, '', 14)}<span>${group.label}</span></span>
+                            <span class="tabular-nums text-slate-700 dark:text-slate-200">${group.rows.length} ဦး</span>
                         </div>
-                        <div class="flex items-center justify-between gap-1 text-[7.5px] tabular-nums">
-                            <span class="font-bold text-slate-700 dark:text-slate-200 truncate">${escapeHtml(emp.time || '')}</span>
-                            <span class="px-1 rounded border font-black shrink-0 ${kpiBadge}">${escapeHtml(emp.kpi === 'On-Time' ? 'OnT' : emp.kpi)}</span>
-                        </div>
-                        <div class="flex items-center justify-between gap-1 min-w-0">
-                            <span class="text-[7.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(emp.squad || '')}</span>
-                            ${distHtml}
-                        </div>
-                    </div>`;
+                    </td>
+                </tr>`;
+                if (visibleRows.length === 0) {
+                    return groupHead + `<tr class="border-b border-blue-500/10 dark:border-white/5"><td colspan="4" class="px-2.5 py-1.5 text-[8.5px] text-slate-600 dark:text-slate-300 italic">အဖွဲ့ (Team A/B/C) အတွင်း ပါဝင်ပြီး (${group.rows.length} ဦး)</td></tr>`;
                 }
-                return `<div class="p-2.5 rounded-xl ${isMe ? 'mlbb-you-row' : 'mlbb-std-row'} flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <span class="px-1.5 py-0.5 rounded-md border font-extrabold text-[8.5px] tabular-nums shrink-0 ${rankClass}">#${i + 1}</span>
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-1.5"><p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(emp.name)}</p>${isMe ? '<span class="px-1 rounded bg-sky-500/20 text-sky-800 dark:text-sky-200 text-[7px] font-black uppercase shrink-0 border border-sky-400/40">YOU</span>' : ''}</div>
-                            <div class="flex items-center gap-1.5 mt-0.5 flex-wrap"><span class="text-[8.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(emp.squad || emp.role)}</span>${distHtml}</div>
-                        </div>
-                    </div>
-                    <div class="text-right shrink-0">
-                        <span class="block text-[9.5px] font-extrabold text-slate-900 dark:text-white tabular-nums whitespace-nowrap">${escapeHtml(emp.time)}</span>
-                        <span class="inline-block px-1.5 py-0.5 rounded border text-[8px] font-extrabold ${kpiBadge}">${escapeHtml(emp.kpi)}</span>
-                    </div>
-                </div>`;
+                const rowsHtml = visibleRows.map(emp => {
+                    const serial = emp.order || (items.indexOf(emp) + 1);
+                    const isMe = Boolean(globalState && globalState.user && ((emp.id && String(emp.id) === String(globalState.user.id)) || (emp.name && emp.name === globalState.user.name)));
+                    const distLabel = emp.distance_text || (emp.distance_m != null ? formatClientDistance(emp.distance_m) : 'HQ');
+                    const isHq = emp.loc_status !== 'Field_Site' && (emp.distance_m == null || emp.distance_m <= (office.max_radius || 500));
+                    const zoneSvg = isHq ? gbfIcon('hq', 'w-2.5 h-2.5 shrink-0', 10) : gbfIcon('tower', 'w-2.5 h-2.5 shrink-0', 10);
+                    const rawMapUrl = emp.map_url || (emp.gps ? (MAPS_DIR_BASE + `${office.lat},${office.lng}/${encodeURIComponent(emp.gps)}`) : '');
+                    const mapHref = isSafeHttpUrl(rawMapUrl) ? rawMapUrl : '';
+                    const distHtml = mapHref
+                        ? `<a href="${escapeHtml(mapHref)}" target="_top" rel="noopener noreferrer" onclick="return openSafeMapLink(event, this.href)" class="inline-flex items-center gap-0.5 text-[8px] font-extrabold hover:underline whitespace-nowrap" style="color: ${isHq ? 'var(--hue-jade)' : 'var(--hue-cyan)'};" title="Map ကြည့်ရန်">${zoneSvg}<span>${escapeHtml(distLabel)}</span></a>`
+                        : `<span class="inline-flex items-center gap-0.5 text-[8px] font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">${zoneSvg}<span>${escapeHtml(distLabel)}</span></span>`;
+                    return `<tr class="border-b border-blue-500/10 dark:border-white/5 last:border-b-0 ${isMe ? 'mlbb-you-row' : ''}">
+                        <td class="py-1.5 pl-2 w-12">${gbfBrandRankSvg(group.iconKey, serial, 17)}</td>
+                        <td class="py-1.5 pr-1 text-[9.5px] font-extrabold text-slate-900 dark:text-white truncate max-w-[115px]">${escapeHtml(emp.name)}${isMe ? ' <span class="px-1 rounded bg-sky-500/20 text-sky-700 dark:text-sky-200 text-[7px] font-black">YOU</span>' : ''}</td>
+                        <td class="py-1.5 px-1 text-[8.5px] font-bold tabular-nums whitespace-nowrap" style="color: ${group.colorVar};">${escapeHtml(emp.time || '--:--')}</td>
+                        <td class="py-1.5 pr-2 text-right whitespace-nowrap">${distHtml}</td>
+                    </tr>`;
+                }).join('');
+                return groupHead + rowsHtml;
             }).join('');
+
+            return `<table class="w-full text-left border-collapse">
+                <thead><tr class="border-b border-blue-500/20 dark:border-white/10 text-[7.5px] font-extrabold uppercase text-slate-600 dark:text-slate-300">
+                    <th class="py-1 pl-2 w-12">#</th>
+                    <th class="py-1 pr-1">နာမည်</th>
+                    <th class="py-1 px-1">အချိန်</th>
+                    <th class="py-1 pr-2 text-right">အကွာအဝေး</th>
+                </tr></thead>
+                <tbody>${bodyRows}</tbody>
+            </table>`;
         }
 
-        function buildLeaveColumnHtml(leaves, compact) {
+        function buildLeaveColumnHtml(leaves, assignedSet = new Set()) {
             if (!leaves || leaves.length === 0) {
-                return `<p class="text-[9.5px] text-slate-600 dark:text-slate-300 text-center py-2.5">မရှိပါ</p>`;
+                return `<p class="text-[9.5px] text-slate-600 dark:text-slate-300 text-center py-3">ခွင့် / ပျက်ကွက်သူ မရှိပါ</p>`;
             }
-            return leaves.map(lv => {
-                const stClass = lv.status === 'Approved'
-                    ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/35'
-                    : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/35';
-                if (compact) {
-                    return `<div class="p-1.5 rounded-xl mlbb-std-row space-y-0.5 min-w-0">
-                        <p class="text-[9px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(lv.name)}</p>
-                        <p class="text-[7.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(lv.type)} (${escapeHtml(lv.days || 1)}d)</p>
-                        <span class="inline-block px-1 py-0.2 rounded border text-[7.5px] font-extrabold ${stClass}">${escapeHtml(lv.status)}</span>
-                    </div>`;
+            const leaveRows = leaves.filter(x => !/afk|absent/i.test(String(x.type || x.status || '')));
+            const afkRows = leaves.filter(x => /afk|absent/i.test(String(x.type || x.status || '')));
+            const renderGroup = (title, iconKey, colorVar, list) => {
+                if (list.length === 0) return '';
+                const visible = list.filter(lv => !assignedSet.has(String(lv.name || '').trim().toLowerCase()));
+                const head = `<tr class="bg-slate-200/65 dark:bg-slate-900/75 border-b border-blue-500/15 dark:border-white/10"><td colspan="4" class="px-2 py-1 text-[8.5px] font-extrabold uppercase"><div class="flex items-center justify-between"><span class="inline-flex items-center gap-1.5" style="color: ${colorVar};">${gbfBrandRankSvg(iconKey, '', 14)}<span>${title}</span></span><span class="tabular-nums text-slate-700 dark:text-slate-200">${list.length} ဦး</span></div></td></tr>`;
+                if (visible.length === 0) {
+                    return head + `<tr class="border-b border-blue-500/10 dark:border-white/5"><td colspan="4" class="px-2.5 py-1.5 text-[8.5px] text-slate-600 dark:text-slate-300 italic">အဖွဲ့ (Team A/B/C) စာရင်းအတွင်း ပါဝင်ပြီး (${list.length} ဦး)</td></tr>`;
                 }
-                return `<div class="p-2.5 rounded-xl mlbb-std-row flex items-center justify-between gap-2">
-                    <div class="min-w-0">
-                        <p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate inline-flex items-center gap-1.5">${gbfIcon('leave', 'w-3 h-3 text-sky-500 dark:text-sky-300 shrink-0', 12)}<span>${escapeHtml(lv.name)}</span></p>
-                        <p class="text-[8.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(lv.type)} Leave (${escapeHtml(lv.days || 1)} ရက်) • ${escapeHtml(lv.reason || '')}</p>
-                    </div>
-                    <span class="px-2 py-0.5 rounded-full border text-[8.5px] font-extrabold shrink-0 ${stClass}">${escapeHtml(lv.status)}</span>
-                </div>`;
-            }).join('');
+                return head + visible.map((lv, idx) => `<tr class="border-b border-blue-500/10 dark:border-white/5 last:border-b-0">
+                    <td class="py-1.5 pl-2 w-10">${gbfBrandRankSvg(iconKey, idx + 1, 15)}</td>
+                    <td class="py-1.5 pr-1 text-[9.5px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(lv.name)}</td>
+                    <td class="py-1.5 px-1 text-[8.5px] text-slate-600 dark:text-slate-300 whitespace-nowrap">${escapeHtml(lv.type)} (${escapeHtml(lv.days || 1)}d)</td>
+                    <td class="py-1.5 pr-2 text-right text-[8px] font-extrabold whitespace-nowrap" style="color: ${colorVar};">${escapeHtml(lv.status)}</td>
+                </tr>`).join('');
+            };
+            return `<table class="w-full text-left border-collapse">
+                <thead><tr class="border-b border-blue-500/20 dark:border-white/10 text-[7.5px] font-extrabold uppercase text-slate-600 dark:text-slate-300">
+                    <th class="py-1 pl-2 w-10">#</th><th class="py-1 pr-1">နာမည်</th><th class="py-1 px-1">အမျိုးအစား</th><th class="py-1 pr-2 text-right">အခြေအနေ</th>
+                </tr></thead>
+                <tbody>${renderGroup('ခွင့် (Leave)', 'leave', 'var(--hue-cyan)', leaveRows)}${renderGroup('မလာ (Absent / AFK)', 'afk', 'var(--hue-coral)', afkRows)}</tbody>
+            </table>`;
         }
 
-        function buildPendingColumnHtml(pending, snap, compact) {
+        function buildPendingColumnHtml(pending, snap, assignedSet = new Set()) {
             if (!pending || pending.length === 0) {
-                return `<p class="text-[9px] text-emerald-700 dark:text-emerald-300 text-center py-2.5 font-bold">${snap.isToday ? 'အားလုံးဝင်ပြီး ✓' : 'မရှိပါ'}</p>`;
+                return `<p class="text-[9.5px] text-emerald-700 dark:text-emerald-300 text-center py-3 font-bold">${snap.isToday ? 'အားလုံးဝင်ပြီး ✓' : 'မရှိပါ'}</p>`;
             }
-            return pending.map(emp => {
-                if (compact) {
-                    return `<div class="p-1.5 rounded-xl mlbb-std-row space-y-0.5 min-w-0">
-                        <p class="text-[9px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(emp.name)}</p>
-                        <p class="text-[7.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(emp.role || emp.squad || 'Staff')}</p>
-                        <span class="inline-block px-1 py-0.2 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/35 text-[7.5px] font-extrabold">မဝင်သေး</span>
-                    </div>`;
-                }
-                return `<div class="p-2.5 rounded-xl mlbb-std-row flex items-center justify-between gap-2">
-                    <div class="min-w-0">
-                        <p class="text-[10.5px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(emp.name)}</p>
-                        <p class="text-[8.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(emp.role)} • ${escapeHtml(emp.squad || '')}</p>
-                    </div>
-                    <span class="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/35 text-[8.5px] font-extrabold shrink-0">Pending</span>
-                </div>`;
-            }).join('');
+            const visible = pending.filter(emp => !assignedSet.has(String(emp.name || '').trim().toLowerCase()));
+            if (visible.length === 0) {
+                return `<p class="text-[8.5px] text-slate-600 dark:text-slate-300 text-center py-2.5 italic">အဖွဲ့ (Team A/B/C) အတွင်း ပါဝင်ပြီး (${pending.length} ဦး)</p>`;
+            }
+            return `<table class="w-full text-left border-collapse">
+                <thead><tr class="border-b border-blue-500/20 dark:border-white/10 text-[7.5px] font-extrabold uppercase text-slate-600 dark:text-slate-300">
+                    <th class="py-1 pl-2 w-10">#</th><th class="py-1 pr-1">နာမည်</th><th class="py-1 px-1">ရာထူး</th><th class="py-1 pr-2 text-right">အခြေအနေ</th>
+                </tr></thead>
+                <tbody>${visible.map((emp, idx) => `<tr class="border-b border-blue-500/10 dark:border-white/5 last:border-b-0">
+                    <td class="py-1.5 pl-2 w-10">${gbfBrandRankSvg('pending', idx + 1, 15)}</td>
+                    <td class="py-1.5 pr-1 text-[9.5px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(emp.name)}</td>
+                    <td class="py-1.5 px-1 text-[8.5px] text-slate-600 dark:text-slate-300 truncate">${escapeHtml(emp.role || emp.squad || 'Staff')}</td>
+                    <td class="py-1.5 pr-2 text-right text-[8px] font-extrabold text-slate-600 dark:text-slate-300 whitespace-nowrap">မဝင်သေး</td>
+                </tr>`).join('')}</tbody>
+            </table>`;
         }
 
         function renderCheckinDetailList(targetDate) {
             if (!globalState || !globalState.system) return;
             const listEl = document.getElementById('today-checkin-detail-list');
+            if (!listEl) return;
             const office = globalState.system.office_gps || { lat: 16.804683, lng: 96.177149, max_radius: 500 };
             const activeDate = targetDate || getYangonTodayIso();
             const snap = resolveSnapshotForDate(globalState, activeDate);
             const items = snap.checked_in || [];
             const leaves = snap.leaves || [];
             const pending = snap.pending || [];
+            const assignedSet = buildAssignedTeamMemberSet(snap.teams || []);
 
-            if (checkinFilterMode === 'all') {
-                listEl.className = 'grid grid-cols-3 gap-1.5 items-start';
-                listEl.innerHTML = `
-                    <div id="roster-col-in" class="ios-scroll max-h-56 overflow-y-auto space-y-1 rounded-xl p-1 bg-emerald-500/[0.05] border border-emerald-500/20">${buildCheckedInColumnHtml(items, office, true)}</div>
-                    <div id="roster-col-leave" class="ios-scroll max-h-56 overflow-y-auto space-y-1 rounded-xl p-1 bg-amber-500/[0.05] border border-amber-500/20">${buildLeaveColumnHtml(leaves, true)}</div>
-                    <div id="roster-col-pending" class="ios-scroll max-h-56 overflow-y-auto space-y-1 rounded-xl p-1 bg-slate-500/[0.05] border border-slate-400/20">${buildPendingColumnHtml(pending, snap, true)}</div>`;
-                return;
-            }
-
-            listEl.className = 'ios-scroll space-y-1.5 max-h-64 overflow-y-auto';
-            if (checkinFilterMode === 'in') {
-                listEl.innerHTML = buildCheckedInColumnHtml(items, office, false);
-            } else if (checkinFilterMode === 'leave') {
-                listEl.innerHTML = buildLeaveColumnHtml(leaves, false);
+            if (checkinFilterMode === 'leave') {
+                listEl.innerHTML = buildLeaveColumnHtml(leaves, assignedSet);
+            } else if (checkinFilterMode === 'pending') {
+                listEl.innerHTML = buildPendingColumnHtml(pending, snap, assignedSet);
             } else {
-                listEl.innerHTML = buildPendingColumnHtml(pending, snap, false);
+                listEl.innerHTML = buildCheckedInColumnHtml(items, office, assignedSet);
             }
         }
 
@@ -4067,82 +4200,123 @@
             return String.fromCharCode(65 + (idx % 26));
         }
 
+        function getHomeTeamDisplayLabel(team, idx) {
+            const emblem = getSquadEmblemLetter(team && team.name, idx);
+            if (/^[A-Z]$/.test(emblem)) return `Team ${emblem}`;
+            return (team && team.name) ? team.name : `Team ${idx + 1}`;
+        }
+
+        function selectHomeTeamTab(idx) {
+            playUiSound('tick');
+            selectedHomeTeamIndex = (selectedHomeTeamIndex === idx) ? null : idx;
+            teamsInlineExpanded = (selectedHomeTeamIndex !== null);
+            if (globalState) renderTodayTeamsSection(globalState);
+        }
+
         function renderTodayTeamsSection(d, targetDate) {
             const activeDate = targetDate || getYangonTodayIso();
             const snap = resolveSnapshotForDate(d, activeDate);
             const teams = snap.teams || [];
             const checkedInList = snap.checked_in || [];
-            const checkedInNames = new Set(checkedInList.map(emp => String(emp.name || '').trim()));
+            const leaveList = snap.leaves || [];
+            const checkedMap = new Map();
+            checkedInList.forEach(emp => {
+                if (emp && emp.name) checkedMap.set(String(emp.name).trim().toLowerCase(), emp);
+            });
+            const leaveMap = new Map();
+            leaveList.forEach(lv => {
+                if (lv && lv.name) leaveMap.set(String(lv.name).trim().toLowerCase(), lv);
+            });
             const rowsListEl = document.getElementById('today-teams-rows-list');
+            const drawerEl = document.getElementById('team-inline-member-drawer');
             const summaryEl = document.getElementById('today-teams-summary');
             const subEl = document.getElementById('today-teams-sub');
             if (!rowsListEl) return;
 
             const dateLabel = snap.isToday ? 'ယနေ့' : activeDate;
             if (teams.length === 0) {
-                summaryEl.innerText = `BATTLE SQUADS (${dateLabel} • 0)`;
-                subEl.innerText = `${dateLabel} အတွက် တာဝန်ကျအဖွဲ့ မခွဲရသေးပါ`;
+                selectedHomeTeamIndex = null;
+                if (summaryEl) summaryEl.innerText = `အဖွဲ့များ (${dateLabel} • 0)`;
+                if (subEl) subEl.innerText = `${dateLabel} အတွက် တာဝန်ကျအဖွဲ့ မခွဲရသေးပါ`;
+                if (drawerEl) { drawerEl.classList.add('hidden'); drawerEl.innerHTML = ''; }
                 rowsListEl.innerHTML = `<div class="p-2.5 rounded-2xl mlbb-std-row flex items-center justify-between gap-2"><span class="text-[10px] text-slate-700 dark:text-slate-200 truncate">${escapeHtml(dateLabel)} အတွက် တာဝန်ကျအဖွဲ့ မရှိသေးပါ</span>${snap.isToday ? '<button type="button" onclick="launchQuickTab(\'team\')" class="mlbb-steel-btn tap-spring px-2.5 py-1.5 rounded-xl text-[9.5px] font-extrabold whitespace-nowrap shrink-0">+ Squad ဖွဲ့မည်</button>' : ''}</div>`;
                 return;
             }
 
-            summaryEl.innerText = `BATTLE SQUADS (${dateLabel} • ${teams.length})`;
-            subEl.innerText = `${dateLabel} အဖွဲ့ ${teams.length} သင်း • နှိပ်၍ အမည်စာရင်းကြည့်နိုင်သည်`;
+            if (summaryEl) summaryEl.innerText = `အဖွဲ့များ (${teams.length} သင်း)`;
+            if (subEl) subEl.innerText = selectedHomeTeamIndex !== null ? 'ပြန်ပိတ်ရန် ထပ်နှိပ်ပါ' : 'အဖွဲ့နှိပ်၍ ကြည့်ရန်';
+            if (selectedHomeTeamIndex !== null && selectedHomeTeamIndex >= teams.length) selectedHomeTeamIndex = null;
 
-            const letterThemes = {
-                A: { badgeBg: 'from-emerald-500 to-teal-700', ring: 'border-emerald-300/60' },
-                B: { badgeBg: 'from-sky-500 to-blue-700', ring: 'border-sky-300/60' },
-                C: { badgeBg: 'from-amber-500 to-orange-700', ring: 'border-amber-300/60' }
-            };
-            const fallbackThemes = [letterThemes.A, letterThemes.B, letterThemes.C];
-            const avatarGradients = [
-                'from-emerald-500 to-primary', 'from-sky-500 to-blue-700',
-                'from-amber-500 to-orange-600', 'from-cyan-500 to-teal-700', 'from-rose-500 to-red-700'
-            ];
-
+            const colsClass = teams.length === 2 ? 'grid-cols-2' : (teams.length >= 3 ? 'grid-cols-3' : 'grid-cols-1');
+            rowsListEl.className = `grid ${colsClass} gap-1.5`;
             rowsListEl.innerHTML = teams.map((team, idx) => {
                 const emblem = getSquadEmblemLetter(team.name, idx);
-                const theme = letterThemes[emblem] || fallbackThemes[idx % fallbackThemes.length];
+                const teamLabel = getHomeTeamDisplayLabel(team, idx);
                 const members = parseSquadMembersList(team.members);
-                const readyCount = members.filter(m => checkedInNames.has(m.name)).length;
-                const isMyTeam = hasSquadMemberName(team.members, d.user.name);
-                const shortProj = String(team.project || '').split(/\s+-\s+/)[0].trim() || team.project || '';
-                const facesHtml = members.slice(0, 5).map((m, mIdx) => {
-                    const grad = avatarGradients[(idx + mIdx) % avatarGradients.length];
-                    const crown = m.isLeader ? `<span class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-slate-900 border border-amber-bright/65 text-amber-bright flex items-center justify-center shadow">${gbfIcon('crown', 'w-2 h-2', 8)}</span>` : '';
-                    return `<div class="relative w-7 h-7 rounded-full bg-gradient-to-br ${grad} text-white font-black text-[8.5px] flex items-center justify-center ring-2 ring-white dark:ring-slate-900 shadow-sm" title="${escapeHtml(m.name)} (${escapeHtml(m.role)})">${escapeHtml(m.initials)}${crown}</div>`;
-                }).join('');
-                const extraCount = members.length > 5 ? `<div class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-sky-300 font-black text-[8.5px] flex items-center justify-center ring-2 ring-white dark:ring-slate-900">+${members.length - 5}</div>` : '';
-                const memberPills = members.map(m => `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-white/75 dark:bg-white/10 border border-blue-500/20 dark:border-white/10 text-[8.5px] font-bold text-slate-800 dark:text-white">${m.isLeader ? gbfIcon('crown', 'w-2.5 h-2.5 shrink-0', 9) : gbfIcon('diamond', 'w-2.5 h-2.5 text-sky-500 dark:text-sky-300 shrink-0', 9)} ${escapeHtml(m.name)}</span>`).join('');
-
-                return `<div onclick="toggleTodayTeamsPanel()" class="mlbb-squad-row ${isMyTeam ? 'my-squad' : ''} rounded-2xl px-2.5 py-2 cursor-pointer">
-                    <div class="flex items-center justify-between gap-2 min-w-0">
-                        <div class="flex items-center gap-2 min-w-0 flex-1">
-                            <div class="w-8 h-8 rounded-full bg-gradient-to-br ${theme.badgeBg} border ${theme.ring} flex items-center justify-center text-white font-black text-xs shadow-sm shrink-0">${escapeHtml(emblem)}</div>
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-1.5 min-w-0">
-                                    <span class="text-[11px] font-black text-slate-900 dark:text-white truncate">${escapeHtml(team.name)}</span>
-                                    ${isMyTeam ? '<span class="px-1 py-0.2 rounded bg-sky-500/20 text-sky-800 dark:text-sky-200 border border-sky-400/40 text-[7px] font-black uppercase shrink-0">YOU</span>' : ''}
-                                    <span class="px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25 text-[7.5px] font-extrabold uppercase shrink-0">${escapeHtml(shortProj)}</span>
-                                    <span class="text-[8.5px] font-extrabold tabular-nums shrink-0" style="color: var(--hue-jade);">${readyCount}/${members.length}</span>
-                                </div>
-                            </div>
+                const readyCount = members.filter(m => checkedMap.has(String(m.name || '').trim().toLowerCase())).length;
+                const isMyTeam = d && d.user && hasSquadMemberName(team.members, d.user.name);
+                const isSelected = selectedHomeTeamIndex === idx;
+                return `<button type="button" onclick="selectHomeTeamTab(${idx})" class="team-pill-btn ${isSelected ? 'is-active' : (isMyTeam ? 'border-sky-400/45' : '')} rounded-2xl px-2 py-1.5 flex items-center justify-between gap-1.5 text-left min-w-0">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        ${gbfSquadShieldSvg(emblem, 22)}
+                        <div class="min-w-0 leading-tight">
+                            <span class="block text-[10px] font-black text-slate-900 dark:text-white truncate">${escapeHtml(teamLabel)}</span>
+                            <span class="block text-[7.5px] font-extrabold tabular-nums" style="color: var(--hue-cyan);">${readyCount}/${members.length} Ready</span>
                         </div>
-                        <div class="flex items-center -space-x-1.5 shrink-0 pl-1">${facesHtml}${extraCount}</div>
                     </div>
-                    <div class="team-inline-members ${teamsInlineExpanded ? '' : 'hidden'} mt-1.5 pt-1.5 border-t border-blue-500/15 dark:border-sky-400/15 flex flex-wrap gap-1">${memberPills}</div>
-                </div>`;
+                </button>`;
             }).join('');
+
+            if (!drawerEl) return;
+            if (selectedHomeTeamIndex === null || !teams[selectedHomeTeamIndex]) {
+                drawerEl.classList.add('hidden');
+                drawerEl.innerHTML = '';
+                return;
+            }
+
+            const selTeam = teams[selectedHomeTeamIndex];
+            const selEmblem = getSquadEmblemLetter(selTeam.name, selectedHomeTeamIndex);
+            const selTitle = getHomeTeamDisplayLabel(selTeam, selectedHomeTeamIndex);
+            const selMembers = parseSquadMembersList(selTeam.members);
+            drawerEl.classList.remove('hidden');
+            drawerEl.innerHTML = `<div class="rounded-2xl border border-sky-400/35 bg-slate-100/75 dark:bg-slate-950/65 overflow-hidden mt-1.5">
+                <div class="px-2.5 py-1.5 border-b border-blue-500/15 dark:border-white/10 flex items-center justify-between gap-2">
+                    <span class="inline-flex items-center gap-1.5 text-[9.5px] font-black text-slate-900 dark:text-white truncate">${gbfSquadShieldSvg(selEmblem, 16)}<span>${escapeHtml(selTitle)}</span><span class="text-[8.5px] font-bold" style="color: var(--hue-cyan);">· ${escapeHtml(selTeam.project || '')}</span></span>
+                    <span class="text-[8.5px] font-extrabold tabular-nums text-slate-600 dark:text-slate-300 shrink-0">${selMembers.length} ဦး</span>
+                </div>
+                <table class="w-full text-left border-collapse">
+                    <tbody>
+                        ${selMembers.map((m, mIdx) => {
+                            const key = String(m.name || '').trim().toLowerCase();
+                            const chk = checkedMap.get(key);
+                            const lv = !chk ? leaveMap.get(key) : null;
+                            const isAfk = lv && /afk|absent/i.test(String(lv.type || lv.status || ''));
+                            const tierKey = chk ? (chk.kpi === 'MVP' ? 'mvp' : (chk.kpi === 'On-Time' ? 'ontime' : 'late')) : (lv ? (isAfk ? 'afk' : 'leave') : 'pending');
+                            const statusTxt = chk ? `${escapeHtml(chk.time)} · ${escapeHtml(chk.kpi)}` : (lv ? `${escapeHtml(lv.type || 'Leave')} · ${escapeHtml(lv.status || 'Logged')}` : 'Pending');
+                            const statusClr = chk ? (chk.kpi === 'Late' ? 'var(--hue-silver)' : 'var(--hue-gold)') : (lv ? (isAfk ? 'var(--hue-coral)' : 'var(--hue-cyan)') : 'var(--text-muted)');
+                            const isMe = Boolean(d && d.user && key === String(d.user.name || '').trim().toLowerCase());
+                            return `<tr class="border-b border-blue-500/10 dark:border-white/5 last:border-b-0 ${isMe ? 'mlbb-you-row' : ''}">
+                                <td class="py-1.5 pl-2.5 w-10">${gbfBrandRankSvg(tierKey, mIdx + 1, 17)}</td>
+                                <td class="py-1.5 pr-1 text-[9.5px] font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(m.name)}${isMe ? ' <span class="px-1 rounded bg-sky-500/20 text-sky-700 dark:text-sky-200 text-[7px] font-black">YOU</span>' : ''}</td>
+                                <td class="py-1.5 px-1 text-[8px] font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">${escapeHtml(m.role)}</td>
+                                <td class="py-1.5 pr-2.5 text-right text-[8.5px] font-extrabold tabular-nums whitespace-nowrap" style="color: ${statusClr};">${statusTxt}</td>
+                            </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>`;
         }
 
         function toggleTodayTeamsPanel() {
             playUiSound('tick');
-            teamsInlineExpanded = !teamsInlineExpanded;
-            document.querySelectorAll('#today-teams-rows-list .team-inline-members').forEach(el => {
-                el.classList.toggle('hidden', !teamsInlineExpanded);
-            });
-            const chev = document.getElementById('teams-panel-chevron');
-            if (chev) chev.style.transform = teamsInlineExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+            if (selectedHomeTeamIndex !== null) {
+                selectedHomeTeamIndex = null;
+                teamsInlineExpanded = false;
+            } else {
+                selectedHomeTeamIndex = 0;
+                teamsInlineExpanded = true;
+            }
+            if (globalState) renderTodayTeamsSection(globalState);
         }
 
         function computeClientRewardsSummary(d, metrics) {
@@ -4184,34 +4358,37 @@
             const totalEl = document.getElementById('reward-total-earned');
             if (totalEl) totalEl.innerText = `စုစုပေါင်း ဆုကြေး: ${totalEarned.toLocaleString()} MMK`;
 
+            const streakText = weeklyStreakUnlocked
+                ? `UNLOCKED (+${earnedWeeklyStreak.toLocaleString()} Ks)`
+                : `${progressCount}/${targetSlots} MVP (+${Number(cfg.weekly_mvp_bonus).toLocaleString()} Ks)`;
+            const streakDescText = `တစ်ပတ်အတွင်း MVP (${targetSlots}) ရက်ပြည့်ပါက +${Number(cfg.weekly_mvp_bonus).toLocaleString()} MMK ဆုကြေး ရရှိမည်`;
+            const streakHtml = renderStreakSlotsHtml(progressCount, targetSlots);
+
             const streakBadge = document.getElementById('reward-weekly-streak-badge');
-            if (streakBadge) {
-                streakBadge.innerText = weeklyStreakUnlocked
-                    ? `UNLOCKED (+${earnedWeeklyStreak.toLocaleString()} Ks)`
-                    : `${progressCount}/${targetSlots} MVP (+${Number(cfg.weekly_mvp_bonus).toLocaleString()} Ks)`;
-            }
-
+            if (streakBadge) streakBadge.innerText = streakText;
             const streakDesc = document.getElementById('reward-weekly-streak-desc');
-            if (streakDesc) {
-                streakDesc.innerText = `တစ်ပတ်အတွင်း MVP (${targetSlots}) ရက်ပြည့်ပါက +${Number(cfg.weekly_mvp_bonus).toLocaleString()} MMK ဆုကြေး ရရှိမည်`;
-            }
-
+            if (streakDesc) streakDesc.innerText = streakDescText;
             const starsRow = document.getElementById('reward-weekly-stars-row');
             if (starsRow) {
                 starsRow.style.gridTemplateColumns = `repeat(${targetSlots}, minmax(0, 1fr))`;
-                let slotsHtml = '';
-                for (let i = 1; i <= targetSlots; i++) {
-                    const achieved = i <= progressCount;
-                    slotsHtml += `<div class="p-2 rounded-xl border text-center ${achieved ? 'bg-amber-bright/20 border-amber-bright text-amber-bright shadow-sm' : 'bg-white/5 border-white/10 text-slate-300'}"><i class="fas ${achieved ? 'fa-star' : 'fa-lock'} text-xs"></i><span class="block text-[8px] font-black mt-0.5">Day ${i}</span></div>`;
-                }
-                starsRow.innerHTML = slotsHtml;
+                starsRow.innerHTML = streakHtml;
+            }
+
+            const homeStreakBadge = document.getElementById('home-daily-streak-badge');
+            if (homeStreakBadge) homeStreakBadge.innerText = streakText;
+            const homeStreakDesc = document.getElementById('home-daily-streak-desc');
+            if (homeStreakDesc) homeStreakDesc.innerText = streakDescText;
+            const homeStreakRow = document.getElementById('home-daily-streak-row');
+            if (homeStreakRow) {
+                homeStreakRow.style.gridTemplateColumns = `repeat(${targetSlots}, minmax(0, 1fr))`;
+                homeStreakRow.innerHTML = streakHtml;
             }
 
             const questsList = document.getElementById('reward-quests-list');
             if (questsList) {
                 const quests = [
                     {
-                        icon: gbfIcon('mvp', 'w-4 h-4 text-amber-bright', 16),
+                        icon: gbfBrandRankSvg('mvp', '', 18),
                         title: `Daily MVP Bounty (${Number(cfg.mvp_per_day).toLocaleString()} Ks / MVP)`,
                         sub: forfeited ? 'AFK ၃ ကြိမ်ပြည့်သဖြင့် Bonus ပျက်ပြယ်သည်' : `ယခုလ MVP (${mvpCount}) ကြိမ် × ${Number(cfg.mvp_per_day).toLocaleString()} Ks`,
                         amount: `+${earnedMvpDaily.toLocaleString()} Ks`,
@@ -4225,7 +4402,7 @@
                         unlocked: earnedRank > 0
                     },
                     {
-                        icon: gbfIcon('ontime', 'w-4 h-4 text-emerald-bright', 16),
+                        icon: gbfBrandRankSvg('ontime', '', 17),
                         title: `Zero-AFK Attendance Shield`,
                         sub: afkCount === 0 ? 'ခွင့်မဲ့ပျက်ရက် (0) ရက် • ဆုကြေး Active' : `ခွင့်မဲ့ပျက်ရက် (${afkCount}) ရက်ရှိသဖြင့် ပျက်ပြယ်သည်`,
                         amount: earnedAttendance > 0 ? `+${earnedAttendance.toLocaleString()} Ks` : '0 Ks',
@@ -4374,6 +4551,51 @@
             if (lbl && HOME_SLIDE_LABELS[activeIndex]) lbl.innerText = HOME_SLIDE_LABELS[activeIndex];
         }
 
+        function selectHomeHistoryFilter(key) {
+            playUiSound('tick');
+            homeHistoryFilter = ['mvp', 'ontime', 'late', 'afk'].includes(key) ? key : 'mvp';
+            const activeMap = {
+                mvp: 'tap-spring px-0.5 py-1 rounded-lg border border-amber-400/65 bg-amber-500/18 flex flex-col items-center justify-center leading-tight',
+                ontime: 'tap-spring px-0.5 py-1 rounded-lg border border-amber-400/65 bg-amber-500/18 flex flex-col items-center justify-center leading-tight',
+                late: 'tap-spring px-0.5 py-1 rounded-lg border border-slate-400/65 bg-slate-400/18 flex flex-col items-center justify-center leading-tight',
+                afk: 'tap-spring px-0.5 py-1 rounded-lg border border-rose-400/65 bg-rose-500/18 flex flex-col items-center justify-center leading-tight'
+            };
+            const idleCls = 'tap-spring px-0.5 py-1 rounded-lg border border-blue-500/15 dark:border-white/10 bg-slate-100/80 dark:bg-white/5 flex flex-col items-center justify-center leading-tight';
+            ['mvp', 'ontime', 'late', 'afk'].forEach(k => {
+                const el = document.getElementById(`home-hist-chip-${k}`);
+                if (el) el.className = (k === homeHistoryFilter) ? activeMap[k] : idleCls;
+            });
+            if (globalState) renderHomeHistoryLog(globalState);
+        }
+
+        function renderHomeHistoryLog(d) {
+            const box = document.getElementById('home-history-log-list');
+            if (!box || !d) return;
+            const hist = d.history || {};
+            const att = hist.attendance || [];
+            const leaves = hist.leave || [];
+            let rows = [];
+            if (homeHistoryFilter === 'mvp') rows = att.filter(r => r.kpi === 'MVP');
+            else if (homeHistoryFilter === 'ontime') rows = att.filter(r => r.kpi === 'On-Time');
+            else if (homeHistoryFilter === 'late') rows = att.filter(r => r.kpi === 'Late');
+            else rows = leaves;
+
+            if (homeHistoryFilter === 'afk') {
+                box.innerHTML = rows.length > 0
+                    ? rows.slice(0, 2).map(lv => `<div class="flex items-center justify-between gap-1.5"><span class="inline-flex items-center gap-1 font-bold text-slate-800 dark:text-slate-100 truncate">${gbfBrandRankSvg('leave', '', 12)}<span>${escapeHtml(lv.start_date || lv.date || '')} • ${escapeHtml(lv.type || 'Leave')}</span></span><span class="font-extrabold shrink-0" style="color: var(--hue-cyan);">${escapeHtml(lv.status || 'Logged')}</span></div>`).join('')
+                    : `<p class="text-[8.5px] text-center font-bold py-1" style="color: var(--hue-jade);">ခွင့်မဲ့ / AFK (0) ရက် ✓</p>`;
+                return;
+            }
+
+            if (rows.length === 0) {
+                box.innerHTML = `<p class="text-[8.5px] text-center text-slate-600 dark:text-slate-300 py-1">မှတ်တမ်း မရှိသေးပါ</p>`;
+                return;
+            }
+            const iconKey = homeHistoryFilter;
+            const clr = homeHistoryFilter === 'late' ? 'var(--hue-silver)' : 'var(--hue-gold)';
+            box.innerHTML = rows.slice(0, 2).map(r => `<div class="flex items-center justify-between gap-1.5"><span class="inline-flex items-center gap-1 font-bold text-slate-900 dark:text-white truncate">${gbfBrandRankSvg(iconKey, '', 13)}<span>${escapeHtml(r.date)}</span></span><span class="font-extrabold tabular-nums shrink-0" style="color: ${clr};">${escapeHtml(r.in_time || '--:--')}</span></div>`).join('');
+        }
+
         function inspectSingleMetric(key) {
             playUiSound('pop');
             const box = document.getElementById('single-metric-inspector');
@@ -4389,25 +4611,25 @@
 
             const configs = {
                 mvp: {
-                    icon: gbfIcon('mvp', 'w-4 h-4 text-amber-bright shrink-0', 16),
+                    icon: gbfBrandRankSvg('mvp', '', 17),
                     title: `MVP Early Check-In (${t.mvp || 0} ရက်)`,
                     summary: `09:00 AM မတိုင်မီ ရုံးတက်နိုင်မှု • တစ်ရက်လျှင် +${Number(rewardConfig.mvp_per_day).toLocaleString()} Ks ဆုကြေးရရှိသည်။`,
                     rows: att.filter(r => r.kpi === 'MVP')
                 },
                 ontime: {
-                    icon: gbfIcon('ontime', 'w-4 h-4 text-emerald-bright shrink-0', 16),
+                    icon: gbfBrandRankSvg('ontime', '', 16),
                     title: `On-Time Check-In (${t.ontime || 0} ရက်)`,
-                    summary: `09:00 – 09:15 AM အတွင်း ရုံးတက်နိုင်မှု • Punctuality ရမှတ် အပြည့်ရရှိသည်။`,
+                    summary: `09:00 – 09:15 AM အတွင်း ရုံးတက်နိုင်မှု • Gold Star Punctuality ရမှတ် အပြည့်ရရှိသည်။`,
                     rows: att.filter(r => r.kpi === 'On-Time')
                 },
                 late: {
-                    icon: gbfIcon('late', 'w-4 h-4 text-amber-400 shrink-0', 16),
+                    icon: gbfBrandRankSvg('late', '', 16),
                     title: `Late / Feeding (${t.late || 0} ရက်)`,
                     summary: `09:15 AM နောက်ပိုင်း ရုံးတက်မှု • ၃ ကြိမ်အထိ ဒဏ်ကြေးကင်းလွတ်ခွင့်ရှိပြီး ၄ ကြိမ်မှစ၍ 2,000 MMK နုတ်ယူသည်။`,
                     rows: att.filter(r => r.kpi === 'Late')
                 },
                 afk: {
-                    icon: gbfIcon('afk', 'w-4 h-4 text-rose-400 shrink-0', 16),
+                    icon: gbfBrandRankSvg('afk', '', 16),
                     title: `Unexcused Absence / AFK (${t.unexcused_absent || 0} ရက်)`,
                     summary: `ခွင့်မဲ့ပျက်ကွက်မှု ၀ ရက်ဖြစ်မှသာ လစဉ် ရက်မှန်ဆုကြေး ${Number(rewardConfig.attendance_bonus).toLocaleString()} MMK ရရှိမည်။`,
                     rows: []
@@ -4541,14 +4763,22 @@
                 <div class="glass-card p-4 rounded-3xl">
                     <h3 class="text-[11px] font-extrabold uppercase mb-2.5">3. Filtered Attendance Records (${filteredAtt.length})</h3>
                     <div class="space-y-1.5">
-                        ${filteredAtt.map(r => `
-                            <div class="p-2.5 rounded-xl bg-surface-container-low dark:bg-slate-800/95 flex items-center justify-between text-[10px] tabular-nums">
-                                <div>
-                                    <strong class="block font-mono-id">${escapeHtml(r.date)}</strong>
-                                    <span class="text-slate-600 dark:text-slate-300">IN: ${escapeHtml(r.in_time)} • OUT: ${escapeHtml(r.out_time)}</span>
+                        ${filteredAtt.map((r, rIdx) => {
+                            const rTier = r.kpi === 'MVP' ? 'mvp' : (r.kpi === 'On-Time' ? 'ontime' : 'late');
+                            const rBadge = r.kpi === 'MVP'
+                                ? 'bg-amber-bright/20 text-amber-800 dark:text-amber-300 border border-amber-400/40'
+                                : (r.kpi === 'On-Time' ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-400/35' : 'bg-slate-400/20 text-slate-700 dark:text-slate-200 border border-slate-400/40');
+                            return `<div class="p-2.5 rounded-xl bg-surface-container-low dark:bg-slate-800/95 flex items-center justify-between text-[10px] tabular-nums">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    ${gbfBrandRankSvg(rTier, rIdx + 1, 16)}
+                                    <div class="min-w-0">
+                                        <strong class="block font-mono-id">${escapeHtml(r.date)}</strong>
+                                        <span class="text-slate-600 dark:text-slate-300">IN: ${escapeHtml(r.in_time)} • OUT: ${escapeHtml(r.out_time)}</span>
+                                    </div>
                                 </div>
-                                <span class="px-2 py-0.5 rounded-full font-extrabold text-[8.5px] ${r.kpi === 'MVP' ? 'bg-amber-bright/20 text-tertiary dark:text-amber-bright' : (r.kpi === 'On-Time' ? 'bg-canvas-mint text-primary dark:bg-emerald-dark/70 dark:text-emerald-bright' : 'bg-error-container text-error dark:bg-rose-950/70 dark:text-rose-300')}">${escapeHtml(r.kpi)}</span>
-                            </div>`).join('') || `<p class="text-[10px] text-slate-600 dark:text-slate-300 text-center py-3">ရွေးချယ်ထားသော Filter အတွက် မှတ်တမ်းမရှိပါ</p>`}
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-extrabold text-[8.5px] ${rBadge}">${escapeHtml(r.kpi)}</span>
+                            </div>`;
+                        }).join('') || `<p class="text-[10px] text-slate-600 dark:text-slate-300 text-center py-3">ရွေးချယ်ထားသော Filter အတွက် မှတ်တမ်းမရှိပါ</p>`}
                     </div>
                 </div>`;
         }
@@ -4604,13 +4834,13 @@
             if (!history) return [];
             const events = [];
             (history.attendance || []).forEach(a => {
-                if (a.date === dateIso) events.push({ type: 'att', label: `${a.kpi} (${a.in_time})`, color: a.kpi === 'MVP' ? 'bg-amber-bright text-dark-surface' : (a.kpi === 'On-Time' ? 'bg-emerald-bright text-dark-surface' : 'bg-error text-white') });
+                if (a.date === dateIso) events.push({ type: 'att', label: `${a.kpi} (${a.in_time})`, color: a.kpi === 'MVP' ? 'bg-amber-300 text-slate-950 border border-white' : (a.kpi === 'On-Time' ? 'bg-amber-400 text-slate-950' : 'bg-slate-400 text-slate-950') });
             });
             (history.teams || []).forEach(t => {
                 if (t.date === dateIso) events.push({ type: 'team', label: t.name, color: 'bg-secondary text-white' });
             });
             (history.voice || []).forEach(v => {
-                if (v.date === dateIso) events.push({ type: 'voice', label: v.ticket, color: 'bg-cobalt-vivid text-white' });
+                if (v.date === dateIso) events.push({ type: 'voice', label: v.ticket, color: 'bg-sky-700 text-white' });
             });
             return events;
         }
