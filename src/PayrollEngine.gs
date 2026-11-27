@@ -201,12 +201,12 @@ function loadMonthlyBatchContext_(ss, targetMonth) {
   const monthWorkDays = resolveMonthWorkingDays_(targetMonth, settings);
   const elapsedWorkDays = Math.min(monthWorkDays, countElapsedWorkDays_(targetMonth, now));
   const rewardConfig = {
-    mvp_per_day: parseFloat(settings.REWARD_MVP_PER_DAY) || 1000,
-    weekly_mvp_target: parseInt(settings.REWARD_WEEKLY_MVP_TARGET, 10) || 5,
-    weekly_mvp_bonus: parseFloat(settings.REWARD_WEEKLY_MVP_BONUS) || 10000,
-    attendance_bonus: parseFloat(settings.REWARD_ATTENDANCE_BONUS) || 50000,
-    mythic_rank_bonus: parseFloat(settings.REWARD_MYTHIC_BONUS) || 30000,
-    legend_rank_bonus: parseFloat(settings.REWARD_LEGEND_BONUS) || 15000
+    mvp_per_day: parseNonNegativeSetting_(settings.REWARD_MVP_PER_DAY, 1000),
+    weekly_mvp_target: Math.max(1, Math.min(7, parseInt(settings.REWARD_WEEKLY_MVP_TARGET, 10) || 5)),
+    weekly_mvp_bonus: parseNonNegativeSetting_(settings.REWARD_WEEKLY_MVP_BONUS, 10000),
+    attendance_bonus: parseNonNegativeSetting_(settings.REWARD_ATTENDANCE_BONUS, 50000),
+    mythic_rank_bonus: parseNonNegativeSetting_(settings.REWARD_MYTHIC_BONUS, 30000),
+    legend_rank_bonus: parseNonNegativeSetting_(settings.REWARD_LEGEND_BONUS, 15000)
   };
 
   const empSheet = ss.getSheetByName("HR_Employees");

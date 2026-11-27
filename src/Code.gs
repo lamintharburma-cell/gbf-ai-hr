@@ -460,12 +460,12 @@ function updateRewardSettingsInSheet(data) {
   }
 
   const keyMap = {
-    REWARD_MVP_PER_DAY: Number(cfg.mvp_per_day) || 1000,
-    REWARD_WEEKLY_MVP_TARGET: Number(cfg.weekly_mvp_target) || 5,
-    REWARD_WEEKLY_MVP_BONUS: Number(cfg.weekly_mvp_bonus) || 10000,
-    REWARD_ATTENDANCE_BONUS: Number(cfg.attendance_bonus) || 50000,
-    REWARD_MYTHIC_BONUS: Number(cfg.mythic_rank_bonus) || 30000,
-    REWARD_LEGEND_BONUS: Number(cfg.legend_rank_bonus) || 15000
+    REWARD_MVP_PER_DAY: parseNonNegativeSetting_(cfg.mvp_per_day, 1000),
+    REWARD_WEEKLY_MVP_TARGET: Math.max(1, Math.min(7, parseInt(cfg.weekly_mvp_target, 10) || 5)),
+    REWARD_WEEKLY_MVP_BONUS: parseNonNegativeSetting_(cfg.weekly_mvp_bonus, 10000),
+    REWARD_ATTENDANCE_BONUS: parseNonNegativeSetting_(cfg.attendance_bonus, 50000),
+    REWARD_MYTHIC_BONUS: parseNonNegativeSetting_(cfg.mythic_rank_bonus, 30000),
+    REWARD_LEGEND_BONUS: parseNonNegativeSetting_(cfg.legend_rank_bonus, 15000)
   };
   const targetYm = String(cfg.working_days_month || data.selected_month || "").trim();
   const parsedWorkDays = parseInt(cfg.working_days, 10);
@@ -657,7 +657,7 @@ function getFullSystemState(empId, empName, chatId, selectedMonth, skipBindLock)
   const targetMonth = (selectedMonth && /^\d{4}-\d{2}$/.test(selectedMonth)) ? selectedMonth : currentMonthStr;
   const monthWorkDays = resolveMonthWorkingDays_(targetMonth, settings);
 
-  const configuredAttBonus = parseFloat(settings.REWARD_ATTENDANCE_BONUS) || 50000;
+  const configuredAttBonus = parseNonNegativeSetting_(settings.REWARD_ATTENDANCE_BONUS, 50000);
   const availableMonthsSet = new Set([currentMonthStr]);
 
   const result = {
@@ -686,12 +686,12 @@ function getFullSystemState(empId, empName, chatId, selectedMonth, skipBindLock)
       bonus_active: true
     },
     reward_config: {
-      mvp_per_day: parseFloat(settings.REWARD_MVP_PER_DAY) || 1000,
-      weekly_mvp_target: parseInt(settings.REWARD_WEEKLY_MVP_TARGET, 10) || 5,
-      weekly_mvp_bonus: parseFloat(settings.REWARD_WEEKLY_MVP_BONUS) || 10000,
+      mvp_per_day: parseNonNegativeSetting_(settings.REWARD_MVP_PER_DAY, 1000),
+      weekly_mvp_target: Math.max(1, Math.min(7, parseInt(settings.REWARD_WEEKLY_MVP_TARGET, 10) || 5)),
+      weekly_mvp_bonus: parseNonNegativeSetting_(settings.REWARD_WEEKLY_MVP_BONUS, 10000),
       attendance_bonus: configuredAttBonus,
-      mythic_rank_bonus: parseFloat(settings.REWARD_MYTHIC_BONUS) || 30000,
-      legend_rank_bonus: parseFloat(settings.REWARD_LEGEND_BONUS) || 15000,
+      mythic_rank_bonus: parseNonNegativeSetting_(settings.REWARD_MYTHIC_BONUS, 30000),
+      legend_rank_bonus: parseNonNegativeSetting_(settings.REWARD_LEGEND_BONUS, 15000),
       working_days: monthWorkDays
     },
     weekly_streak: {

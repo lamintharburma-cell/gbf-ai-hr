@@ -4,7 +4,7 @@
  */
 
 const GBF_CONFIG = {
-  VERSION: "v9.6.1 Production LTS",
+  VERSION: "v9.6.2 Production LTS",
   TIMEZONE: "Asia/Rangoon",
   GMT_OFFSET: "GMT+6:30",
   DEFAULT_BOT_USERNAME: "GBF_HRMS_Bot",
@@ -16,6 +16,12 @@ const GBF_CONFIG = {
   SETTINGS_CACHE_KEY: "GBF_SETTINGS_CACHE_V94",
   SETTINGS_CACHE_TTL: 300
 };
+
+function parseNonNegativeSetting_(val, fallback) {
+  if (val === null || val === undefined || String(val).trim() === "") return fallback;
+  const n = Number(val);
+  return (!isNaN(n) && n >= 0) ? n : fallback;
+}
 
 const GBF_DB_SCHEMA = {
   HR_Employees: [

@@ -165,6 +165,7 @@ test('Test 2: src/Index.html DOM, CSS, Accessibility & Offline/URI Hardening int
   assert.ok(!html.includes('OFFICIAL_GBF_ROSTER'), 'OFFICIAL_GBF_ROSTER must be removed from Index.html to avoid exposing production salaries/IDs');
   assert.ok(appScript.includes('DEMO_SANDBOX_FIXTURE') && appScript.includes('currentSessionToken') && appScript.includes('gbf_sess_tok') && appScript.includes('auth_required') && appScript.includes('sess_tok'), 'Missing v9.6.0 session token or demo sandbox fixture wiring in Index.html');
   assert.ok(appScript.includes('safeLocalGet') && appScript.includes('tgSupports') && declaredIds.has('home-progress-absent') && declaredIds.has('home-slide2-breakdown') && declaredIds.has('home-slide3-breakdown'), 'Missing v9.6.1 safeStorage, tgSupports, 4th AFK progress segment, or Slide 2/3 breakdown IDs');
+  assert.ok(declaredIds.has('hr-policy-modal') && declaredIds.has('hr-policy-dialog') && declaredIds.has('hr-policy-content') && appScript.includes('openHrPolicyModal') && appScript.includes('closeHrPolicyModal') && appScript.includes('renderHrPolicyContent'), 'Missing v9.6.2 in-app HR Policy modal DOM IDs or JS helpers');
   const rawLocalStorageMatches = [...appScript.matchAll(/\blocalStorage\.(getItem|setItem|removeItem)\b/g)];
   assert.equal(rawLocalStorageMatches.length, 3, `All localStorage access must flow through safeLocalGet/Set/Remove (expected 3 inside helpers, found ${rawLocalStorageMatches.length})`);
   const openDivs = (htmlMarkupOnly.match(/<div\b/gi) || []).length;
