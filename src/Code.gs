@@ -106,12 +106,27 @@ function doPost(e) {
       const isPrivate = data.message.chat.type === "private";
       const text = (data.message.text || "").trim();
       const firstName = data.message.from ? data.message.from.first_name : "ဝန်ထမ်း";
+      const fromUserId = data.message.from ? data.message.from.id : null;
+      const messageId = data.message.message_id || null;
       const topicThreadId = data.message.message_thread_id || null;
 
       if (text.startsWith("/")) {
-        handleBotCommand_(chatId, isPrivate, firstName, text, { message_thread_id: topicThreadId });
+        handleBotCommand_(chatId, isPrivate, firstName, text, {
+          message_thread_id: topicThreadId,
+          message_id: messageId,
+          from_user_id: fromUserId
+        });
       } else if (isPrivate && text.length > 0) {
-        handleConversationalAIMessage(chatId, firstName, text);
+        const myShortcut = resolveBurmeseBotShortcut_(text);
+        if (myShortcut) {
+          handleBotCommand_(chatId, true, firstName, myShortcut, {
+            message_thread_id: topicThreadId,
+            message_id: messageId,
+            from_user_id: fromUserId
+          });
+        } else {
+          handleConversationalAIMessage(chatId, firstName, text);
+        }
       }
     }
 

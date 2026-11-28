@@ -737,6 +737,7 @@ test('Test 9: Telegram Group Live Board, Topic Thread, Scoped Menus, In-Place Pr
   const filesToLoad = ['Config.gs', 'Database.gs', 'TelegramIdentity.gs', 'PayrollEngine.gs', 'TelegramBot.gs', 'GeminiAI.gs', 'Code.gs'];
   const sentMessages = [];
   const editedMessages = [];
+  const deletedMessages = [];
   const syncedCommandCalls = [];
   let nextMsgId = 700;
 
@@ -855,7 +856,14 @@ test('Test 9: Telegram Group Live Board, Topic Thread, Scoped Menus, In-Place Pr
           return { getResponseCode: () => 200, getContentText: () => '{"ok":true,"result":{"username":"GBF_HRMS_Bot"}}' };
         }
         if (url.endsWith('/setMyCommands')) syncedCommandCalls.push(body);
+        if (url.endsWith('/deleteMessage')) {
+          deletedMessages.push(body);
+          return { getResponseCode: () => 200, getContentText: () => '{"ok":true,"result":true}' };
+        }
         if (url.endsWith('/sendMessage')) {
+          if (String(body.chat_id) === '403000403') {
+            return { getResponseCode: () => 403, getContentText: () => '{"ok":false,"error_code":403,"description":"Forbidden: bot cannot initiate conversation"}' };
+          }
           nextMsgId++;
           sentMessages.push(body);
           return { getResponseCode: () => 200, getContentText: () => JSON.stringify({ ok: true, result: { message_id: nextMsgId } }) };
@@ -873,10 +881,11 @@ test('Test 9: Telegram Group Live Board, Topic Thread, Scoped Menus, In-Place Pr
   for (const f of filesToLoad) vm.runInContext(fs.readFileSync(path.join(SRC_DIR, f), 'utf8'), context);
   context.logToAudit = () => {};
 
-  // 1. Scoped Slash Menus synced for default, all_private_chats, all_group_chats
+  // 1. Scoped Slash Menus synced for default, all_private_chats, all_group_chats (slim 2-cmd Group menu)
   const syncRes = context.syncBotCommands_();
   assert.equal(syncRes.ok, true);
-  assert.ok(syncedCommandCalls.some(c => c.scope.type === 'all_group_chats' && c.commands.some(x => x.command === 'board') && c.commands.some(x => x.command === 'teams')));
+  const grpScopeCall = syncedCommandCalls.find(c => c.scope.type === 'all_group_chats');
+  assert.ok(grpScopeCall && grpScopeCall.commands.length === 2 && grpScopeCall.commands.some(x => x.command === 'board') && grpScopeCall.commands.some(x => x.command === 'teams'), 'Group menu must stay slim (/board and /teams only)');
   assert.ok(syncedCommandCalls.some(c => c.scope.type === 'all_private_chats' && c.commands.some(x => x.command === 'payslip')));
 
   // 2. Group Attendance defaults to LIVE_EDIT + supports message_thread_id + edits in place on 2nd event
@@ -1027,6 +1036,33 @@ test('Test 9: Telegram Group Live Board, Topic Thread, Scoped Menus, In-Place Pr
     tgTeamsCard.includes('08:50 AM') &&
     (tgTeamsCard.match(/<blockquote>/g) || []).length === (tgTeamsCard.match(/<\/blockquote>/g) || []).length
   );
+
+  // 10. v9.6.3 Zero-Clutter Group Anti-Spam: auto-delete private commands in Group, DM-first silent reply, single-slot fallback
+  const delBefore = deletedMessages.length;
+  const sentBeforeDm = sentMessages.length;
+  context.handleBotCommand_('-1003886390064', false, 'La Min', '/start', { message_id: 901, from_user_id: '6062798917' });
+  assert.ok(deletedMessages.some(d => Number(d.message_id) === 901), 'Group /start command must be auto-deleted');
+  assert.equal(sentMessages.length, sentBeforeDm + 1);
+  assert.equal(String(sentMessages.at(-1).chat_id), '6062798917', 'Reachable user /start in Group must reply silently in Private DM with zero Group clutter');
+
+  // Brand-new user whose DM returns 403 -> deletes /start and replaces ONE single-slot group notice on repeat
+  context.handleBotCommand_('-1003886390064', false, 'Marco', '/start', { message_id: 902, from_user_id: '403000403' });
+  const firstNoticeId = nextMsgId;
+  context.handleBotCommand_('-1003886390064', false, 'Wai Lin', '/link 3016', { message_id: 903, from_user_id: '403000403' });
+  assert.ok(deletedMessages.some(d => Number(d.message_id) === 902), 'First /start must be deleted');
+  assert.ok(deletedMessages.some(d => Number(d.message_id) === 903), 'Public /link PIN in Group must be immediately deleted');
+  assert.ok(deletedMessages.some(d => Number(d.message_id) === firstNoticeId), 'Second group redirect notice must delete previous notice (single-slot anti-clutter)');
+  assert.ok(deletedMessages.length >= delBefore + 4);
+  assert.equal(context.resolveBurmeseBotShortcut_('ရုံးတက်'), '/checkin');
+  assert.equal(context.resolveBurmeseBotShortcut_('လစာ'), '/payslip');
+  assert.equal(context.resolveBurmeseBotShortcut_('ဆုကြေး'), '/mykpi');
+  assert.equal(context.resolveBurmeseBotShortcut_('ကြိုငွေ'), '/wallet');
+  assert.equal(context.resolveBurmeseBotShortcut_('ဒီနေ့ ခွင့်တိုင်ချင်လို့ ဘယ်လိုလုပ်ရမလဲ'), null);
+  const delBeforeOther = deletedMessages.length;
+  const sentBeforeOther = sentMessages.length;
+  assert.equal(context.handleBotCommand_('-1003886390064', false, 'User', '/start@OtherBot', { message_id: 909, from_user_id: '6062798917' }), false);
+  assert.equal(deletedMessages.length, delBeforeOther, 'Must NEVER delete commands addressed to another bot');
+  assert.equal(sentMessages.length, sentBeforeOther, 'Must NEVER reply to commands addressed to another bot');
 });
 
 test('Test 10: Security Session Hardening (Mon–Sat TTL, Zero-Trust doGet/API, PIN Lockout, Anonymous Voice & Pre-Auth Roster)', () => {

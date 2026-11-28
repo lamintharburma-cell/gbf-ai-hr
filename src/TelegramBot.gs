@@ -31,27 +31,25 @@ function formatKpiTierBadge_(kpi, mvpDailyAmt) {
 }
 
 /**
- * 🤖 Authoritative Private Telegram Bot Command List synced via `setMyCommands` (v9.3.0).
+ * 🤖 Authoritative Private Telegram Bot Command List synced via `setMyCommands` (v9.6.3 Burmese-first).
  */
 const GBF_BOT_COMMANDS = [
-  { command: "start", description: "🚀 Open GBF HR Mini App & Signed SSO" },
-  { command: "checkin", description: "📍 ယနေ့ ရုံးတက်အခြေအနေ ကြည့်ရန်" },
-  { command: "mykpi", description: "🏆 MLBB Season Rank & KPI စစ်ဆေးရန်" },
-  { command: "wallet", description: "💳 50% Advance Limit & လက်ကျန်ကြည့်ရန်" },
-  { command: "payslip", description: "🧾 ယခုလ Digital Payslip ကြည့်ရန်" },
-  { command: "askai", description: "🤖 GBF HR-AI နှင့် မေးမြန်းဆွေးနွေးရန်" },
-  { command: "link", description: "🔗 /link <PIN> ဖြင့် Telegram ID ချိတ်ရန်" },
-  { command: "id", description: "🪪 Telegram Chat ID နှင့် ဝန်ထမ်း ID စစ်ရန်" }
+  { command: "start", description: "📱 HR App နှင့် ပင်မစာမျက်နှာ ဖွင့်ရန်" },
+  { command: "checkin", description: "📍 ယနေ့ ရုံးတက်/ရုံးဆင်း အခြေအနေ" },
+  { command: "mykpi", description: "🏆 ကျွန်တော့် အမှတ်နှင့် ဆုကြေးစစ်ရန်" },
+  { command: "wallet", description: "💳 လစာကြိုထုတ်ခွင့် (50%) လက်ကျန်" },
+  { command: "payslip", description: "🧾 ယခုလ လစာစလစ် ကြည့်ရန်" },
+  { command: "askai", description: "🤖 HR-AI နှင့် မေးမြန်းဆွေးနွေးရန်" },
+  { command: "link", description: "🔗 /link <PIN> ဖြင့် ဖုန်းချိတ်ဆက်ရန်" },
+  { command: "id", description: "🪪 ကိုယ်ပိုင် ID စစ်ဆေးရန်" }
 ];
 
 /**
- * 👥 Privacy-safe Telegram Group Slash Menu synced exclusively to `all_group_chats`.
+ * 👥 Privacy-safe, zero-clutter Telegram Group Slash Menu synced exclusively to `all_group_chats`.
  */
 const GBF_GROUP_BOT_COMMANDS = [
-  { command: "board", description: "📊 ယနေ့ Group Attendance Live Board ကြည့်ရန်" },
-  { command: "teams", description: "🛡️ ယနေ့ Field Teams (Alpha/Bravo/Charlie) ကြည့်ရန်" },
-  { command: "checkin", description: "📍 Private Bot မှ Check-In / Status ကြည့်ရန်" },
-  { command: "id", description: "🪪 Group Chat ID စစ်ဆေးရန်" }
+  { command: "board", description: "📊 ယနေ့ ရုံးတက်စာရင်း (Live Board) ကြည့်ရန်" },
+  { command: "teams", description: "🛡️ ယနေ့ ကွင်းဆင်းအဖွဲ့များ ကြည့်ရန်" }
 ];
 
 /**
@@ -273,6 +271,51 @@ function editTelegramHTML_(chatId, messageId, text, kb, opts) {
     return { ok: true, unchanged: true };
   }
   return { ok: false, raw: bodyText };
+}
+
+function deleteTelegramMessage_(chatId, messageId) {
+  if (!chatId || !messageId || !getBotToken()) return false;
+  try {
+    const res = UrlFetchApp.fetch(getTelegramAPI() + "deleteMessage", {
+      method: "post",
+      contentType: "application/json",
+      muteHttpExceptions: true,
+      payload: JSON.stringify({
+        chat_id: chatId,
+        message_id: parseInt(messageId, 10)
+      })
+    });
+    return res.getResponseCode() === 200;
+  } catch (e) {
+    return false;
+  }
+}
+
+function replaceSingleSlotGroupMessage_(groupChatId, propKey, text, kb, threadId) {
+  const props = PropertiesService.getScriptProperties();
+  if (propKey) {
+    const rawSaved = props.getProperty(propKey);
+    if (rawSaved) {
+      try {
+        const parsed = JSON.parse(rawSaved);
+        if (parsed && parsed.messageId && String(parsed.chatId || "") === String(groupChatId)) {
+          deleteTelegramMessage_(groupChatId, parsed.messageId);
+        }
+      } catch (e) {}
+    }
+  }
+  const sent = sendTelegramHTML(groupChatId, text, kb || null, {
+    disable_web_page_preview: true,
+    message_thread_id: threadId
+  });
+  if (propKey && sent && sent.result && sent.result.message_id) {
+    props.setProperty(propKey, JSON.stringify({
+      chatId: String(groupChatId),
+      messageId: String(sent.result.message_id),
+      threadId: threadId ? String(threadId) : ""
+    }));
+  }
+  return sent;
 }
 
 function upsertGroupBoardMessage_(groupChatId, propKey, text, kb, mode, threadId, dateTag) {
@@ -985,11 +1028,11 @@ function buildGroupTeamsKeyboard_(settings) {
   return {
     inline_keyboard: [
       [
-        { text: "📊 Live Board", callback_data: "CMD_GRP_BOARD" },
-        { text: "🔄 Refresh Teams", callback_data: "CMD_GRP_TEAMS" }
+        { text: "📊 ရုံးတက်စာရင်း", callback_data: "CMD_GRP_BOARD" },
+        { text: "🔄 အဖွဲ့စာရင်းပြန်စစ်", callback_data: "CMD_GRP_TEAMS" }
       ],
       [
-        { text: "🤖 Open My Private Portal", url: `https://t.me/${botUsername}?start=portal` }
+        { text: "📱 ကိုယ်ပိုင် HR App ဖွင့်ရန်", url: `https://t.me/${botUsername}?start=portal` }
       ]
     ]
   };
@@ -1115,17 +1158,17 @@ function buildGroupBoardCard_(viewTab, updatedState, settings, latestEvent) {
 
   const rows = [
     [
-      { text: viewTab === "board" ? "🔄 Refresh Board" : "📊 Live Board", callback_data: "CMD_GRP_BOARD" },
-      { text: `${GBF_TG_ICONS.PENDING} Pending (${pendingList.length})`, callback_data: "CMD_GRP_PENDING" },
-      { text: "🛡️ Field Teams", callback_data: "CMD_GRP_TEAMS" }
+      { text: viewTab === "board" ? "🔄 စာရင်းပြန်စစ်" : "📊 ရုံးတက်စာရင်း", callback_data: "CMD_GRP_BOARD" },
+      { text: `${GBF_TG_ICONS.PENDING} မဝင်သေး (${pendingList.length})`, callback_data: "CMD_GRP_PENDING" },
+      { text: "🛡️ ကွင်းဆင်းအဖွဲ့", callback_data: "CMD_GRP_TEAMS" }
     ]
   ];
   const row2 = [];
   if (latestMapUrl) {
-    const labelName = latestEvent && latestEvent.actorName ? `${latestEvent.actorName} Map` : "Latest Map";
+    const labelName = latestEvent && latestEvent.actorName ? `${latestEvent.actorName} Map` : "နောက်ဆုံးတည်နေရာ Map";
     row2.push({ text: `🗺️ ${labelName}`, url: latestMapUrl });
   }
-  row2.push({ text: "🤖 My Private Portal", url: `https://t.me/${botUsername}?start=portal` });
+  row2.push({ text: "📱 ကိုယ်ပိုင် HR App ဖွင့်ရန်", url: `https://t.me/${botUsername}?start=portal` });
   rows.push(row2);
 
   return { text: msg, reply_markup: { inline_keyboard: rows } };
@@ -1210,26 +1253,26 @@ function buildPrivatePortalKeyboard_(chatId, opts) {
     });
   }
 
-  rows.push([{ text: o.miniAppLabel || "🚀 Open GBF HR Mini App", web_app: { url: webAppUrl } }]);
+  rows.push([{ text: o.miniAppLabel || "📱 GBF HR App ဖွင့်ရန် (Check-In/Out)", web_app: { url: webAppUrl } }]);
 
   if (o.includeFullQuickMenu) {
     rows.push([
-      { text: "📍 Attendance", callback_data: "CMD_CHECKIN" },
-      { text: "🏆 My KPI", callback_data: "CMD_MYKPI" }
+      { text: "📍 ယနေ့ရုံးတက်", callback_data: "CMD_CHECKIN" },
+      { text: "🏆 အမှတ် & ဆုကြေး", callback_data: "CMD_MYKPI" }
     ]);
     rows.push([
-      { text: "💳 Wallet (50%)", callback_data: "CMD_WALLET" },
-      { text: "🧾 Payslip", callback_data: "CMD_PAYSLIP" }
+      { text: "💳 လစာကြိုထုတ်ခွင့်", callback_data: "CMD_WALLET" },
+      { text: "🧾 ယခုလ လစာစလစ်", callback_data: "CMD_PAYSLIP" }
     ]);
-    rows.push([{ text: "🤖 Ask HR-AI Guide", callback_data: "CMD_ASKAI" }]);
+    rows.push([{ text: "🤖 HR-AI ကို မေးရန်", callback_data: "CMD_ASKAI" }]);
   } else if (Array.isArray(o.rowButtons) && o.rowButtons.length > 0) {
     rows.push(o.rowButtons);
   }
 
   if (o.includeNavFooter) {
-    const navRow = [{ text: "⬅️ Main Menu", callback_data: "CMD_MAIN_MENU" }];
+    const navRow = [{ text: "🏠 ပင်မစာမျက်နှာ", callback_data: "CMD_MAIN_MENU" }];
     if (o.refreshCallback) {
-      navRow.push({ text: "🔄 Refresh", callback_data: o.refreshCallback });
+      navRow.push({ text: "🔄 ပြန်စစ်ရန်", callback_data: o.refreshCallback });
     }
     rows.push(navRow);
   }
@@ -1306,7 +1349,7 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
     return {
       text: askText,
       reply_markup: buildPrivatePortalKeyboard_(clean, {
-        miniAppLabel: "🚀 Open GBF HR Mini App",
+        miniAppLabel: "📱 GBF HR App ဖွင့်ရန် (Check-In/Out)",
         includeNavFooter: true,
         refreshCallback: "CMD_ASKAI",
         extraRows: [
@@ -1441,13 +1484,13 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
     return {
       text: text,
       reply_markup: buildPrivatePortalKeyboard_(clean, {
-        miniAppLabel: "🚀 Open Check-In / Out in App",
+        miniAppLabel: "📍 App တွင် Check-In / Check-Out နှိပ်ရန်",
         extraTopRow: extraTopRow,
         includeNavFooter: true,
         refreshCallback: "CMD_CHECKIN",
         rowButtons: [
-          { text: "🏆 My KPI", callback_data: "CMD_MYKPI" },
-          { text: "💳 Wallet (50%)", callback_data: "CMD_WALLET" }
+          { text: "🏆 အမှတ် & ဆုကြေး", callback_data: "CMD_MYKPI" },
+          { text: "💳 လစာကြိုထုတ်ခွင့်", callback_data: "CMD_WALLET" }
         ]
       })
     };
@@ -1471,12 +1514,12 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
     return {
       text: text,
       reply_markup: buildPrivatePortalKeyboard_(clean, {
-        miniAppLabel: "🚀 Request Advance in Mini App",
+        miniAppLabel: "💸 App တွင် လစာကြိုထုတ်တောင်းရန်",
         includeNavFooter: true,
         refreshCallback: "CMD_WALLET",
         rowButtons: [
-          { text: "🧾 Payslip", callback_data: "CMD_PAYSLIP" },
-          { text: "🏆 My KPI", callback_data: "CMD_MYKPI" }
+          { text: "🧾 လစာစလစ်", callback_data: "CMD_PAYSLIP" },
+          { text: "🏆 အမှတ် & ဆုကြေး", callback_data: "CMD_MYKPI" }
         ]
       })
     };
@@ -1510,12 +1553,12 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
   return {
     text: text,
     reply_markup: buildPrivatePortalKeyboard_(clean, {
-      miniAppLabel: "🚀 View Full Radar & Quests",
+      miniAppLabel: "🏆 App တွင် အမှတ်နှင့်ဆုကြေး အသေးစိတ်ကြည့်ရန်",
       includeNavFooter: true,
       refreshCallback: "CMD_MYKPI",
       rowButtons: [
-        { text: "📍 Attendance", callback_data: "CMD_CHECKIN" },
-        { text: "🧾 Payslip", callback_data: "CMD_PAYSLIP" }
+        { text: "📍 ယနေ့ရုံးတက်", callback_data: "CMD_CHECKIN" },
+        { text: "🧾 လစာစလစ်", callback_data: "CMD_PAYSLIP" }
       ]
     })
   };
@@ -1591,21 +1634,67 @@ function handlePortalMenuCallback_(cb) {
   sendTelegramHTML(chatId, card.text, card.reply_markup);
 }
 
+function resolveBurmeseBotShortcut_(rawText) {
+  const t = String(rawText || "").trim();
+  if (!t || t.length > 28) return null;
+  if (/^(စမယ်|ပင်မ|မင်္ဂလာပါ|menu|app)$/i.test(t)) return "/start";
+  if (/^(ရုံးတက်|ရုံးဆင်း|တက်ရောက်|check\s*in|check\s*out)$/i.test(t)) return "/checkin";
+  if (/^(ဆုကြေး|အမှတ်|အဆင့်|kpi)$/i.test(t)) return "/mykpi";
+  if (/^(ကြိုငွေ|ကြိုထုတ်|လစာကြိုထုတ်|wallet)$/i.test(t)) return "/wallet";
+  if (/^(လစာ|လစာစလစ်|စလစ်|payslip)$/i.test(t)) return "/payslip";
+  if (/^(စာရင်း|ရုံးတက်စာရင်း)$/i.test(t)) return "/board";
+  if (/^(အဖွဲ့|ကွင်းဆင်းအဖွဲ့)$/i.test(t)) return "/teams";
+  if (/^(အကူအညီ|မေးမယ်|help)$/i.test(t)) return "/askai";
+  return null;
+}
+
 /**
  * 🧭 Unified Telegram "/" Command Router supporting `/cmd`, `/cmd@BotName`, Group `/board` & `/teams`, and `/start <tab>` deep links.
  */
 function handleBotCommand_(chatId, isPrivate, firstName, rawText, opts) {
-  const match = String(rawText || "").trim().match(/^\/([a-z0-9_]+)(?:@[a-z0-9_]+)?(?:\s+([\s\S]*))?$/i);
+  const match = String(rawText || "").trim().match(/^\/([a-z0-9_]+)(?:@([a-z0-9_]+))?(?:\s+([\s\S]*))?$/i);
   if (!match) return false;
   const cmd = match[1].toLowerCase();
-  const arg = String(match[2] || "").trim();
+  const mentionedBot = String(match[2] || "").trim().toLowerCase();
+  const arg = String(match[3] || "").trim();
   const botUsername = getBotUsername_();
+  if (mentionedBot && botUsername && mentionedBot !== botUsername.toLowerCase()) return false;
   const topicThreadId = (opts && opts.message_thread_id) ? parseThreadId_(opts.message_thread_id) : null;
+  const incomingMsgId = (opts && opts.message_id) ? parseInt(opts.message_id, 10) : null;
+  const fromUserId = (opts && opts.from_user_id) ? sanitizeTelegramChatId_(opts.from_user_id) : "";
   const groupReplyOpts = isPrivate ? {} : { message_thread_id: topicThreadId };
+
+  const redirectGroupCmdToPrivate_ = (deepLinkSlug, cardKey, compactNotice, btnLabel) => {
+    if (incomingMsgId) deleteTelegramMessage_(chatId, incomingMsgId);
+    if (fromUserId) {
+      let dmPayload = null;
+      if (cardKey === "LINK_WARN") {
+        dmPayload = {
+          text: "🔐 လုံခြုံရေးအရ Group ထဲတွင် <code>/link PIN</code> မရိုက်ပါနှင့် — ဤ Private Bot Chat ထဲတွင်သာ <code>/link PIN</code> ဖြင့် ချိတ်ဆက်ပါ။",
+          reply_markup: buildPrivatePortalKeyboard_(fromUserId, { includeFullQuickMenu: true })
+        };
+      } else if (cardKey) {
+        dmPayload = buildBotPortalCard_(cardKey, fromUserId, { firstName: firstName });
+      }
+      if (dmPayload) {
+        const dmRes = sendTelegramHTML(fromUserId, dmPayload.text, dmPayload.reply_markup);
+        if (dmRes && dmRes.ok) return true;
+      }
+    }
+    replaceSingleSlotGroupMessage_(
+      chatId,
+      "GRP_PRIVATE_REDIRECT_MSG",
+      compactNotice,
+      { inline_keyboard: [[{ text: btnLabel, url: `https://t.me/${botUsername}?start=${deepLinkSlug}` }]] },
+      topicThreadId
+    );
+    return true;
+  };
 
   if (cmd === "board" || cmd === "teams") {
     const settings = getSettings();
     if (!isAuthorizedForGroupView_(chatId, isPrivate, settings)) {
+      if (!isPrivate && incomingMsgId) deleteTelegramMessage_(chatId, incomingMsgId);
       sendTelegramHTML(
         chatId,
         isPrivate
@@ -1619,18 +1708,29 @@ function handleBotCommand_(chatId, isPrivate, firstName, rawText, opts) {
     const currentMonth = Utilities.formatDate(new Date(), GBF_CONFIG.GMT_OFFSET, "yyyy-MM");
     const st = getFullSystemState("__GROUP_VIEWER__", "GroupViewer", null, currentMonth);
     const card = buildGroupBoardCard_(cmd === "teams" ? "teams" : "board", st, settings, null);
-    sendTelegramHTML(chatId, card.text, card.reply_markup, {
-      message_thread_id: isPrivate ? null : (topicThreadId || resolveGroupThreadId_(chatId, settings))
-    });
+    if (!isPrivate) {
+      if (incomingMsgId) deleteTelegramMessage_(chatId, incomingMsgId);
+      replaceSingleSlotGroupMessage_(
+        chatId,
+        cmd === "teams" ? "GRP_CMD_TEAMS_MSG" : "GRP_CMD_BOARD_MSG",
+        card.text,
+        card.reply_markup,
+        topicThreadId || resolveGroupThreadId_(chatId, settings)
+      );
+    } else {
+      sendTelegramHTML(chatId, card.text, card.reply_markup);
+    }
     return true;
   }
 
   if (cmd === "start" || cmd === "app") {
     if (!isPrivate) {
-      sendTelegramHTML(chatId, `🏢 <b>G.B.F. Enterprise HR &amp; AI Management</b>\n\nMini App နှင့် ကိုယ်ပိုင် HR Portal ဖွင့်ရန် အောက်ပါခလုတ်ဖြင့် Bot Private Chat သို့ ဝင်ရောက်ပါ။`, {
-        inline_keyboard: [[{ text: "🚀 Open Private HR Bot", url: `https://t.me/${botUsername}?start=portal` }]]
-      }, groupReplyOpts);
-      return true;
+      return redirectGroupCmdToPrivate_(
+        "portal",
+        "START",
+        `🤖 <b>${escapeHtmlText_(firstName)}</b> — Mini App နှင့် ကိုယ်ပိုင် HR Portal ကို အောက်ပါခလုတ်မှ Private Bot ထဲတွင် ဖွင့်ပါ (Group ထဲတွင် <code>/start</code> ရိုက်ရန်မလိုပါ)။`,
+        "🤖 HR Bot ကိုယ်ပိုင်စာမျက်နှာ ဖွင့်ရန်"
+      );
     }
     const webAppUrl = buildSignedMiniAppUrl_(chatId);
     setPersonalMenuButton_(chatId, webAppUrl);
@@ -1650,10 +1750,12 @@ function handleBotCommand_(chatId, isPrivate, firstName, rawText, opts) {
 
   if (cmd === "link") {
     if (!isPrivate) {
-      sendTelegramHTML(chatId, "🔐 လုံခြုံရေးအရ <code>/link PIN</code> ကို Bot Private Chat တွင်သာ ပေးပို့ပါ။", {
-        inline_keyboard: [[{ text: "🔗 Link in Private Bot", url: `https://t.me/${botUsername}?start=portal` }]]
-      }, groupReplyOpts);
-      return true;
+      return redirectGroupCmdToPrivate_(
+        "portal",
+        "LINK_WARN",
+        `🔐 <b>${escapeHtmlText_(firstName)}</b> — လုံခြုံရေးအရ <code>/link PIN</code> ကို Bot Private Chat တွင်သာ ပေးပို့ပါ။`,
+        "🔗 Bot ထဲတွင် PIN ချိတ်ရန်"
+      );
     }
     const linkRes = linkTelegramChatByPin_(chatId, arg);
     if (linkRes.ok) {
@@ -1670,24 +1772,37 @@ function handleBotCommand_(chatId, isPrivate, firstName, rawText, opts) {
     const empLine = emp
       ? `\n👤 <b>Linked Employee:</b> ${escapeHtmlText_(emp.name)} (<code>${escapeHtmlText_(emp.empId)}</code> • ${escapeHtmlText_(emp.role)}) ✅`
       : (isPrivate ? `\n🔗 <b>Link Status:</b> မချိတ်ဆက်ရသေးပါ (<code>/link PIN</code> ဖြင့် ချိတ်ဆက်နိုင်ပါသည်)` : "");
-    sendTelegramHTML(
-      chatId,
-      `🆔 ဤ Chat ၏ Telegram Chat ID မှာ: <code>${chatId}</code> ဖြစ်ပါသည်။${empLine}\n\n— <b>GBF HR AI Management Team</b>`,
-      isPrivate ? buildPrivatePortalKeyboard_(chatId, {
-        rowButtons: [{ text: "📍 Attendance", callback_data: "CMD_CHECKIN" }, { text: "🏆 My KPI", callback_data: "CMD_MYKPI" }]
-      }) : { inline_keyboard: [[{ text: "🤖 Open Private HR Bot", url: `https://t.me/${botUsername}?start=portal` }]] },
-      groupReplyOpts
-    );
+    const idText = `🆔 ဤ Chat ၏ Telegram Chat ID မှာ: <code>${chatId}</code> ဖြစ်ပါသည်။${empLine}\n\n— <b>GBF HR AI Management Team</b>`;
+    if (!isPrivate) {
+      if (incomingMsgId) deleteTelegramMessage_(chatId, incomingMsgId);
+      replaceSingleSlotGroupMessage_(
+        chatId,
+        "GRP_CMD_ID_MSG",
+        idText,
+        { inline_keyboard: [[{ text: "🤖 Open Private HR Bot", url: `https://t.me/${botUsername}?start=portal` }]] },
+        topicThreadId
+      );
+    } else {
+      sendTelegramHTML(
+        chatId,
+        idText,
+        buildPrivatePortalKeyboard_(chatId, {
+          rowButtons: [{ text: "📍 Attendance", callback_data: "CMD_CHECKIN" }, { text: "🏆 My KPI", callback_data: "CMD_MYKPI" }]
+        })
+      );
+    }
     return true;
   }
 
   const portalCmdMap = { checkin: "CHECKIN", mykpi: "MYKPI", wallet: "WALLET", payslip: "PAYSLIP" };
   if (portalCmdMap[cmd]) {
     if (!isPrivate) {
-      sendTelegramHTML(chatId, `🔐 ကိုယ်ပိုင် HR အချက်အလက်များ ကြည့်ရှုရန် Bot Private Chat ထဲတွင် <code>/${cmd}</code> ကို အသုံးပြုပါ (သို့) အောက်ပါခလုတ်ကို နှိပ်ပါ။`, {
-        inline_keyboard: [[{ text: `🚀 Private Bot တွင် /${cmd} ကြည့်ရန်`, url: `https://t.me/${botUsername}?start=${cmd}` }]]
-      }, groupReplyOpts);
-      return true;
+      return redirectGroupCmdToPrivate_(
+        cmd,
+        portalCmdMap[cmd],
+        `🔐 <b>${escapeHtmlText_(firstName)}</b> — ကိုယ်ပိုင် HR အချက်အလက်များကို Private Bot တွင်သာ ကြည့်ရှုနိုင်ပါသည်။`,
+        `🚀 Private Bot တွင် /${cmd} ကြည့်ရန်`
+      );
     }
     const card = buildBotPortalCard_(portalCmdMap[cmd], chatId, { firstName: firstName });
     sendTelegramHTML(chatId, card.text, card.reply_markup);
@@ -1696,10 +1811,12 @@ function handleBotCommand_(chatId, isPrivate, firstName, rawText, opts) {
 
   if (cmd === "askai") {
     if (!isPrivate) {
-      sendTelegramHTML(chatId, `🤖 HR-AI နှင့် မေးမြန်းဆွေးနွေးရန် Private Bot Chat ထဲသို့ ဝင်ရောက်ပါ။`, {
-        inline_keyboard: [[{ text: "🤖 Open HR-AI in Private Bot", url: `https://t.me/${botUsername}?start=askai` }]]
-      }, groupReplyOpts);
-      return true;
+      return redirectGroupCmdToPrivate_(
+        "askai",
+        "ASKAI",
+        `🤖 <b>${escapeHtmlText_(firstName)}</b> — HR-AI နှင့် မေးမြန်းဆွေးနွေးရန် Private Bot Chat ထဲသို့ ဝင်ရောက်ပါ။`,
+        "🤖 HR-AI ကို Bot ထဲတွင် မေးရန်"
+      );
     }
     if (arg.length > 0) {
       handleConversationalAIMessage(chatId, firstName, arg);
