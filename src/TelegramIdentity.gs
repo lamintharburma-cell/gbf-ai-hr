@@ -353,7 +353,7 @@ function setPersonalMenuButton_(chatId, appUrl) {
       muteHttpExceptions: true,
       payload: JSON.stringify({
         chat_id: Number(clean),
-        menu_button: { type: "web_app", text: "GBF HR App", web_app: { url: appUrl } }
+        menu_button: { type: "web_app", text: "📱 HR ဖွင့်ရန်", web_app: { url: appUrl } }
       })
     });
     if (res.getResponseCode() !== 200) {

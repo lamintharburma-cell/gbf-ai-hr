@@ -1054,6 +1054,12 @@ test('Test 9: Telegram Group Live Board, Topic Thread, Scoped Menus, In-Place Pr
   assert.ok(deletedMessages.some(d => Number(d.message_id) === firstNoticeId), 'Second group redirect notice must delete previous notice (single-slot anti-clutter)');
   assert.ok(deletedMessages.length >= delBefore + 4);
   assert.equal(context.resolveBurmeseBotShortcut_('ရုံးတက်'), '/checkin');
+  assert.equal(context.resolveBurmeseBotShortcut_('📍 ယနေ့ရုံးတက်'), '/checkin');
+  assert.equal(context.resolveBurmeseBotShortcut_('🏆 အမှတ် & ဆုကြေး'), '/mykpi');
+  assert.equal(context.resolveBurmeseBotShortcut_('💳 လစာကြိုထုတ်ခွင့်'), '/wallet');
+  assert.equal(context.resolveBurmeseBotShortcut_('🧾 ယခုလ လစာစလစ်'), '/payslip');
+  assert.equal(context.resolveBurmeseBotShortcut_('🤖 HR-AI ကို မေးရန်'), '/askai');
+  assert.equal(context.resolveBurmeseBotShortcut_('🏠 ပင်မစာမျက်နှာ'), '/start');
   assert.equal(context.resolveBurmeseBotShortcut_('လစာ'), '/payslip');
   assert.equal(context.resolveBurmeseBotShortcut_('ဆုကြေး'), '/mykpi');
   assert.equal(context.resolveBurmeseBotShortcut_('ကြိုငွေ'), '/wallet');

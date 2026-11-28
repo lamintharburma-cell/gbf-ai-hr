@@ -74,11 +74,13 @@ function syncBotCommands_() {
     const defRes = pushScope(GBF_BOT_COMMANDS, { type: "default" });
     const privRes = pushScope(GBF_BOT_COMMANDS, { type: "all_private_chats" });
     const grpRes = pushScope(GBF_GROUP_BOT_COMMANDS, { type: "all_group_chats" });
+    const admRes = pushScope(GBF_GROUP_BOT_COMMANDS, { type: "all_chat_administrators" });
     return {
-      ok: Boolean(defRes && defRes.ok && privRes && privRes.ok && grpRes && grpRes.ok),
+      ok: Boolean(defRes && defRes.ok && privRes && privRes.ok && grpRes && grpRes.ok && admRes && admRes.ok),
       defaultScope: defRes,
       privateScope: privRes,
-      groupScope: grpRes
+      groupScope: grpRes,
+      adminScope: admRes
     };
   } catch (e) {
     Logger.log("setMyCommands Exception: " + e.message);
@@ -729,7 +731,7 @@ function handleCallbackQuery(cb) {
             ? `🤝 သင်၏ HR-AI ဆွေးနွေးတင်ပြချက် (<code>${escapeHtmlText_(ticketCode)}</code>) ကို <b>${escapeHtmlText_(approverName)}</b> မှ လက်ခံရရှိပြီး ညှိနှိုင်းဆောင်ရွက်ပေးနေပါသည်။`
             : `📅 သင်၏ တင်ပြချက် (<code>${escapeHtmlText_(ticketCode)}</code>) အတွက် <b>${escapeHtmlText_(approverName)}</b> မှ ရုံးခန်းတွင် တွေ့ဆုံဆွေးနွေးရန် ချိန်းဆိုထားပါသည်။`;
           const kb = buildPrivatePortalKeyboard_(empChatId, {
-            rowButtons: [{ text: "🤖 Ask HR-AI Guide", callback_data: "CMD_ASKAI" }]
+            rowButtons: [{ text: "🤖 HR-AI ကို မေးရန်", callback_data: "CMD_ASKAI" }]
           });
           sendTelegramHTML(empChatId, `${msg}\n\n— <b>GBF HR AI Management Team</b>`, kb);
         }
@@ -800,8 +802,8 @@ function handleCallbackQuery(cb) {
             `🧑‍💼 <b>ဆုံးဖြတ်သူ:</b> ${escapeHtmlText_(approverName)}</blockquote>${declineNote}\n\n` +
             `— <b>GBF HR AI Management Team</b>`;
         const rowButtons = type === "LV"
-          ? [{ text: "📍 Attendance", callback_data: "CMD_CHECKIN" }, { text: "🏆 My KPI", callback_data: "CMD_MYKPI" }]
-          : [{ text: "💳 My Wallet", callback_data: "CMD_WALLET" }, { text: "🧾 Payslip", callback_data: "CMD_PAYSLIP" }];
+          ? [{ text: "📍 ယနေ့ရုံးတက်", callback_data: "CMD_CHECKIN" }, { text: "🏆 အမှတ် & ဆုကြေး", callback_data: "CMD_MYKPI" }]
+          : [{ text: "💳 လစာကြိုထုတ်ခွင့်", callback_data: "CMD_WALLET" }, { text: "🧾 လစာစလစ်", callback_data: "CMD_PAYSLIP" }];
         sendTelegramHTML(empContact.chatId, empNotification, buildPrivatePortalKeyboard_(empContact.chatId, { rowButtons: rowButtons }));
       }
       logToAudit("HR_APPROVAL", targetEmpId, approverName, `${decision} ${sheetName} Row ${row}`);
@@ -1303,7 +1305,7 @@ function buildUnlinkedAccountReply_(chatId) {
   return {
     text: msg,
     reply_markup: buildPrivatePortalKeyboard_(chatId, {
-      rowButtons: [{ text: "🤖 Ask HR-AI Guide", callback_data: "CMD_ASKAI" }]
+      rowButtons: [{ text: "🤖 HR-AI ကို မေးရန်", callback_data: "CMD_ASKAI" }]
     })
   };
 }
@@ -1419,12 +1421,12 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
     return {
       text: text,
       reply_markup: buildPrivatePortalKeyboard_(clean, {
-        miniAppLabel: "🚀 PDF Print / Drive Save in App",
+        miniAppLabel: "🖨️ App တွင် PDF ထုတ် / သိမ်းရန်",
         includeNavFooter: true,
         refreshCallback: "CMD_PAYSLIP",
         rowButtons: [
-          { text: "💳 Wallet (50%)", callback_data: "CMD_WALLET" },
-          { text: "🏆 My KPI", callback_data: "CMD_MYKPI" }
+          { text: "💳 လစာကြိုထုတ်ခွင့်", callback_data: "CMD_WALLET" },
+          { text: "🏆 အမှတ် & ဆုကြေး", callback_data: "CMD_MYKPI" }
         ]
       })
     };
@@ -1453,8 +1455,8 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
         includeNavFooter: true,
         refreshCallback: "CMD_ASKQ_EARN",
         rowButtons: [
-          { text: "🧾 Full Payslip", callback_data: "CMD_PAYSLIP" },
-          { text: "💳 50% Wallet", callback_data: "CMD_WALLET" }
+          { text: "🧾 ယခုလ လစာစလစ်", callback_data: "CMD_PAYSLIP" },
+          { text: "💳 လစာကြိုထုတ်ခွင့်", callback_data: "CMD_WALLET" }
         ]
       })
     };
@@ -1479,7 +1481,7 @@ function buildBotPortalCard_(actionKey, chatId, opts) {
       `👥 <b>ယနေ့ ရုံးတက်သူ:</b> ${state.system.today_active} / ${state.system.total_emp} ဦး</blockquote>\n` +
       `👇 Check-In / Check-Out (GPS 500m) ပြုလုပ်ရန် Mini App ကို ဖွင့်ပါ-`;
     const extraTopRow = (myToday && myToday.map_url)
-      ? [{ text: "🗺️ Today Check-In Map", url: myToday.map_url }]
+      ? [{ text: "🗺️ ယနေ့ Check-In တည်နေရာ Map", url: myToday.map_url }]
       : null;
     return {
       text: text,
@@ -1634,17 +1636,35 @@ function handlePortalMenuCallback_(cb) {
   sendTelegramHTML(chatId, card.text, card.reply_markup);
 }
 
+function buildBurmeseReplyKeyboard_(chatId) {
+  const clean = sanitizeTelegramChatId_(chatId);
+  if (!clean) return null;
+  const webAppUrl = buildSignedMiniAppUrl_(clean);
+  return {
+    keyboard: [
+      [{ text: "📱 GBF HR App ဖွင့်ရန်", web_app: { url: webAppUrl } }],
+      [{ text: "📍 ယနေ့ရုံးတက်" }, { text: "🏆 အမှတ် & ဆုကြေး" }],
+      [{ text: "💳 လစာကြိုထုတ်ခွင့်" }, { text: "🧾 ယခုလ လစာစလစ်" }],
+      [{ text: "🤖 HR-AI ကို မေးရန်" }, { text: "🏠 ပင်မစာမျက်နှာ" }]
+    ],
+    resize_keyboard: true,
+    is_persistent: true
+  };
+}
+
 function resolveBurmeseBotShortcut_(rawText) {
-  const t = String(rawText || "").trim();
-  if (!t || t.length > 28) return null;
-  if (/^(စမယ်|ပင်မ|မင်္ဂလာပါ|menu|app)$/i.test(t)) return "/start";
-  if (/^(ရုံးတက်|ရုံးဆင်း|တက်ရောက်|check\s*in|check\s*out)$/i.test(t)) return "/checkin";
-  if (/^(ဆုကြေး|အမှတ်|အဆင့်|kpi)$/i.test(t)) return "/mykpi";
-  if (/^(ကြိုငွေ|ကြိုထုတ်|လစာကြိုထုတ်|wallet)$/i.test(t)) return "/wallet";
-  if (/^(လစာ|လစာစလစ်|စလစ်|payslip)$/i.test(t)) return "/payslip";
+  const raw = String(rawText || "").trim();
+  if (!raw || raw.length > 42) return null;
+  const t = raw.replace(/^[\u{1F300}-\u{1FAFF}\u2600-\u27BF\uFE0F\s]+/gu, "").trim();
+  if (!t) return null;
+  if (/^(စမယ်|ပင်မ|ပင်မစာမျက်နှာ|မင်္ဂလာပါ|menu|app)$/i.test(t)) return "/start";
+  if (/^(ရုံးတက်|ယနေ့ရုံးတက်|ရုံးဆင်း|တက်ရောက်|check\s*in|check\s*out)$/i.test(t)) return "/checkin";
+  if (/^(ဆုကြေး|အမှတ်|အမှတ်\s*&\s*ဆုကြေး|အဆင့်|kpi)$/i.test(t)) return "/mykpi";
+  if (/^(ကြိုငွေ|ကြိုထုတ်|လစာကြိုထုတ်|လစာကြိုထုတ်ခွင့်|wallet)$/i.test(t)) return "/wallet";
+  if (/^(လစာ|လစာစလစ်|ယခုလ\s*လစာစလစ်|စလစ်|payslip)$/i.test(t)) return "/payslip";
   if (/^(စာရင်း|ရုံးတက်စာရင်း)$/i.test(t)) return "/board";
   if (/^(အဖွဲ့|ကွင်းဆင်းအဖွဲ့)$/i.test(t)) return "/teams";
-  if (/^(အကူအညီ|မေးမယ်|help)$/i.test(t)) return "/askai";
+  if (/^(အကူအညီ|မေးမယ်|HR-AI\s*ကို\s*မေးရန်|help)$/i.test(t)) return "/askai";
   return null;
 }
 
@@ -1743,6 +1763,10 @@ function handleBotCommand_(chatId, isPrivate, firstName, rawText, opts) {
       return true;
     }
 
+    const replyKb = buildBurmeseReplyKeyboard_(chatId);
+    if (replyKb) {
+      sendTelegramHTML(chatId, "📱 <b>မြန်မာဘာသာ အမြန်ခလုတ်များ အဆင်သင့်ဖြစ်ပါပြီ</b> 👇", replyKb);
+    }
     const startCard = buildBotPortalCard_("START", chatId, { firstName: firstName });
     sendTelegramHTML(chatId, startCard.text, startCard.reply_markup);
     return true;
@@ -1882,8 +1906,8 @@ function notifyPerformerAttendance_(data, kpiStatus, distanceMeters, locStatus, 
     const kb = buildPrivatePortalKeyboard_(chatId, {
       extraTopRow: extraTopRow,
       rowButtons: [
-        { text: "🏆 My KPI", callback_data: "CMD_MYKPI" },
-        { text: "📍 Today Status", callback_data: "CMD_CHECKIN" }
+        { text: "🏆 အမှတ် & ဆုကြေး", callback_data: "CMD_MYKPI" },
+        { text: "📍 ယနေ့ရုံးတက်", callback_data: "CMD_CHECKIN" }
       ]
     });
     sendTelegramHTML(chatId, msg, kb);
@@ -1906,8 +1930,8 @@ function notifyPerformerLeaveSubmitted_(data, leaveType, fStart, fEnd, aiRiskAdv
       `— <b>GBF HR AI Management Team</b>`;
     const kb = buildPrivatePortalKeyboard_(chatId, {
       rowButtons: [
-        { text: "📍 Attendance", callback_data: "CMD_CHECKIN" },
-        { text: "🏆 My KPI", callback_data: "CMD_MYKPI" }
+        { text: "📍 ယနေ့ရုံးတက်", callback_data: "CMD_CHECKIN" },
+        { text: "🏆 အမှတ် & ဆုကြေး", callback_data: "CMD_MYKPI" }
       ]
     });
     sendTelegramHTML(chatId, msg, kb);
@@ -1930,8 +1954,8 @@ function notifyPerformerAdvanceSubmitted_(data, reqAmt, remainingAfter, aiRiskAd
       `— <b>GBF HR AI Management Team</b>`;
     const kb = buildPrivatePortalKeyboard_(chatId, {
       rowButtons: [
-        { text: "💳 My Wallet", callback_data: "CMD_WALLET" },
-        { text: "🧾 Payslip", callback_data: "CMD_PAYSLIP" }
+        { text: "💳 လစာကြိုထုတ်ခွင့်", callback_data: "CMD_WALLET" },
+        { text: "🧾 လစာစလစ်", callback_data: "CMD_PAYSLIP" }
       ]
     });
     sendTelegramHTML(chatId, msg, kb);
@@ -1952,7 +1976,7 @@ function notifyPerformerVoiceSubmitted_(data, ticketId, aiAnalysis, isAnon, trus
       `🤖 <b>HR-AI Response:</b> ${formatAiToTelegramHtml(aiAnalysis.reply)}${anonNote}</blockquote>\n` +
       `— <b>GBF HR AI Management Team</b>`;
     const kb = buildPrivatePortalKeyboard_(chatId, {
-      rowButtons: [{ text: "🤖 Ask HR-AI Guide", callback_data: "CMD_ASKAI" }]
+      rowButtons: [{ text: "🤖 HR-AI ကို မေးရန်", callback_data: "CMD_ASKAI" }]
     });
     sendTelegramHTML(chatId, msg, kb);
   } catch (e) {
